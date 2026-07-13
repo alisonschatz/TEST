@@ -12,11 +12,11 @@ http:
     type: json
     data: |-
       {
-        "empresa_id": 900002,
+        "empresa_id": null,
         "v_funcionario_contribuinte_id": null,
         "id_admissao_preliminar": null,
         "v_id_admissao_preliminar": null,
-        "tipo": "funcionario",
+        "tipo": null,
         "situacao": null,
         "cadastro_ativo": true,
         "nome": null,
