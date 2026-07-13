@@ -7,10 +7,10 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/api/v1/funcionario/completa?empresa_id=900002"
+  url: "{{baseUrl}}/api/v1/funcionario/completa?empresa_id="
   params:
     - name: empresa_id
-      value: "900002"
+      value: ""
       type: query
       description: ID da empresa vinculada ao usuário
     - name: tipo
@@ -87,7 +87,7 @@ http:
          * Exemplo: informando `2026-03-25`, serão retornados todos os registros alterados no dia 25/03/2026 ou depois.
       disabled: true
     - name: funcionario_contribuinte_id
-      value: "32845972"
+      value: ""
       type: query
       description: Filtrar pelo ID do registro de funcionário/contribuinte
       disabled: true
