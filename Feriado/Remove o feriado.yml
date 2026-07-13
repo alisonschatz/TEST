@@ -1,0 +1,141 @@
+info:
+  name: Remove o feriado
+  type: http
+  seq: 4
+  tags:
+    - Feriado
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/v1/feriados"
+  body:
+    type: json
+    data: |-
+      {
+        "empresa_id": 900001,
+        "data": "2046-01-29"
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Exclusão realizada com sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/feriados"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "data": "2046-01-29"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Registro apagado com sucesso",
+            "retorno": []
+          }
+  - name: 401 Response
+    description: Erro autenticação
+    request:
+      url: "{{baseUrl}}/api/v1/feriados"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "data": "2046-01-29"
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Erro de permissão
+    request:
+      url: "{{baseUrl}}/api/v1/feriados"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "data": "2046-01-29"
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Erro de validação
+    request:
+      url: "{{baseUrl}}/api/v1/feriados"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "data": "2046-01-29"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Remove um feriado do sistema com base na data e empresa. Esta ação é definitiva e não pode ser desfeita. Recomenda-se verificar se o feriado não está vinculado a regras de jornada ou agendamento antes da exclusão.

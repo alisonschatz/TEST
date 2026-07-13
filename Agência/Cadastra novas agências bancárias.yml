@@ -1,0 +1,348 @@
+info:
+  name: Cadastra novas agências bancárias
+  type: http
+  seq: 2
+  tags:
+    - Agência
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/agencia"
+  headers:
+    - name: Authorization
+      value: Bearer {{token_atual}}
+  body:
+    type: json
+    data: |-
+      {
+        "dados": [
+          {
+            "v_agencia_id": 21000,
+            "banco_id": 102372,
+            "nome_agencia": "Agência Central",
+            "numero_agencia": "100",
+            "digito": "5",
+            "endereco_cidade_id": 4200804,
+            "endereco_cep": "89036770",
+            "endereco_logradouro_id": 1,
+            "endereco": "Rua das Flores",
+            "endereco_numero": 1278,
+            "endereco_complemento": "teste",
+            "endereco_bairro": "Centro",
+            "telefone": "(48) 3333-0000",
+            "celular": "(48) 3333-0000",
+            "email": "agencia@email.com"
+          }
+        ]
+      }
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        const perfil_escolhido = 2; 
+        // ==============================================================
+        // 1 = Perfil 1 - Unico Cliente
+        // 2 = Perfil 2 - Unico ADM
+        // 3 = Perfil 3 - Practice Cliente
+        // 4 = Perfil 4 - Practice ADM
+        // 5 = Perfil 5 - Parceiro Cliente Unico
+        // 6 = Perfil 6 - Parceiro ADM Unico
+        // 7 = Perfil 7 - Parceiro Cliente Practice
+        // 8 = Perfil 8 - Parceiro ADM Practice
+        // ===============================================================
+
+        // Carrega os perfis
+        let perfis = bru.getEnvVar("perfis");
+
+        if (typeof perfis === "string") {
+          perfis = JSON.parse(perfis);
+        }
+
+        // Pega o perfil
+        let perfilDaVez = perfis[perfil_escolhido - 1];
+
+        if (!perfilDaVez) {
+          console.error(`Erro: O perfil número ${perfil_escolhido} não existe! Escolha de 1 a 8.`);
+          return;
+        }
+
+        console.log(`>>> Executando requisição com: ${perfilDaVez.nome}`);
+
+        // Requisição login
+        const axios = require('axios');
+        const credenciaisBase64 = btoa(`${perfilDaVez.user}:${perfilDaVez.pass}`);
+
+        try {
+          const resposta = await axios.post('https://api-auth-hml.sci.com.br/api/v1/auth/credencial/login', {}, {
+            headers: {
+              'Authorization': `Basic ${credenciaisBase64}`
+            }
+          });
+
+          if (resposta.data && resposta.data.token) {
+            // Atualiza a variável que o Header "Authorization" está lendo
+            bru.setVar("token_atual", resposta.data.token);
+          }
+        } catch (error) {
+          console.error("Erro ao autenticar perfil automaticamente:", error.message);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 201 Response
+    description: Agências bancárias cadastradas com sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/agencia"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "v_agencia_id": 1,
+                "banco_cadastro_id": 5,
+                "nome_agencia": "Agência Central",
+                "numero_agencia": "0001",
+                "digito": "1",
+                "endereco_cidade_id": 4200804,
+                "endereco_cep": "88015-000",
+                "endereco_logradouro_id": 1,
+                "endereco": "Rua das Flores",
+                "endereco_numero": 123,
+                "endereco_complemento": "Sala 01",
+                "endereco_bairro": "Centro",
+                "telefone": "(48) 3333-0000",
+                "celular": "(48) 99999-0000",
+                "email": "agencia@email.com"
+              }
+            ]
+          }
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 201,
+            "mensagem": "Operação realizada com sucesso",
+            "retorno": [
+              {
+                "cliente_id": 1234,
+                "v_agencia_id": 1,
+                "banco_cadastro_id": 5,
+                "nome_agencia": "Agência Central",
+                "numero_agencia": "0001",
+                "digito": "1",
+                "endereco_cidade_id": 4200804,
+                "endereco_cep": "88015-000",
+                "endereco_logradouro_id": 1,
+                "endereco": "Rua das Flores",
+                "endereco_numero": 123,
+                "endereco_complemento": "Sala 01",
+                "endereco_bairro": "Centro",
+                "telefone": "(48) 3333-0000",
+                "celular": "(48) 99999-0000",
+                "email": "agencia@email.com",
+                "log_cadastro_data": "2026-05-14 10:00:00",
+                "log_alterado_data": "2026-05-14 12:00:00"
+              }
+            ]
+          }
+  - name: 401 Response
+    description: Erro de autenticação
+    request:
+      url: "{{baseUrl}}/api/v1/agencia"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "v_agencia_id": 1,
+                "banco_cadastro_id": 5,
+                "nome_agencia": "Agência Central",
+                "numero_agencia": "0001",
+                "digito": "1",
+                "endereco_cidade_id": 4200804,
+                "endereco_cep": "88015-000",
+                "endereco_logradouro_id": 1,
+                "endereco": "Rua das Flores",
+                "endereco_numero": 123,
+                "endereco_complemento": "Sala 01",
+                "endereco_bairro": "Centro",
+                "telefone": "(48) 3333-0000",
+                "celular": "(48) 99999-0000",
+                "email": "agencia@email.com"
+              }
+            ]
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Erro de permissão
+    request:
+      url: "{{baseUrl}}/api/v1/agencia"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "v_agencia_id": 1,
+                "banco_cadastro_id": 5,
+                "nome_agencia": "Agência Central",
+                "numero_agencia": "0001",
+                "digito": "1",
+                "endereco_cidade_id": 4200804,
+                "endereco_cep": "88015-000",
+                "endereco_logradouro_id": 1,
+                "endereco": "Rua das Flores",
+                "endereco_numero": 123,
+                "endereco_complemento": "Sala 01",
+                "endereco_bairro": "Centro",
+                "telefone": "(48) 3333-0000",
+                "celular": "(48) 99999-0000",
+                "email": "agencia@email.com"
+              }
+            ]
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Erro de validação
+    request:
+      url: "{{baseUrl}}/api/v1/agencia"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "v_agencia_id": 1,
+                "banco_cadastro_id": 5,
+                "nome_agencia": "Agência Central",
+                "numero_agencia": "0001",
+                "digito": "1",
+                "endereco_cidade_id": 4200804,
+                "endereco_cep": "88015-000",
+                "endereco_logradouro_id": 1,
+                "endereco": "Rua das Flores",
+                "endereco_numero": 123,
+                "endereco_complemento": "Sala 01",
+                "endereco_bairro": "Centro",
+                "telefone": "(48) 3333-0000",
+                "celular": "(48) 99999-0000",
+                "email": "agencia@email.com"
+              }
+            ]
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+  - name: 500 Response
+    description: Erro interno
+    request:
+      url: "{{baseUrl}}/api/v1/agencia"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "v_agencia_id": 1,
+                "banco_cadastro_id": 5,
+                "nome_agencia": "Agência Central",
+                "numero_agencia": "0001",
+                "digito": "1",
+                "endereco_cidade_id": 4200804,
+                "endereco_cep": "88015-000",
+                "endereco_logradouro_id": 1,
+                "endereco": "Rua das Flores",
+                "endereco_numero": 123,
+                "endereco_complemento": "Sala 01",
+                "endereco_bairro": "Centro",
+                "telefone": "(48) 3333-0000",
+                "celular": "(48) 99999-0000",
+                "email": "agencia@email.com"
+              }
+            ]
+          }
+    response:
+      status: 500
+      statusText: Internal Server Error
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Permite cadastrar múltiplas agências bancárias de uma só vez através de um array de dados. Disponível apenas para sistemas desktop e usuários do tipo Pessoa.

@@ -1,0 +1,110 @@
+info:
+  name: Exclui um autônomo
+  type: http
+  seq: 4
+  tags:
+    - Autônomo
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/v1/autonomo/autonomos"
+  body:
+    type: json
+    data: |-
+      {
+        "autonomo_id": 178,
+        "empresa_id": 900001
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/autonomo/autonomos"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "autonomo_id": 178,
+            "empresa_id": 900001
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Registro apagado com sucesso",
+            "retorno": []
+          }
+  - name: 401 Response
+    description: Não autorizado
+    request:
+      url: "{{baseUrl}}/api/v1/autonomo/autonomos"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "autonomo_id": 178,
+            "empresa_id": 900001
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 422 Response
+    description: Erro de validação
+    request:
+      url: "{{baseUrl}}/api/v1/autonomo/autonomos"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "autonomo_id": 178,
+            "empresa_id": 900001
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: "Remove um autônomo do sistema com base no seu ID. Esta ação é definitiva e deve ser usada com cautela, especialmente se o autônomo estiver vinculado a serviços ou histórico de movimentações. ATENÇÃO: Ao agapar um autônimo, todos os serviços relacionados serão apagados"

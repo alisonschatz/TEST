@@ -1,0 +1,149 @@
+info:
+  name: Lista pagina de feriados
+  type: http
+  seq: 1
+  tags:
+    - Feriado
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/feriados"
+  params:
+    - name: empresa_id
+      value: "12345"
+      type: query
+      description: ID da empresa vinculada ao usuário
+    - name: page
+      value: "1"
+      type: query
+      description: Página atual
+    - name: alterado_data
+      value: 2024-01-01 00:00:00
+      type: query
+      description: Filtra registros alterados a partir desta data (sincronização incremental)
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Resposta com lista paginada de feriados
+    request:
+      url: "{{baseUrl}}/api/v1/feriados"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa vinculada ao usuário
+        - name: page
+          value: "1"
+          type: query
+          description: Página atual
+        - name: alterado_data
+          value: 2024-01-01 00:00:00
+          type: query
+          description: Filtra registros alterados a partir desta data (sincronização incremental)
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Operação realizada com sucesso",
+            "paginacao": {
+              "registros_por_pagina": 15,
+              "total": 1000,
+              "pagina_atual": 1,
+              "ultima_pagina": 100,
+              "inicio": 1,
+              "fim": 15
+            },
+            "retorno": [
+              {
+                "empresa_id": 900001,
+                "data": "2000-01-01",
+                "descricao": "Teste Feriado",
+                "log_cadastro_data": "2024-01-01 00:00:00",
+                "log_alterado_data": "2024-06-01 00:00:00"
+              }
+            ]
+          }
+  - name: 401 Response
+    description: Erro autenticação
+    request:
+      url: "{{baseUrl}}/api/v1/feriados"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa vinculada ao usuário
+        - name: page
+          value: "1"
+          type: query
+          description: Página atual
+        - name: alterado_data
+          value: 2024-01-01 00:00:00
+          type: query
+          description: Filtra registros alterados a partir desta data (sincronização incremental)
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Erro de permissão
+    request:
+      url: "{{baseUrl}}/api/v1/feriados"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa vinculada ao usuário
+        - name: page
+          value: "1"
+          type: query
+          description: Página atual
+        - name: alterado_data
+          value: 2024-01-01 00:00:00
+          type: query
+          description: Filtra registros alterados a partir desta data (sincronização incremental)
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+
+docs: Retorna uma lista paginada de feriados cadastrados no sistema. Pode ser filtrado por empresa ou data. Ideal para exibir no calendário da aplicação ou controlar dias não úteis.

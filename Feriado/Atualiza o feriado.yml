@@ -1,0 +1,152 @@
+info:
+  name: Atualiza o feriado
+  type: http
+  seq: 2
+  tags:
+    - Feriado
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/feriados"
+  body:
+    type: json
+    data: |-
+      {
+        "empresa_id": 900001,
+        "data": "2036-01-29",
+        "descricao": "Teste Feriado atualizado"
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Atualização realizada com sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/feriados"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "data": "2036-01-29",
+            "descricao": "Teste Feriado atualizado"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Operação realizada com sucesso",
+            "retorno": {
+              "empresa_id": 900001,
+              "data": "2000-01-01",
+              "descricao": "Teste Feriado",
+              "log_cadastro_data": "2024-01-01 00:00:00",
+              "log_alterado_data": "2024-06-01 00:00:00"
+            }
+          }
+  - name: 401 Response
+    description: Token ausente ou inválido
+    request:
+      url: "{{baseUrl}}/api/v1/feriados"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "data": "2036-01-29",
+            "descricao": "Teste Feriado atualizado"
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Erro de permissão
+    request:
+      url: "{{baseUrl}}/api/v1/feriados"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "data": "2036-01-29",
+            "descricao": "Teste Feriado atualizado"
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Erro de validação
+    request:
+      url: "{{baseUrl}}/api/v1/feriados"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "data": "2036-01-29",
+            "descricao": "Teste Feriado atualizado"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Atualiza os dados de um feriado específico, identificado pela data. Pode ser utilizada para corrigir a descrição. É necessário informar todos os campos obrigatórios no corpo da requisição.

@@ -1,0 +1,150 @@
+info:
+  name: Atualiza o status de liberação da admissão completa
+  type: http
+  seq: 1
+  tags:
+    - Liberações
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/liberacao/completa"
+  body:
+    type: json
+    data: |-
+      {
+        "funcionario_contribuinte_id": 32845972,
+        "empresa_id": 900002,
+        "situacao": "nao_liberado",
+        "observacao_liberacao": "Liberado após conferência de documentos."
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Registro atualizado com sucesso para admissão completa.
+    request:
+      url: "{{baseUrl}}/api/v1/liberacao/completa"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "funcionario_contribuinte_id": 128263197,
+            "empresa_id": 900001,
+            "situacao": "liberado",
+            "observacao_liberacao": "Liberado após conferência de documentos."
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "retorno": {
+              "funcionario_contribuinte_id": 128263197,
+              "situacao": "liberado",
+              "observacao_liberacao": "Liberado após conferência."
+            }
+          }
+  - name: 401 Response
+    description: Erro de autenticação
+    request:
+      url: "{{baseUrl}}/api/v1/liberacao/completa"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "funcionario_contribuinte_id": 128263197,
+            "empresa_id": 900001,
+            "situacao": "liberado",
+            "observacao_liberacao": "Liberado após conferência de documentos."
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Erro de permissão
+    request:
+      url: "{{baseUrl}}/api/v1/liberacao/completa"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "funcionario_contribuinte_id": 128263197,
+            "empresa_id": 900001,
+            "situacao": "liberado",
+            "observacao_liberacao": "Liberado após conferência de documentos."
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Erro de validação ou pendências de liberação
+    request:
+      url: "{{baseUrl}}/api/v1/liberacao/completa"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "funcionario_contribuinte_id": 128263197,
+            "empresa_id": 900001,
+            "situacao": "liberado",
+            "observacao_liberacao": "Liberado após conferência de documentos."
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: "Atualiza o campo de situação e a observação de liberação de um funcionário/contribuinte (admissão completa). A transição para liberado exige cadastro completo (erros 422 por campo); integrado e aguardando_integracao exigem token de sistema (erro em situacao). ATENÇÃO: Para liberação completa, serão utilizado as regras de validações do cadastro completo, em caso de campos obrigatórios não preenchidos ou em formatos inválidos, será retornado erro de validação."

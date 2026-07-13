@@ -1,0 +1,252 @@
+info:
+  name: Atualiza um banco
+  type: http
+  seq: 3
+  tags:
+    - Banco
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/bancos"
+  headers:
+    - name: Authorization
+      value: Bearer {{token_atual}}
+  body:
+    type: json
+    data: |-
+      {
+        "banco_id": 102376,
+        "v_banco_id": 76668888,
+        "codigo_febraban": 492,
+        "descricao": "Teste",
+        "sistema_id": 52
+      }
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        const perfil_escolhido = 2; 
+        // ==============================================================
+        // 1 = Perfil 1 - Unico Cliente
+        // 2 = Perfil 2 - Unico ADM
+        // 3 = Perfil 3 - Practice Cliente
+        // 4 = Perfil 4 - Practice ADM
+        // 5 = Perfil 5 - Parceiro Cliente Unico
+        // 6 = Perfil 6 - Parceiro ADM Unico
+        // 7 = Perfil 7 - Parceiro Cliente Practice
+        // 8 = Perfil 8 - Parceiro ADM Practice
+        // ===============================================================
+
+        // Carrega os perfis
+        let perfis = bru.getEnvVar("perfis");
+
+        if (typeof perfis === "string") {
+          perfis = JSON.parse(perfis);
+        }
+
+        // Pega o perfil
+        let perfilDaVez = perfis[perfil_escolhido - 1];
+
+        if (!perfilDaVez) {
+          console.error(`Erro: O perfil número ${perfil_escolhido} não existe! Escolha de 1 a 8.`);
+          return;
+        }
+
+        console.log(`>>> Executando requisição com: ${perfilDaVez.nome}`);
+
+        // Requisição login
+        const axios = require('axios');
+        const credenciaisBase64 = btoa(`${perfilDaVez.user}:${perfilDaVez.pass}`);
+
+        try {
+          const resposta = await axios.post('https://api-auth-hml.sci.com.br/api/v1/auth/credencial/login', {}, {
+            headers: {
+              'Authorization': `Basic ${credenciaisBase64}`
+            }
+          });
+
+          if (resposta.data && resposta.data.token) {
+            // Atualiza a variável que o Header "Authorization" está lendo
+            bru.setVar("token_atual", resposta.data.token);
+          }
+        } catch (error) {
+          console.error("Erro ao autenticar perfil automaticamente:", error.message);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Banco atualizado com sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/bancos"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "banco_id": 1,
+            "v_banco_id": 1,
+            "codigo_febraban": 341,
+            "descricao": "Itaú Unibanco S.A.",
+            "sistema_id": 1
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Operação realizada com sucesso",
+            "retorno": {
+              "cliente_id": 1234,
+              "banco_id": 1,
+              "v_banco_id": 1,
+              "codigo_febraban": 341,
+              "descricao": "Itaú Unibanco",
+              "sistema_id": 1,
+              "log_cadastro_data": "2026-05-15 10:00:00",
+              "log_alterado_data": "2026-05-15 10:00:00"
+            }
+          }
+  - name: 401 Response
+    description: Erro de autenticação
+    request:
+      url: "{{baseUrl}}/api/v1/bancos"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "banco_id": 1,
+            "v_banco_id": 1,
+            "codigo_febraban": 341,
+            "descricao": "Itaú Unibanco S.A.",
+            "sistema_id": 1
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Erro de permissão
+    request:
+      url: "{{baseUrl}}/api/v1/bancos"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "banco_id": 1,
+            "v_banco_id": 1,
+            "codigo_febraban": 341,
+            "descricao": "Itaú Unibanco S.A.",
+            "sistema_id": 1
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Registro não encontrado ou validação
+    request:
+      url: "{{baseUrl}}/api/v1/bancos"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "banco_id": 1,
+            "v_banco_id": 1,
+            "codigo_febraban": 341,
+            "descricao": "Itaú Unibanco S.A.",
+            "sistema_id": 1
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+  - name: 500 Response
+    description: Erro interno
+    request:
+      url: "{{baseUrl}}/api/v1/bancos"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "banco_id": 1,
+            "v_banco_id": 1,
+            "codigo_febraban": 341,
+            "descricao": "Itaú Unibanco S.A.",
+            "sistema_id": 1
+          }
+    response:
+      status: 500
+      statusText: Internal Server Error
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Atualiza os campos de negócio de um banco. A chave banco_id é imutável e usada apenas para localizar o registro. Restrito a usuários do tipo PESSOA (1) com token de sistema.

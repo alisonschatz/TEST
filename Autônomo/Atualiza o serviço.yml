@@ -1,0 +1,164 @@
+info:
+  name: Atualiza o serviço
+  type: http
+  seq: 6
+  tags:
+    - Autônomo
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/autonomo/servicos"
+  body:
+    type: json
+    data: |-
+      {
+        "servico_autonomo_id": 127,
+        "v_servico_autonomo_id": 1,
+        "autonomo_id": 24,
+        "empresa_id": 900001,
+        "centro_custo_id": 1,
+        "descricao": "Serviço de consultoria",
+        "data_servico": "2025-06-10",
+        "valor": 1500.75,
+        "data_pagamento": "2025-06-12",
+        "tipo_servico_autonomo_id": 4,
+        "documento": "012345678912345",
+        "hora": "23:59"
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/autonomo/servicos"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "servico_autonomo_id": 127,
+            "v_servico_autonomo_id": 1,
+            "autonomo_id": 24,
+            "empresa_id": 900001,
+            "centro_custo_id": 1,
+            "descricao": "Serviço de consultoria",
+            "data_servico": "2025-06-10",
+            "valor": 1500.75,
+            "data_pagamento": "2025-06-12",
+            "tipo_servico_autonomo_id": 4,
+            "documento": "012345678912345",
+            "hora": "23:59"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Operação realizada com sucesso",
+            "retorno": {
+              "servico_autonomo_id": 179,
+              "v_servico_autonomo_id": 1,
+              "empresa_id": 900001,
+              "centro_custo_id": 1,
+              "liberacao_id": 0,
+              "tipo_servico_autonomo_id": 4,
+              "descricao": "Serviço de Redes",
+              "data_servico": "2025-06-10",
+              "valor": 1500.75,
+              "data_pagamento": "2025-06-12",
+              "observacao_liberacao": "Observação da Liberação",
+              "documento": "012345678912345",
+              "hora": "23:59"
+            }
+          }
+  - name: 401 Response
+    description: Não autorizado
+    request:
+      url: "{{baseUrl}}/api/v1/autonomo/servicos"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "servico_autonomo_id": 127,
+            "v_servico_autonomo_id": 1,
+            "autonomo_id": 24,
+            "empresa_id": 900001,
+            "centro_custo_id": 1,
+            "descricao": "Serviço de consultoria",
+            "data_servico": "2025-06-10",
+            "valor": 1500.75,
+            "data_pagamento": "2025-06-12",
+            "tipo_servico_autonomo_id": 4,
+            "documento": "012345678912345",
+            "hora": "23:59"
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 422 Response
+    description: Erro de validação
+    request:
+      url: "{{baseUrl}}/api/v1/autonomo/servicos"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "servico_autonomo_id": 127,
+            "v_servico_autonomo_id": 1,
+            "autonomo_id": 24,
+            "empresa_id": 900001,
+            "centro_custo_id": 1,
+            "descricao": "Serviço de consultoria",
+            "data_servico": "2025-06-10",
+            "valor": 1500.75,
+            "data_pagamento": "2025-06-12",
+            "tipo_servico_autonomo_id": 4,
+            "documento": "012345678912345",
+            "hora": "23:59"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Atualiza os dados de um serviço específico, identificado pelo seu ID. Pode ser usado para corrigir informações como valor, status ou vínculos com autônomo e tipo de serviço.

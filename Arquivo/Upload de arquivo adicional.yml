@@ -1,0 +1,208 @@
+info:
+  name: Upload de arquivo adicional
+  type: http
+  seq: 3
+  tags:
+    - Arquivo
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/arquivos/funcionario"
+  body:
+    type: multipart-form
+    data:
+      - name: empresa_id
+        type: text
+        value: "12345"
+        description: ID da empresa
+      - name: funcionario_contribuinte_id
+        type: text
+        value: "98765"
+        description: ID do funcionário contribuinte
+      - name: arquivo
+        type: file
+        value: []
+        description: Arquivo de imagem ou PDF (máx. 20MB)
+      - name: descricao
+        type: text
+        value: Contrato de Trabalho
+        description: Descrição única para o arquivo do funcionário
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 201 Response
+    description: Upload realizado com sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario"
+      method: POST
+      body:
+        type: multipart-form
+        data:
+          - name: empresa_id
+            type: text
+            value: "12345"
+            description: ID da empresa
+          - name: funcionario_contribuinte_id
+            type: text
+            value: "98765"
+            description: ID do funcionário contribuinte
+          - name: arquivo
+            type: file
+            value: []
+            description: Arquivo de imagem ou PDF (máx. 20MB)
+          - name: descricao
+            type: text
+            value: Contrato de Trabalho
+            description: Descrição única para o arquivo do funcionário
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 201,
+            "mensagem": "Operação realizada com sucesso",
+            "retorno": {
+              "cliente_id": 1,
+              "empresa_id": 12345,
+              "funcionario_contribuinte_id": 98765,
+              "arquivo_id": 12,
+              "descricao": "Contrato de Trabalho",
+              "tipo_documento": "outros"
+            }
+          }
+  - name: 401 Response
+    description: Token ausente ou inválido
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario"
+      method: POST
+      body:
+        type: multipart-form
+        data:
+          - name: empresa_id
+            type: text
+            value: "12345"
+            description: ID da empresa
+          - name: funcionario_contribuinte_id
+            type: text
+            value: "98765"
+            description: ID do funcionário contribuinte
+          - name: arquivo
+            type: file
+            value: []
+            description: Arquivo de imagem ou PDF (máx. 20MB)
+          - name: descricao
+            type: text
+            value: Contrato de Trabalho
+            description: Descrição única para o arquivo do funcionário
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Sem permissão
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario"
+      method: POST
+      body:
+        type: multipart-form
+        data:
+          - name: empresa_id
+            type: text
+            value: "12345"
+            description: ID da empresa
+          - name: funcionario_contribuinte_id
+            type: text
+            value: "98765"
+            description: ID do funcionário contribuinte
+          - name: arquivo
+            type: file
+            value: []
+            description: Arquivo de imagem ou PDF (máx. 20MB)
+          - name: descricao
+            type: text
+            value: Contrato de Trabalho
+            description: Descrição única para o arquivo do funcionário
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Erro de validação (limite de arquivos adicionais atingido ou descrição duplicada)
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario"
+      method: POST
+      body:
+        type: multipart-form
+        data:
+          - name: empresa_id
+            type: text
+            value: "12345"
+            description: ID da empresa
+          - name: funcionario_contribuinte_id
+            type: text
+            value: "98765"
+            description: ID do funcionário contribuinte
+          - name: arquivo
+            type: file
+            value: []
+            description: Arquivo de imagem ou PDF (máx. 20MB)
+          - name: descricao
+            type: text
+            value: Contrato de Trabalho
+            description: Descrição única para o arquivo do funcionário
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Realiza upload de um arquivo adicional (como um documento PDF ou imagem de até 20MB) para o funcionário. É permitido anexar apenas 20 arquivos adicionais por funcionário.

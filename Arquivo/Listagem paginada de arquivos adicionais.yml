@@ -1,0 +1,208 @@
+info:
+  name: Listagem paginada de arquivos adicionais
+  type: http
+  seq: 1
+  tags:
+    - Arquivo
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/arquivos/funcionario/list"
+  params:
+    - name: empresa_id
+      value: "12345"
+      type: query
+      description: ID da empresa
+    - name: funcionario_contribuinte_id
+      value: "98765"
+      type: query
+      description: ID do funcionário contribuinte
+    - name: arquivo_id
+      value: "12"
+      type: query
+      description: ID de um arquivo específico
+    - name: page
+      value: "1"
+      type: query
+      description: Página atual
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario/list"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa
+        - name: funcionario_contribuinte_id
+          value: "98765"
+          type: query
+          description: ID do funcionário contribuinte
+        - name: arquivo_id
+          value: "12"
+          type: query
+          description: ID de um arquivo específico
+        - name: page
+          value: "1"
+          type: query
+          description: Página atual
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Operação realizada com sucesso",
+            "paginacao": {
+              "registros_por_pagina": 15,
+              "total": 1000,
+              "pagina_atual": 1,
+              "ultima_pagina": 100,
+              "inicio": 1,
+              "fim": 15
+            },
+            "retorno": [
+              {
+                "cliente_id": 1,
+                "empresa_id": 12345,
+                "funcionario_contribuinte_id": 98765,
+                "arquivo_id": 12,
+                "descricao": "Contrato de Trabalho",
+                "tipo_documento": "outros"
+              }
+            ]
+          }
+  - name: 401 Response
+    description: Token ausente ou inválido
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario/list"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa
+        - name: funcionario_contribuinte_id
+          value: "98765"
+          type: query
+          description: ID do funcionário contribuinte
+        - name: arquivo_id
+          value: "12"
+          type: query
+          description: ID de um arquivo específico
+        - name: page
+          value: "1"
+          type: query
+          description: Página atual
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Sem permissão
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario/list"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa
+        - name: funcionario_contribuinte_id
+          value: "98765"
+          type: query
+          description: ID do funcionário contribuinte
+        - name: arquivo_id
+          value: "12"
+          type: query
+          description: ID de um arquivo específico
+        - name: page
+          value: "1"
+          type: query
+          description: Página atual
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Parâmetros inválidos
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario/list"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa
+        - name: funcionario_contribuinte_id
+          value: "98765"
+          type: query
+          description: ID do funcionário contribuinte
+        - name: arquivo_id
+          value: "12"
+          type: query
+          description: ID de um arquivo específico
+        - name: page
+          value: "1"
+          type: query
+          description: Página atual
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Retorna lista paginada dos arquivos adicionais do funcionário.

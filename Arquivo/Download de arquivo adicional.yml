@@ -1,0 +1,162 @@
+info:
+  name: Download de arquivo adicional
+  type: http
+  seq: 2
+  tags:
+    - Arquivo
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/arquivos/funcionario"
+  params:
+    - name: empresa_id
+      value: "12345"
+      type: query
+      description: ID da empresa
+    - name: funcionario_contribuinte_id
+      value: "98765"
+      type: query
+      description: ID do funcionário contribuinte
+    - name: arquivo_id
+      value: "12"
+      type: query
+      description: ID do arquivo adicional
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 302 Response
+    description: Redirect para AWS S3. Copie a URL do header Location e acesse diretamente.
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa
+        - name: funcionario_contribuinte_id
+          value: "98765"
+          type: query
+          description: ID do funcionário contribuinte
+        - name: arquivo_id
+          value: "12"
+          type: query
+          description: ID do arquivo adicional
+    response:
+      status: 302
+      statusText: Found
+      body:
+        type: text
+        data: ""
+  - name: 401 Response
+    description: Token ausente ou inválido
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa
+        - name: funcionario_contribuinte_id
+          value: "98765"
+          type: query
+          description: ID do funcionário contribuinte
+        - name: arquivo_id
+          value: "12"
+          type: query
+          description: ID do arquivo adicional
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Sem permissão
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa
+        - name: funcionario_contribuinte_id
+          value: "98765"
+          type: query
+          description: ID do funcionário contribuinte
+        - name: arquivo_id
+          value: "12"
+          type: query
+          description: ID do arquivo adicional
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Arquivo não encontrado ou parâmetros inválidos
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa
+        - name: funcionario_contribuinte_id
+          value: "98765"
+          type: query
+          description: ID do funcionário contribuinte
+        - name: arquivo_id
+          value: "12"
+          type: query
+          description: ID do arquivo adicional
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Realiza download de um arquivo adicional específico do funcionário.

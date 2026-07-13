@@ -1,0 +1,143 @@
+info:
+  name: Exclusão de arquivo adicional
+  type: http
+  seq: 4
+  tags:
+    - Arquivo
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/v1/arquivos/funcionario"
+  body:
+    type: json
+    data: |-
+      {
+        "empresa_id": 12345,
+        "funcionario_contribuinte_id": 98765,
+        "arquivo_id": 12
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Arquivo excluído com sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 12345,
+            "funcionario_contribuinte_id": 98765,
+            "arquivo_id": 12
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Registro excluído com sucesso"
+          }
+  - name: 401 Response
+    description: Token ausente ou inválido
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 12345,
+            "funcionario_contribuinte_id": 98765,
+            "arquivo_id": 12
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Sem permissão
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 12345,
+            "funcionario_contribuinte_id": 98765,
+            "arquivo_id": 12
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Parâmetros inválidos ou arquivo não encontrado
+    request:
+      url: "{{baseUrl}}/api/v1/arquivos/funcionario"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 12345,
+            "funcionario_contribuinte_id": 98765,
+            "arquivo_id": 12
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Realiza exclusão de um arquivo adicional previamente salvo do funcionário.

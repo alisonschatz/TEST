@@ -1,0 +1,7 @@
+info:
+  name: Banco de Horas
+  type: folder
+  seq: 6
+
+request:
+  auth: inherit

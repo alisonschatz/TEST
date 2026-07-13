@@ -1,0 +1,337 @@
+info:
+  name: Cria novos serviços
+  type: http
+  seq: 7
+  tags:
+    - Autônomo
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/autonomo/servicos"
+  body:
+    type: json
+    data: |-
+      {
+        "dados": [
+          {
+            "cpf": "481.241.812-26",
+            "nome": "Silva Da Silva",
+            "nascimento_data": "1980-05-15",
+            "telefone": "(32)91929-9182",
+            "email": "david@email.com",
+            "status": 1,
+            "empresa_id": 900001,
+            "etnia_id": 2,
+            "sexo": "masculino",
+            "estrangeiro": false,
+            "pais_residencia_id": 105,
+            "cep": "01234-321",
+            "logradouro": 1,
+            "endereco": "Rua das Caipira 1",
+            "numero": "113",
+            "complemento": "Apt 32",
+            "bairro": "Centro",
+            "cidade_id": 4200804,
+            "estado_civil_id": 1,
+            "grau_instrucao_id": 1,
+            "pais_nascimento_id": 105,
+            "pais_nacionalidade_id": 105,
+            "tempo_residencia_determinado": true,
+            "condicao_ingresso_id": 6,
+            "cota_deficiencia": 0,
+            "deficiencia_fisica": true,
+            "deficiencia_auditiva": false,
+            "deficiencia_visual": true,
+            "deficiencia_intelectual": false,
+            "deficiencia_mental": true,
+            "deficiencia_reabilitado": false,
+            "observacao_deficiencia": "Nenhuma",
+            "v_servico_autonomo_id": 1,
+            "centro_custo_id": 1,
+            "descricao": "Serviço de Redes",
+            "data_servico": "2025-06-10",
+            "valor": 1500.75,
+            "data_pagamento": "2025-06-12",
+            "tipo_servico_autonomo_id": 4,
+            "documento": "012345678912345",
+            "hora": "23:59"
+          }
+        ]
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/autonomo/servicos"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "cpf": "481.241.812-26",
+                "nome": "Silva Da Silva",
+                "nascimento_data": "1980-05-15",
+                "telefone": "(32)91929-9182",
+                "email": "david@email.com",
+                "status": 1,
+                "empresa_id": 900001,
+                "etnia_id": 2,
+                "sexo": "masculino",
+                "estrangeiro": false,
+                "pais_residencia_id": 105,
+                "cep": "01234-321",
+                "logradouro": 1,
+                "endereco": "Rua das Caipira 1",
+                "numero": "113",
+                "complemento": "Apt 32",
+                "bairro": "Centro",
+                "cidade_id": 4200804,
+                "estado_civil_id": 1,
+                "grau_instrucao_id": 1,
+                "pais_nascimento_id": 105,
+                "pais_nacionalidade_id": 105,
+                "tempo_residencia_determinado": true,
+                "condicao_ingresso_id": 6,
+                "cota_deficiencia": 0,
+                "deficiencia_fisica": true,
+                "deficiencia_auditiva": false,
+                "deficiencia_visual": true,
+                "deficiencia_intelectual": false,
+                "deficiencia_mental": true,
+                "deficiencia_reabilitado": false,
+                "observacao_deficiencia": "Nenhuma",
+                "v_servico_autonomo_id": 1,
+                "centro_custo_id": 1,
+                "descricao": "Serviço de Redes",
+                "data_servico": "2025-06-10",
+                "valor": 1500.75,
+                "data_pagamento": "2025-06-12",
+                "tipo_servico_autonomo_id": 4,
+                "documento": "012345678912345",
+                "hora": "23:59"
+              }
+            ]
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Operação realizada com sucesso",
+            "retorno": [
+              {
+                "autonomo": {
+                  "empresa_id": 900001,
+                  "cpf": "481.241.812-26",
+                  "nome": "Silva Da Silva",
+                  "nascimento_data": "1980-05-15",
+                  "telefone": "(32)91929-9182",
+                  "email": "david@email.com",
+                  "status": true
+                },
+                "servico": {
+                  "servico_autonomo_id": 179,
+                  "v_servico_autonomo_id": 1,
+                  "empresa_id": 900001,
+                  "centro_custo_id": 1,
+                  "liberacao_id": 0,
+                  "tipo_servico_autonomo_id": 4,
+                  "descricao": "Serviço de Redes",
+                  "data_servico": "2025-06-10",
+                  "valor": 1500.75,
+                  "data_pagamento": "2025-06-12",
+                  "observacao_liberacao": "Observação da Liberação",
+                  "documento": "012345678912345",
+                  "hora": "23:59"
+                },
+                "detalhe": {
+                  "autonomo_id": 65,
+                  "etnia_id": 2,
+                  "sexo": "masculino",
+                  "estrangeiro": false,
+                  "pais_residencia_id": 105,
+                  "cep": "01234-321",
+                  "logradouro": "1",
+                  "endereco": "Rua das Caipira 1",
+                  "numero": "113",
+                  "complemento": "Apt 32",
+                  "bairro": "Centro",
+                  "cidade_id": 4200804,
+                  "estado_civil_id": 1,
+                  "grau_instrucao_id": 1,
+                  "pais_nascimento_id": 105,
+                  "pais_nacionalidade_id": 105,
+                  "condicao_ingresso_id": 0,
+                  "cota_deficiencia": false,
+                  "tempo_residencia_determinado": false,
+                  "deficiencia_fisica": false,
+                  "deficiencia_auditiva": false,
+                  "deficiencia_visual": false,
+                  "deficiencia_intelectual": false,
+                  "deficiencia_mental": false,
+                  "deficiencia_reabilitado": false,
+                  "observacao_deficiencia": "Nenhuma"
+                }
+              }
+            ]
+          }
+  - name: 401 Response
+    description: Não autorizado
+    request:
+      url: "{{baseUrl}}/api/v1/autonomo/servicos"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "cpf": "481.241.812-26",
+                "nome": "Silva Da Silva",
+                "nascimento_data": "1980-05-15",
+                "telefone": "(32)91929-9182",
+                "email": "david@email.com",
+                "status": 1,
+                "empresa_id": 900001,
+                "etnia_id": 2,
+                "sexo": "masculino",
+                "estrangeiro": false,
+                "pais_residencia_id": 105,
+                "cep": "01234-321",
+                "logradouro": 1,
+                "endereco": "Rua das Caipira 1",
+                "numero": "113",
+                "complemento": "Apt 32",
+                "bairro": "Centro",
+                "cidade_id": 4200804,
+                "estado_civil_id": 1,
+                "grau_instrucao_id": 1,
+                "pais_nascimento_id": 105,
+                "pais_nacionalidade_id": 105,
+                "tempo_residencia_determinado": true,
+                "condicao_ingresso_id": 6,
+                "cota_deficiencia": 0,
+                "deficiencia_fisica": true,
+                "deficiencia_auditiva": false,
+                "deficiencia_visual": true,
+                "deficiencia_intelectual": false,
+                "deficiencia_mental": true,
+                "deficiencia_reabilitado": false,
+                "observacao_deficiencia": "Nenhuma",
+                "v_servico_autonomo_id": 1,
+                "centro_custo_id": 1,
+                "descricao": "Serviço de Redes",
+                "data_servico": "2025-06-10",
+                "valor": 1500.75,
+                "data_pagamento": "2025-06-12",
+                "tipo_servico_autonomo_id": 4,
+                "documento": "012345678912345",
+                "hora": "23:59"
+              }
+            ]
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 422 Response
+    description: Erro de validação
+    request:
+      url: "{{baseUrl}}/api/v1/autonomo/servicos"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "cpf": "481.241.812-26",
+                "nome": "Silva Da Silva",
+                "nascimento_data": "1980-05-15",
+                "telefone": "(32)91929-9182",
+                "email": "david@email.com",
+                "status": 1,
+                "empresa_id": 900001,
+                "etnia_id": 2,
+                "sexo": "masculino",
+                "estrangeiro": false,
+                "pais_residencia_id": 105,
+                "cep": "01234-321",
+                "logradouro": 1,
+                "endereco": "Rua das Caipira 1",
+                "numero": "113",
+                "complemento": "Apt 32",
+                "bairro": "Centro",
+                "cidade_id": 4200804,
+                "estado_civil_id": 1,
+                "grau_instrucao_id": 1,
+                "pais_nascimento_id": 105,
+                "pais_nacionalidade_id": 105,
+                "tempo_residencia_determinado": true,
+                "condicao_ingresso_id": 6,
+                "cota_deficiencia": 0,
+                "deficiencia_fisica": true,
+                "deficiencia_auditiva": false,
+                "deficiencia_visual": true,
+                "deficiencia_intelectual": false,
+                "deficiencia_mental": true,
+                "deficiencia_reabilitado": false,
+                "observacao_deficiencia": "Nenhuma",
+                "v_servico_autonomo_id": 1,
+                "centro_custo_id": 1,
+                "descricao": "Serviço de Redes",
+                "data_servico": "2025-06-10",
+                "valor": 1500.75,
+                "data_pagamento": "2025-06-12",
+                "tipo_servico_autonomo_id": 4,
+                "documento": "012345678912345",
+                "hora": "23:59"
+              }
+            ]
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Permite cadastrar múltiplos serviços de uma só vez por meio de um array de dados. Cada item deve incluir o autônomo, tipo de serviço, data e demais informações obrigatórias. Útil para lançamentos em lote ou integrações automatizadas.

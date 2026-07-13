@@ -1,0 +1,228 @@
+info:
+  name: Remove um quadro de horário
+  type: http
+  seq: 4
+  tags:
+    - Quadro de Horário
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/v1/quadrohorarios"
+  headers:
+    - name: Authorization
+      value: Bearer {{token_atual}}
+  body:
+    type: json
+    data: |-
+      {
+        "empresa_id": 900001,
+        "quadro_id": 55
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        const perfil_escolhido = 2; 
+        // ==============================================================
+        // 1 = Perfil 1 - Unico Cliente
+        // 2 = Perfil 2 - Unico ADM
+        // 3 = Perfil 3 - Practice Cliente
+        // 4 = Perfil 4 - Practice ADM
+        // 5 = Perfil 5 - Parceiro Cliente Unico
+        // 6 = Perfil 6 - Parceiro ADM Unico
+        // 7 = Perfil 7 - Parceiro Cliente Practice
+        // 8 = Perfil 8 - Parceiro ADM Practice
+        // ===============================================================
+
+        // Carrega os perfis
+        let perfis = bru.getEnvVar("perfis");
+
+        if (typeof perfis === "string") {
+          perfis = JSON.parse(perfis);
+        }
+
+        // Pega o perfil
+        let perfilDaVez = perfis[perfil_escolhido - 1];
+
+        if (!perfilDaVez) {
+          console.error(`Erro: O perfil número ${perfil_escolhido} não existe! Escolha de 1 a 8.`);
+          return;
+        }
+
+        console.log(`>>> Executando requisição com: ${perfilDaVez.nome}`);
+
+        // Requisição login
+        const axios = require('axios');
+        const credenciaisBase64 = btoa(`${perfilDaVez.user}:${perfilDaVez.pass}`);
+
+        try {
+          const resposta = await axios.post('https://api-auth-hml.sci.com.br/api/v1/auth/credencial/login', {}, {
+            headers: {
+              'Authorization': `Basic ${credenciaisBase64}`
+            }
+          });
+
+          if (resposta.data && resposta.data.token) {
+            // Atualiza a variável que o Header "Authorization" está lendo
+            bru.setVar("token_atual", resposta.data.token);
+          }
+        } catch (error) {
+          console.error("Erro ao autenticar perfil automaticamente:", error.message);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Exclusão realizada com sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/quadrohorarios"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "quadro_id": 55
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Registro excluído com sucesso",
+            "retorno": []
+          }
+  - name: 401 Response
+    description: Erro de autenticação
+    request:
+      url: "{{baseUrl}}/api/v1/quadrohorarios"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "quadro_id": 55
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Erro de permissão
+    request:
+      url: "{{baseUrl}}/api/v1/quadrohorarios"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "quadro_id": 55
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Quadro não encontrado ou validação
+    request:
+      url: "{{baseUrl}}/api/v1/quadrohorarios"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "quadro_id": 55
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+  - name: 500 Response
+    description: Erro interno
+    request:
+      url: "{{baseUrl}}/api/v1/quadrohorarios"
+      method: DELETE
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "quadro_id": 55
+          }
+    response:
+      status: 500
+      statusText: Internal Server Error
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Remove um quadro de horário. Retorna 422 se o quadro_id não existir. Os registros de funcionarioAlteracaoQuadroHorario vinculados são removidos em cascata pelo banco (FK ON DELETE CASCADE). Requer token de sistema.

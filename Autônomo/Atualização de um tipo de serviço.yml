@@ -1,0 +1,136 @@
+info:
+  name: Atualização de um tipo de serviço
+  type: http
+  seq: 10
+  tags:
+    - Autônomo
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/autonomo/tiposervicos"
+  body:
+    type: json
+    data: |-
+      {
+        "tipo_servico_autonomo_id": 47,
+        "empresa_id": 900001,
+        "cbo": "312-99",
+        "descricao_cbo": "Teste CBO abc",
+        "categoria_esocial": 101,
+        "ativo": true
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Atualização realizada com sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/autonomo/tiposervicos"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "tipo_servico_autonomo_id": 47,
+            "empresa_id": 900001,
+            "cbo": "312-99",
+            "descricao_cbo": "Teste CBO abc",
+            "categoria_esocial": 101,
+            "ativo": true
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Operação realizada com sucesso",
+            "retorno": {
+              "tipo_servico_autonomo_id": 999999,
+              "cliente_id": 86237,
+              "empresa_id": 900001,
+              "cbo": "9999-99",
+              "descricao_cbo": "Teste CBO",
+              "categoria_esocial": 101,
+              "ativo": true,
+              "log_cadastro_data": "2025-01-01 08:00:00",
+              "log_alterado_data": "2025-06-01 12:00:00"
+            }
+          }
+  - name: 401 Response
+    description: Token ausente ou inválido
+    request:
+      url: "{{baseUrl}}/api/v1/autonomo/tiposervicos"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "tipo_servico_autonomo_id": 47,
+            "empresa_id": 900001,
+            "cbo": "312-99",
+            "descricao_cbo": "Teste CBO abc",
+            "categoria_esocial": 101,
+            "ativo": true
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 422 Response
+    description: Erro de validação
+    request:
+      url: "{{baseUrl}}/api/v1/autonomo/tiposervicos"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "tipo_servico_autonomo_id": 47,
+            "empresa_id": 900001,
+            "cbo": "312-99",
+            "descricao_cbo": "Teste CBO abc",
+            "categoria_esocial": 101,
+            "ativo": true
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Atualiza os dados de um tipo de serviço específico, identificado pelo seu ID. Pode ser utilizado para editar o nome, descrição ou ativar/desativar o tipo de serviço.

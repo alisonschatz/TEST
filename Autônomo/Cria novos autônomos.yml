@@ -1,0 +1,289 @@
+info:
+  name: Cria novos autônomos
+  type: http
+  seq: 3
+  tags:
+    - Autônomo
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/autonomo/autonomos"
+  body:
+    type: json
+    data: |-
+      {
+        "dados": [
+          {
+            "empresa_id": 900001,
+            "cpf": "481.241.812-26",
+            "nome": "Silva Da Silva",
+            "nascimento_data": "1980-05-15",
+            "telefone": "(32)91929-9182",
+            "email": "david@email.com",
+            "status": 1,
+            "etnia_id": 2,
+            "sexo": "masculino",
+            "estrangeiro": false,
+            "pais_residencia_id": 105,
+            "cep": "01234-321",
+            "logradouro": 1,
+            "endereco": "Rua das Caipira 1",
+            "numero": "113",
+            "complemento": "Apt 32",
+            "bairro": "Centro",
+            "cidade_id": 4200804,
+            "estado_civil_id": 1,
+            "grau_instrucao_id": 1,
+            "pais_nascimento_id": 105,
+            "pais_nacionalidade_id": 105,
+            "tempo_residencia_determinado": true,
+            "condicao_ingresso_id": 6,
+            "cota_deficiencia": 0,
+            "deficiencia_fisica": true,
+            "deficiencia_auditiva": false,
+            "deficiencia_visual": true,
+            "deficiencia_intelectual": false,
+            "deficiencia_mental": true,
+            "deficiencia_reabilitado": false,
+            "observacao_deficiencia": "Nenhuma"
+          }
+        ]
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/autonomo/autonomos"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "empresa_id": 900001,
+                "cpf": "481.241.812-26",
+                "nome": "Silva Da Silva",
+                "nascimento_data": "1980-05-15",
+                "telefone": "(32)91929-9182",
+                "email": "david@email.com",
+                "status": 1,
+                "etnia_id": 2,
+                "sexo": "masculino",
+                "estrangeiro": false,
+                "pais_residencia_id": 105,
+                "cep": "01234-321",
+                "logradouro": 1,
+                "endereco": "Rua das Caipira 1",
+                "numero": "113",
+                "complemento": "Apt 32",
+                "bairro": "Centro",
+                "cidade_id": 4200804,
+                "estado_civil_id": 1,
+                "grau_instrucao_id": 1,
+                "pais_nascimento_id": 105,
+                "pais_nacionalidade_id": 105,
+                "tempo_residencia_determinado": true,
+                "condicao_ingresso_id": 6,
+                "cota_deficiencia": 0,
+                "deficiencia_fisica": true,
+                "deficiencia_auditiva": false,
+                "deficiencia_visual": true,
+                "deficiencia_intelectual": false,
+                "deficiencia_mental": true,
+                "deficiencia_reabilitado": false,
+                "observacao_deficiencia": "Nenhuma"
+              }
+            ]
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Operação realizada com sucesso",
+            "retorno": [
+              {
+                "autonomo": {
+                  "autonomo_id": 65,
+                  "empresa_id": 900001,
+                  "cpf": "481.241.812-26",
+                  "nome": "Silva Da Silva",
+                  "nascimento_data": "1980-05-15",
+                  "telefone": "(32)91929-9182",
+                  "email": "david@email.com",
+                  "status": true,
+                  "detalhe_autonomo": {
+                    "autonomo_id": 65,
+                    "etnia_id": 2,
+                    "sexo": "masculino",
+                    "estrangeiro": false,
+                    "pais_residencia_id": 105,
+                    "cep": "01234-321",
+                    "logradouro": "1",
+                    "endereco": "Rua das Caipira 1",
+                    "numero": "113",
+                    "complemento": "Apt 32",
+                    "bairro": "Centro",
+                    "cidade_id": 4200804,
+                    "estado_civil_id": 1,
+                    "grau_instrucao_id": 1,
+                    "pais_nascimento_id": 105,
+                    "pais_nacionalidade_id": 105,
+                    "condicao_ingresso_id": 0,
+                    "cota_deficiencia": false,
+                    "tempo_residencia_determinado": false,
+                    "deficiencia_fisica": false,
+                    "deficiencia_auditiva": false,
+                    "deficiencia_visual": false,
+                    "deficiencia_intelectual": false,
+                    "deficiencia_mental": false,
+                    "deficiencia_reabilitado": false,
+                    "observacao_deficiencia": "Nenhuma"
+                  },
+                  "log_cadastro_data": "2025-01-01 08:00:00",
+                  "log_alterado_data": "2025-06-01 12:00:00"
+                }
+              }
+            ]
+          }
+  - name: 401 Response
+    description: Não autorizado
+    request:
+      url: "{{baseUrl}}/api/v1/autonomo/autonomos"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "empresa_id": 900001,
+                "cpf": "481.241.812-26",
+                "nome": "Silva Da Silva",
+                "nascimento_data": "1980-05-15",
+                "telefone": "(32)91929-9182",
+                "email": "david@email.com",
+                "status": 1,
+                "etnia_id": 2,
+                "sexo": "masculino",
+                "estrangeiro": false,
+                "pais_residencia_id": 105,
+                "cep": "01234-321",
+                "logradouro": 1,
+                "endereco": "Rua das Caipira 1",
+                "numero": "113",
+                "complemento": "Apt 32",
+                "bairro": "Centro",
+                "cidade_id": 4200804,
+                "estado_civil_id": 1,
+                "grau_instrucao_id": 1,
+                "pais_nascimento_id": 105,
+                "pais_nacionalidade_id": 105,
+                "tempo_residencia_determinado": true,
+                "condicao_ingresso_id": 6,
+                "cota_deficiencia": 0,
+                "deficiencia_fisica": true,
+                "deficiencia_auditiva": false,
+                "deficiencia_visual": true,
+                "deficiencia_intelectual": false,
+                "deficiencia_mental": true,
+                "deficiencia_reabilitado": false,
+                "observacao_deficiencia": "Nenhuma"
+              }
+            ]
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 422 Response
+    description: Erro de validação
+    request:
+      url: "{{baseUrl}}/api/v1/autonomo/autonomos"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "empresa_id": 900001,
+                "cpf": "481.241.812-26",
+                "nome": "Silva Da Silva",
+                "nascimento_data": "1980-05-15",
+                "telefone": "(32)91929-9182",
+                "email": "david@email.com",
+                "status": 1,
+                "etnia_id": 2,
+                "sexo": "masculino",
+                "estrangeiro": false,
+                "pais_residencia_id": 105,
+                "cep": "01234-321",
+                "logradouro": 1,
+                "endereco": "Rua das Caipira 1",
+                "numero": "113",
+                "complemento": "Apt 32",
+                "bairro": "Centro",
+                "cidade_id": 4200804,
+                "estado_civil_id": 1,
+                "grau_instrucao_id": 1,
+                "pais_nascimento_id": 105,
+                "pais_nacionalidade_id": 105,
+                "tempo_residencia_determinado": true,
+                "condicao_ingresso_id": 6,
+                "cota_deficiencia": 0,
+                "deficiencia_fisica": true,
+                "deficiencia_auditiva": false,
+                "deficiencia_visual": true,
+                "deficiencia_intelectual": false,
+                "deficiencia_mental": true,
+                "deficiencia_reabilitado": false,
+                "observacao_deficiencia": "Nenhuma"
+              }
+            ]
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Permite cadastrar múltiplos autônomos de uma só vez através de um array de dados. Cada item deve conter informações obrigatórias como nome, documento e empresa vinculada (verifique o schema). Ideal para inserções em lote ou integrações automatizadas.
