@@ -13,32 +13,32 @@ http:
     data: |-
       {
         "empresa_id": 900002,
-        "v_funcionario_contribuinte_id": 50000,
+        "v_funcionario_contribuinte_id": null,
         "id_admissao_preliminar": null,
-        "v_id_admissao_preliminar": 5,
+        "v_id_admissao_preliminar": null,
         "tipo": "funcionario",
-        "situacao": "nao_liberado",
-        "cadastro_ativo": false,
-        "nome": "Joana Teste",
+        "situacao": null,
+        "cadastro_ativo": true,
+        "nome": null,
         "nome_social": null,
 
         "Informacoes_Pessoais_e_Contato": {
-          "email": "sci.joana.teste2@grr.la",
+          "email": null,
           "telefone": null,
           "celular": null,
-          "sexo": "feminino",
-          "nascimento_data": "1995-08-12",
+          "sexo": null,
+          "nascimento_data": null,
           "nascimento_cidade_id": null,
-          "estado_civil_id": 0,
-          "etnia_id": 1,
-          "tipo_sanguineo_id": 8,
-          "nacionalidade_id": 105,
-          "grau_instrucao_id": 8,
-          "possui_sinais_corpo": false
+          "estado_civil_id": null,
+          "etnia_id": null,
+          "tipo_sanguineo_id": null,
+          "nacionalidade_id": null,
+          "grau_instrucao_id": null,
+          "possui_sinais_corpo": null
         },
 
         "Documentos": {
-          "cpf": "627.073.790-77",
+          "cpf": null,
           "rg": null,
           "rg_orgao_emissor": null,
           "rg_emissao": null,
@@ -70,13 +70,13 @@ http:
         },
 
         "Endereco": {
-          "endereco_cep": "89036-770",
-          "endereco_logradouro_id": 1,
-          "endereco": "César Silveira",
-          "endereco_numero": "44",
+          "endereco_cep": null,
+          "endereco_logradouro_id": null,
+          "endereco": null,
+          "endereco_numero": null,
           "endereco_complemento": null,
-          "endereco_bairro": "Velha",
-          "endereco_cidade_id": 4202404
+          "endereco_bairro": null,
+          "endereco_cidade_id": null
         },
 
         "Familiar_e_Conjuge": {
@@ -88,27 +88,27 @@ http:
         },
 
         "Dados_Contratuais_e_Organizacao": {
-          "cadastro_data": "2026-06-15",
-          "admissao_data": "2026-06-01",
-          "admissao_tipo_id": 1,
-          "contrato_tipo_id": 1,
-          "funcionario_tipo_id": 0,
-          "categoria_esocial_id": 101,
-          "regime_trabalhista_id": 1,
-          "regime_previdenciario_id": 1,
-          "sindicato_id": 1,
-          "sindicalizado": 0,
-          "contribuicao_sindical": 0,
-          "classe_id": 0,
+          "cadastro_data": null,
+          "admissao_data": null,
+          "admissao_tipo_id": null,
+          "contrato_tipo_id": null,
+          "funcionario_tipo_id": null,
+          "categoria_esocial_id": null,
+          "regime_trabalhista_id": null,
+          "regime_previdenciario_id": null,
+          "sindicato_id": null,
+          "sindicalizado": null,
+          "contribuicao_sindical": null,
+          "classe_id": null,
           "centro_custo_id": null,
           "departamento_id": null,
           "funcao_id": null,
-          "ocupacao_natureza_id": 0,
+          "ocupacao_natureza_id": null,
           "matricula_anterior": null,
           "cnpj_empresa_anterior": null,
-          "transferencia_onus": 0,
+          "transferencia_onus": null,
           "transferencia_data": null,
-          "data_adicional_tempo_servico_inicio": "2026-06-01",
+          "data_adicional_tempo_servico_inicio": null,
           "data_reintegracao": null,
           "aposentadoria_data": null,
           "desligamento_data": null,
@@ -117,37 +117,37 @@ http:
         },
 
         "Financeiro_Jornada_e_Experiencia": {
-          "salario_base": 4000,
+          "salario_base": null,
           "remuneracao": null,
-          "forma_pagamento": "mensal",
-          "percentual_comissao": "0",
-          "hora_mensal": 166,
-          "hora_semanal": 33.200000000000003,
-          "hora_diaria": "5.5333",
+          "forma_pagamento": null,
+          "percentual_comissao": null,
+          "hora_mensal": null,
+          "hora_semanal": null,
+          "hora_diaria": null,
           "regime_jornada_trabalho_id": null,
           "tipo_jornada_id": null,
           "tipo_jornada_descricao": null,
           "tipo_escala_id": null,
-          "descanso_semanal_id": 1,
+          "descanso_semanal_id": null,
           "quadro_horario_id": null,
-          "regime_tempo_parcial": 0,
+          "regime_tempo_parcial": null,
           "horario_noturno": null,
           "prazo_experiencia": null,
           "prazo_experiencia_fim": null,
           "prazo_experiencia_prorrogacao": null,
           "prazo_experiencia_prorrogacao_fim": null,
-          "beneficio_desemprego": 0
+          "beneficio_desemprego": null
         },
 
         "Adicionais_e_Incidencias": {
-          "insalubridade_adicional": 0,
-          "insalubridade_incidencia_id": 0,
-          "periculosidade_adicional": 0,
-          "periculosidade_incidencia_id": 0,
-          "noturno_adicional": 0,
-          "noturno_incidencia_id": 0,
-          "valor_previdencia_privada": 0,
-          "valor_previdencia_privada13": 0
+          "insalubridade_adicional": null,
+          "insalubridade_incidencia_id": null,
+          "periculosidade_adicional": null,
+          "periculosidade_incidencia_id": null,
+          "noturno_adicional": null,
+          "noturno_incidencia_id": null,
+          "valor_previdencia_privada": null,
+          "valor_previdencia_privada13": null
         },
 
         "Dados_Bancarios_e_Pagamento": {
@@ -155,30 +155,30 @@ http:
           "banco_conta_agencia": null,
           "banco_conta": null,
           "banco_conta_digito": null,
-          "banco_conta_tipo_id": 1,
-          "banco_modo_pagamento": "credito_conta",
-          "recebe_adiantamento": 0,
-          "percentual_adiantamento": 0,
+          "banco_conta_tipo_id": null,
+          "banco_modo_pagamento": null,
+          "recebe_adiantamento": null,
+          "percentual_adiantamento": null,
           "cartao_salario": null
         },
 
         "Beneficios": {
-          "recebe_vale_refeicao": 0,
+          "recebe_vale_refeicao": null,
           "cartao_vr": null,
           "recebe_vale_alimentacao": null,
           "cartao_va": null,
-          "recebe_vale_transporte": 0,
+          "recebe_vale_transporte": null,
           "cartao_vt": null
         },
 
         "FGTS_e_Registros_Legais": {
           "fgts_conta": null,
-          "fgts_ocorrencia_id": 9,
+          "fgts_ocorrencia_id": null,
           "cartao_ponto": null,
           "ficha_registro": null,
           "livro": null,
           "folha": null,
-          "registro_civil_id": 0,
+          "registro_civil_id": null,
           "registro_civil_termo_matricula": null,
           "registro_civil_cartorio": null,
           "registro_civil_livro": null,
@@ -194,8 +194,8 @@ http:
         },
 
         "Dados_Estrangeiro": {
-          "eh_estrangeiro": false,
-          "pais_nacionalidade_id": 105,
+          "eh_estrangeiro": null,
+          "pais_nacionalidade_id": null,
           "estrangeiro_endereco_pais_id": null,
           "estrangeiro_endereco": null,
           "estrangeiro_endereco_numero": null,
@@ -237,7 +237,7 @@ http:
           "cpf_arquivo": null,
           "pis_arquivo": null,
           "carteira_trabalho_arquivo": null,
-          "observacao": ""
+          "observacao": null
         }
       }
   auth: inherit
@@ -250,7 +250,97 @@ runtime:
         // PRE-REQUEST SCRIPT - BRUNO
         // Lê o body agrupado por seções lógicas (aba Body) e "achata"
         // para o formato plano que a API espera no envio real.
+        //
+        // Opcionalmente, gera dados aleatórios para agilizar testes.
+        // Ative colocando a variável "usarDadosAleatorios" = true na aba
+        // Vars da requisição (ou no ambiente). Só preenche campos que já
+        // estão null — o que você digitar manualmente é sempre respeitado.
+        //
+        // De propósito, NÃO geramos valores aleatórios para:
+        //  - empresa_id (depende do seu ambiente/empresa)
+        //  - qualquer *_id que referencia tabela de domínio do seu sistema
+        //    (banco_id, departamento_id, funcao_id, sindicato_id, etc.) —
+        //    um ID aleatório quase certamente não existe no seu cadastro e
+        //    a API vai rejeitar a criação.
+        // Esses continuam null; preencha com valores válidos do seu ambiente.
         // =============================================================
+
+        // -------------------------------------------------------------
+        // INTERRUPTOR: crie uma variável de ambiente chamada
+        // "usarDadosAleatorios" (aba de Environment do Bruno) com valor
+        // "true" ou "false" — dá pra ligar/desligar sem editar o script,
+        // inclusive trocando entre ambientes diferentes.
+        // A constante abaixo é só um override manual de emergência: deixe
+        // false para o ambiente mandar; mude para true se quiser forçar
+        // a geração aleatória independente do ambiente.
+        // -------------------------------------------------------------
+        const FORCAR_DADOS_ALEATORIOS = false;
+
+        // Dados-base para geração aleatória (ajuste as listas à vontade)
+        const NOMES = ['Ana', 'Bruna', 'Carlos', 'Daniela', 'Eduardo', 'Fernanda', 'Gabriel', 'Helena',
+          'Igor', 'Juliana', 'Lucas', 'Mariana', 'Nicolas', 'Otávio', 'Patrícia', 'Rafael',
+          'Sabrina', 'Thiago', 'Vitória', 'William'];
+        const SOBRENOMES = ['Silva', 'Santos', 'Oliveira', 'Souza', 'Rodrigues', 'Ferreira', 'Alves',
+          'Pereira', 'Lima', 'Gomes', 'Costa', 'Ribeiro', 'Martins', 'Carvalho', 'Almeida', 'Lopes'];
+
+        const randomFrom = (lista) => lista[Math.floor(Math.random() * lista.length)];
+        const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const pad = (n, len) => String(n).padStart(len, '0');
+
+        const randomData = (anoIni, anoFim) => {
+          const ano = randomInt(anoIni, anoFim);
+          const mes = randomInt(1, 12);
+          const dia = randomInt(1, 28);
+          return `${ano}-${pad(mes, 2)}-${pad(dia, 2)}`;
+        };
+
+        const hojeISO = () => new Date().toISOString().slice(0, 10);
+
+        const gerarCPF = () => `${pad(randomInt(0, 999), 3)}.${pad(randomInt(0, 999), 3)}.${pad(randomInt(0, 999), 3)}-${pad(randomInt(0, 99), 2)}`;
+
+        const gerarTelefone = () => `47 9${randomInt(1000, 9999)}-${randomInt(1000, 9999)}`;
+
+        // A API valida CEP (e aparentemente o conjunto endereço/bairro) contra
+        // dados reais — inventar um CEP, mesmo com formato correto, é rejeitado.
+        // Por isso usamos combinações reais e válidas de CEP + rua + bairro,
+        // já testadas. Adicione mais linhas aqui se tiver outros endereços
+        // válidos no seu ambiente, pra ter mais variedade.
+        const ENDERECOS_VALIDOS = [
+          { cep: '89036-770', rua: 'César Silveira', bairro: 'Velha' }
+        ];
+
+        // Mapa campo -> gerador. A ordem importa:
+        //  - "email" usa o "nome" já gerado antes dele
+        //  - "endereco" e "endereco_bairro" usam o mesmo endereço sorteado
+        //    por "endereco_cep", pra não misturar CEP de um bairro com rua
+        //    de outro
+        const CAMPOS_ALEATORIOS = {
+          nome: () => `${randomFrom(NOMES)} ${randomFrom(SOBRENOMES)} Teste`,
+          email: (ctx) => {
+            const base = (ctx.nome || 'usuario teste').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '.');
+            return `${base}${randomInt(1, 999)}@teste.com`;
+          },
+          sexo: () => randomFrom(['masculino', 'feminino']),
+          nascimento_data: () => randomData(1970, 2005),
+          telefone: () => gerarTelefone(),
+          celular: () => gerarTelefone(),
+          cpf: () => gerarCPF(),
+          endereco_cep: (ctx) => {
+            ctx.enderecoEscolhido = randomFrom(ENDERECOS_VALIDOS);
+            return ctx.enderecoEscolhido.cep;
+          },
+          endereco: (ctx) => (ctx.enderecoEscolhido || ENDERECOS_VALIDOS[0]).rua,
+          endereco_numero: () => String(randomInt(1, 999)),
+          endereco_bairro: (ctx) => (ctx.enderecoEscolhido || ENDERECOS_VALIDOS[0]).bairro,
+          salario_base: () => randomInt(1800, 8000),
+          forma_pagamento: () => 'mensal',
+          hora_mensal: () => 220,
+          hora_semanal: () => 44,
+          hora_diaria: () => 8,
+          admissao_data: () => hojeISO(),
+          cadastro_data: () => hojeISO(),
+          data_adicional_tempo_servico_inicio: () => hojeISO()
+        };
 
         const bodyAgrupado = req.getBody();
 
@@ -269,6 +359,29 @@ runtime:
               bodyPlano[key] = valor;
             }
           });
+
+          // -----------------------------------------------------------
+          // Preenchimento com dados aleatórios (opcional)
+          // -----------------------------------------------------------
+          const valorEnv = String(bru.getEnvVar('usarDadosAleatorios') || '').toLowerCase() === 'true';
+          const usarAleatorio = FORCAR_DADOS_ALEATORIOS || valorEnv;
+
+          console.log(`[POST] usarDadosAleatorios (ambiente) = ${bru.getEnvVar('usarDadosAleatorios')} | FORCAR_DADOS_ALEATORIOS (script) = ${FORCAR_DADOS_ALEATORIOS} | resultado final = ${usarAleatorio}`);
+
+          if (usarAleatorio) {
+            const contexto = {};
+            const camposPreenchidos = [];
+            Object.keys(CAMPOS_ALEATORIOS).forEach((campo) => {
+              const valorAtual = bodyPlano[campo];
+              const estaVazio = valorAtual === null || valorAtual === undefined || valorAtual === '';
+              if (estaVazio) {
+                bodyPlano[campo] = CAMPOS_ALEATORIOS[campo](contexto);
+                camposPreenchidos.push(campo);
+              }
+              contexto[campo] = bodyPlano[campo];
+            });
+            console.log(`[POST] Campos preenchidos aleatoriamente: ${camposPreenchidos.join(', ') || '(nenhum — todos já tinham valor)'}`);
+          }
 
           // Guarda o body agrupado original em uma variável de requisição.
           // Isso permite reconstruir a visão organizada no post-response,

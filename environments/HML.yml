@@ -23,3 +23,5 @@ variables:
       }
   - secret: true
     name: token
+  - name: usarDadosAleatorios
+    value: "true"
