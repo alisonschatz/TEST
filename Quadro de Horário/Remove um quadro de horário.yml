@@ -18,9 +18,7 @@ http:
         "empresa_id": 900001,
         "quadro_id": 55
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 runtime:
   scripts:

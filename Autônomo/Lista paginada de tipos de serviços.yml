@@ -21,9 +21,7 @@ http:
       value: 2025-01-01 00:00:00
       type: query
       description: Retorna registros alterados a partir desta data/hora (YYYY-MM-DD / YYYY-MM-DD HH:MM:SS)
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

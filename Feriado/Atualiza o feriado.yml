@@ -16,9 +16,7 @@ http:
         "data": "2036-01-29",
         "descricao": "Teste Feriado atualizado"
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

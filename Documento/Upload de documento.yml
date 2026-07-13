@@ -63,9 +63,7 @@ http:
         type: file
         value: []
         description: Arquivo do documento (máx. 5MB, JPG/PNG/PDF)
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

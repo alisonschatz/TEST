@@ -46,9 +46,7 @@ http:
         "deficiencia_reabilitado": false,
         "observacao_deficiencia": "Nenhuma"
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

@@ -19,9 +19,7 @@ http:
         "categoria_esocial": 101,
         "ativo": true
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

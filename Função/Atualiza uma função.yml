@@ -20,9 +20,7 @@ http:
         "novo_esocial": 1,
         "ativo": true
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

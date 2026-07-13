@@ -20,9 +20,7 @@ http:
           }
         ]
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

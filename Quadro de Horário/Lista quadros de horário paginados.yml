@@ -36,6 +36,7 @@ http:
       type: query
       description: Filtra registros com logAlteradoData >= valor (sincronização incremental)
       disabled: true
+  auth: inherit
 
 runtime:
   scripts:

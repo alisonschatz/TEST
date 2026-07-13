@@ -25,9 +25,7 @@ http:
         "documento": "012345678912345",
         "hora": "23:59"
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

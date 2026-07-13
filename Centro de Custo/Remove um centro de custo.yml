@@ -15,9 +15,7 @@ http:
         "empresa_id": 900001,
         "centro_custo_id": 42
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

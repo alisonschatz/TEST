@@ -17,9 +17,7 @@ http:
         "cod_departamento": "RH-002",
         "departamento": "Recursos Humanos e DP"
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

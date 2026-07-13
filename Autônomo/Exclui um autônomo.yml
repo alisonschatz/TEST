@@ -15,9 +15,7 @@ http:
         "autonomo_id": 178,
         "empresa_id": 900001
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

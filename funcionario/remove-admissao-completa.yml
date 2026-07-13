@@ -12,8 +12,8 @@ http:
     type: json
     data: |-
       {
-        "empresa_id": null,
-        "funcionario_contribuinte_id": null
+        "empresa_id": "",
+        "funcionario_contribuinte_id": ""
       }
   auth: inherit
 

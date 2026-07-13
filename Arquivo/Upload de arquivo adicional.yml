@@ -27,9 +27,7 @@ http:
         type: text
         value: Contrato de Trabalho
         description: Descrição única para o arquivo do funcionário
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

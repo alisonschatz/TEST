@@ -35,58 +35,7 @@ http:
           }
         ]
       }
-
-runtime:
-  scripts:
-    - type: before-request
-      code: |-
-        const perfil_escolhido = 2; 
-        // ==============================================================
-        // 1 = Perfil 1 - Unico Cliente
-        // 2 = Perfil 2 - Unico ADM
-        // 3 = Perfil 3 - Practice Cliente
-        // 4 = Perfil 4 - Practice ADM
-        // 5 = Perfil 5 - Parceiro Cliente Unico
-        // 6 = Perfil 6 - Parceiro ADM Unico
-        // 7 = Perfil 7 - Parceiro Cliente Practice
-        // 8 = Perfil 8 - Parceiro ADM Practice
-        // ===============================================================
-
-        // Carrega os perfis
-        let perfis = bru.getEnvVar("perfis");
-
-        if (typeof perfis === "string") {
-          perfis = JSON.parse(perfis);
-        }
-
-        // Pega o perfil
-        let perfilDaVez = perfis[perfil_escolhido - 1];
-
-        if (!perfilDaVez) {
-          console.error(`Erro: O perfil número ${perfil_escolhido} não existe! Escolha de 1 a 8.`);
-          return;
-        }
-
-        console.log(`>>> Executando requisição com: ${perfilDaVez.nome}`);
-
-        // Requisição login
-        const axios = require('axios');
-        const credenciaisBase64 = btoa(`${perfilDaVez.user}:${perfilDaVez.pass}`);
-
-        try {
-          const resposta = await axios.post('https://api-auth-hml.sci.com.br/api/v1/auth/credencial/login', {}, {
-            headers: {
-              'Authorization': `Basic ${credenciaisBase64}`
-            }
-          });
-
-          if (resposta.data && resposta.data.token) {
-            // Atualiza a variável que o Header "Authorization" está lendo
-            bru.setVar("token_atual", resposta.data.token);
-          }
-        } catch (error) {
-          console.error("Erro ao autenticar perfil automaticamente:", error.message);
-        }
+  auth: inherit
 
 settings:
   encodeUrl: true

@@ -56,9 +56,7 @@ http:
       value: "98765"
       type: query
       description: ID do funcionário contribuinte
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

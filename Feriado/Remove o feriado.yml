@@ -15,9 +15,7 @@ http:
         "empresa_id": 900001,
         "data": "2046-01-29"
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

@@ -21,9 +21,7 @@ http:
       value: 2024-01-01 00:00:00
       type: query
       description: Filtra registros alterados a partir desta data (sincronização incremental)
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

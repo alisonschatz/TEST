@@ -25,9 +25,7 @@ http:
       value: "1"
       type: query
       description: Página atual
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

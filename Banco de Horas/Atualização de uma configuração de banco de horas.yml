@@ -11,7 +11,6 @@ http:
   headers:
     - name: SISTEMAID
       value: "19"
-      description: ID do sistema (19=VISUAL, 52=UNICO). Se não informado, usa o valor padrão 19.
   body:
     type: json
     data: |-
@@ -20,9 +19,7 @@ http:
         "descricao": "Configuração atualizada",
         "observacao": "Observações atualizadas"
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true
@@ -39,7 +36,6 @@ examples:
       headers:
         - name: SISTEMAID
           value: "19"
-          description: ID do sistema (19=VISUAL, 52=UNICO). Se não informado, usa o valor padrão 19.
       body:
         type: json
         data: |-
@@ -77,7 +73,6 @@ examples:
       headers:
         - name: SISTEMAID
           value: "19"
-          description: ID do sistema (19=VISUAL, 52=UNICO). Se não informado, usa o valor padrão 19.
       body:
         type: json
         data: |-
@@ -103,7 +98,6 @@ examples:
       headers:
         - name: SISTEMAID
           value: "19"
-          description: ID do sistema (19=VISUAL, 52=UNICO). Se não informado, usa o valor padrão 19.
       body:
         type: json
         data: |-
@@ -140,7 +134,6 @@ examples:
       headers:
         - name: SISTEMAID
           value: "19"
-          description: ID do sistema (19=VISUAL, 52=UNICO). Se não informado, usa o valor padrão 19.
       body:
         type: json
         data: |-

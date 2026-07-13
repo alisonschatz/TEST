@@ -11,7 +11,6 @@ http:
   headers:
     - name: SISTEMAID
       value: "19"
-      description: ID do sistema (19=VISUAL, 52=UNICO). Se não informado, usa o valor padrão 19.
   params:
     - name: page
       value: "1"
@@ -21,9 +20,7 @@ http:
       value: 2024-01-01 00:00:00
       type: query
       description: Filtra registros alterados a partir desta data (sincronização incremental)
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true
@@ -40,7 +37,6 @@ examples:
       headers:
         - name: SISTEMAID
           value: "19"
-          description: ID do sistema (19=VISUAL, 52=UNICO). Se não informado, usa o valor padrão 19.
       params:
         - name: page
           value: "1"
@@ -89,7 +85,6 @@ examples:
       headers:
         - name: SISTEMAID
           value: "19"
-          description: ID do sistema (19=VISUAL, 52=UNICO). Se não informado, usa o valor padrão 19.
       params:
         - name: page
           value: "1"

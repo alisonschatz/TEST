@@ -92,9 +92,7 @@ http:
           "saida_4": null
         }
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 runtime:
   scripts:

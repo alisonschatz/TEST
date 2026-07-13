@@ -15,9 +15,7 @@ http:
         "empresa_id": 900001,
         "departamento_id": 7
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

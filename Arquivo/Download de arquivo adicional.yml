@@ -21,9 +21,7 @@ http:
       value: "12"
       type: query
       description: ID do arquivo adicional
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

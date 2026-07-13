@@ -17,9 +17,7 @@ http:
         "centro_custo": "002",
         "nome": "Administrativo Atualizado"
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

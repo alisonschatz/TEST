@@ -16,9 +16,7 @@ http:
         "funcionario_contribuinte_id": 98765,
         "arquivo_id": 12
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true

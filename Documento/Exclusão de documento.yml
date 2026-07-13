@@ -55,9 +55,7 @@ http:
         "empresa_id": 12345,
         "funcionario_contribuinte_id": 98765
       }
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
 
 settings:
   encodeUrl: true
