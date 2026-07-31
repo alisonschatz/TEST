@@ -2,10 +2,13 @@ name: HML
 variables:
   - name: baseUrl
     value: https://api-rhnet-hml.sci.com.br
+    description: ""
   - name: authUrl
     value: https://api-auth-hml.sci.com.br
-  - name: perfil_escolhido
-    value: "2"
+    description: ""
+  - name: tipo_perfil
+    value: parceiro_unico_cliente
+    description: ""
   - name: tokens_sistema
     value: |-
       {
@@ -13,6 +16,7 @@ variables:
       "practice":"1546|fg5wIxRs3wtXqqg4TPHLMiekQpEk4wTGtu9gN1U0",
       "parceiro":"1548|4Ia5ced8PVwaKvXpch9sVOZJAXXCvgE2XYVTEeLg"
       }
+    description: ""
   - name: tokens_contexto
     value: |-
       {
@@ -21,7 +25,9 @@ variables:
       "cliente_practice":"1552|TjRplq3iEgSSYZc20d9cRN0luBQMRGE4MiTL3Brt",
       "adm_practice":"1553|Oy6O94f3ew4v5Pt6zoM8lVbWzJOkdA9MqiBVxmfS"
       }
-  - secret: true
-    name: token
+    description: ""
   - name: usarDadosAleatorios
     value: "true"
+    description: ""
+  - secret: true
+    name: token

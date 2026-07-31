@@ -1,0 +1,656 @@
+info:
+  name: Lista Admissões Completas
+  type: http
+  seq: 1
+  tags:
+    - Admissões
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/admissoes/completas?{{rt_query}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Lista retornada com sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/funcionario/completa"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa vinculada ao usuário
+        - name: tipo
+          value: funcionario
+          type: query
+          description: Filtrar por tipo de admissão
+          disabled: true
+        - name: tipo
+          value: contribuinte
+          type: query
+          description: Filtrar por tipo de admissão
+          disabled: true
+        - name: situacao
+          value: integrado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: liberado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: nao_liberado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: aguardando_integracao
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: recusado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: alterado_data
+          value: 2026-03-25 12:22:34
+          type: query
+          description: |-
+            Filtrar registros alterados a partir de uma determinada data. Retorna todos os cadastros cuja data de última alteração (`alterado_data`) seja **igual ou posterior** à data informada. Aceita os formatos de data (YYYY-MM-DD ou YYYY-MM-DD HH:MM:SS).
+             *
+             * Exemplo: informando `2026-03-25`, serão retornados todos os registros alterados no dia 25/03/2026 ou depois.
+        - name: funcionario_contribuinte_id
+          value: "1547"
+          type: query
+          description: Filtrar pelo ID do registro de funcionário/contribuinte
+        - name: v_funcionario_contribuinte_id
+          value: "1547"
+          type: query
+          description: Filtrar pelo ID legado do funcionário/contribuinte
+        - name: page
+          value: "1"
+          type: query
+          description: Página atual
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Operação realizada com sucesso",
+            "paginacao": {
+              "registros_por_pagina": 15,
+              "total": 1000,
+              "pagina_atual": 1,
+              "ultima_pagina": 100,
+              "inicio": 1,
+              "fim": 15
+            },
+            "retorno": [
+              {
+                "empresa_id": 10,
+                "funcionario_contribuinte_id": 1547,
+                "v_funcionario_contribuinte_id": 1547,
+                "id_admissao_preliminar": null,
+                "v_id_admissao_preliminar": null,
+                "tipo": "funcionario",
+                "situacao": "liberado",
+                "cadastro_ativo": true,
+                "nome": "João Carlos Pereira",
+                "email": "joao.pereira@empresa.com.br",
+                "endereco_cep": "01310-100",
+                "endereco_logradouro_id": 1,
+                "endereco": "Avenida Paulista",
+                "endereco_numero": "1578",
+                "endereco_complemento": "Apto 42",
+                "endereco_bairro": "Bela Vista",
+                "endereco_cidade_id": 4202404,
+                "telefone": "(011) 30405060",
+                "celular": "(011) 991234567",
+                "eh_estrangeiro": false,
+                "estrangeiro_endereco_pais_id": 154,
+                "estrangeiro_endereco": null,
+                "estrangeiro_endereco_numero": null,
+                "estrangeiro_complemento": null,
+                "estrangeiro_endereco_bairro": null,
+                "estrangeiro_endereco_cidade": null,
+                "estrangeiro_endereco_cod_postal": null,
+                "tipo_sanguineo_id": 1,
+                "etnia_id": 5,
+                "sexo": "masculino",
+                "deficiencia_id": null,
+                "deficiencia_cota": 0,
+                "deficiencia_fisica": 0,
+                "deficiencia_auditiva": 0,
+                "deficiencia_visual": 0,
+                "deficiencia_intelectual": 0,
+                "deficiencia_mental": 0,
+                "deficiencia_reabilitado": 0,
+                "deficiencia_observacao": null,
+                "possui_sinais_corpo": false,
+                "foto_id": null,
+                "nacionalidade_id": 105,
+                "nascimento_cidade_id": 4202404,
+                "estado_civil_id": 1,
+                "nascimento_data": "1990-05-15",
+                "grau_instrucao_id": 10,
+                "pais_nacionalidade_id": 105,
+                "estrangeiro_data_chegada_brasil": null,
+                "estrangeiro_casado_com_brasileiro": null,
+                "estrangeiro_com_filho_brasileiro": null,
+                "rne_numero": null,
+                "rne_orgao_emissor": null,
+                "rne_emissao": null,
+                "estrangeirocondicaoingresso": null,
+                "estrangeiro_tipo_residencia": null,
+                "cadastro_data": "2024-01-10",
+                "data_adicional_tempo_servico_inicio": null,
+                "cpf": "111.444.777-35",
+                "rg": "12.345.678-9",
+                "rg_orgao_emissor": "SSP",
+                "rg_emissao": "2010-06-20",
+                "rg_uf": "SP",
+                "titulo_eleitor": "123456789012",
+                "titulo_eleitor_zona": "001",
+                "titulo_eleitor_secao": "0001",
+                "pis_numero": "123.12345.12.1",
+                "pis_emissao": "2008-03-01",
+                "certificado_reservista": null,
+                "carteira_trabalho": "12345678",
+                "carteira_trabalho_serie": "00123",
+                "carteira_trabalho_serie_digito": "1",
+                "carteira_trabalho_emissao": "2008-09-10",
+                "carteira_trabalho_uf": "SP",
+                "cnh": "01234567891",
+                "cnh_uf": "SP",
+                "cnh_categoria": "B",
+                "cnh_emissao": "2015-03-22",
+                "cnh_vencimento": "2025-03-22",
+                "cnh_primeira_habilitacao": "2015-03-22",
+                "ric_numero": null,
+                "ric_orgao_emissor": null,
+                "ric_emissao": null,
+                "mae_nome": "Maria Silva Pereira",
+                "pai_nome": "Carlos Antônio Pereira",
+                "conjuge_nome": null,
+                "conjuge_nascimento_cidade_id": 4202404,
+                "conjuge_nascimento_data": null,
+                "nome_social": null,
+                "categoria_esocial_id": 101,
+                "fgts_ocorrencia_id": 2,
+                "regime_previdenciario_id": 1,
+                "classe_id": 1,
+                "centro_custo_id": null,
+                "departamento_id": null,
+                "regime_jornada_trabalho_id": 1,
+                "tipo_escala_id": 1,
+                "descanso_semanal_id": 1,
+                "quadro_horario_id": 3,
+                "funcao_id": 12,
+                "oc_numero": null,
+                "oc_orgao_emissor": null,
+                "oc_emissao": null,
+                "oc_vencimento": null,
+                "forma_pagamento": "mensal",
+                "valor_previdencia_privada": null,
+                "valor_previdencia_privada13": null,
+                "banco_id": 1,
+                "banco_conta_agencia": "1234",
+                "banco_conta": "00056789",
+                "banco_conta_digito": "1",
+                "banco_conta_tipo_id": 1,
+                "banco_modo_pagamento": "credito_conta",
+                "recebe_adiantamento": "1",
+                "observacao": "Funcionário contratado para setor administrativo.",
+                "rg_arquivo": null,
+                "cpf_arquivo": null,
+                "pis_arquivo": null,
+                "carteira_trabalho_arquivo": null,
+                "banco_horas_utilizacao_id": null,
+                "banco_horas_configuracao_id": null,
+                "banco_horas_data_inicio": null,
+                "tipo_jornada_id": 1,
+                "tipo_jornada_descricao": "Segunda a sexta das 08:00 às 17:00 com 1 hora de almoço",
+                "log_cadastro_data": "2026-01-13 10:32:05",
+                "log_cadastro_usuario_id": 0,
+                "log_alterado_data": "2026-03-25 12:22:34",
+                "log_alterado_usuario_id": 0,
+                "admissao_data": "2024-01-15",
+                "admissao_tipo_id": 1,
+                "contrato_tipo_id": 1,
+                "ocupacao_natureza_id": 1,
+                "cnpj_empresa_anterior": null,
+                "transferencia_onus": null,
+                "transferencia_data": null,
+                "aposentadoria_data": null,
+                "desligamento_data": null,
+                "data_reintegracao": null,
+                "matricula_anterior": null,
+                "registro_civil_id": null,
+                "registro_civil_termo_matricula": null,
+                "registro_civil_cartorio": null,
+                "registro_civil_livro": null,
+                "registro_civil_folha": null,
+                "registro_civil_cidade_id": null,
+                "registro_civil_emissao": null,
+                "fgts_conta": "00123456789-0",
+                "regime_trabalhista_id": 1,
+                "sindicato_id": 5,
+                "sindicalizado": 0,
+                "cartao_ponto": 12345,
+                "ficha_registro": null,
+                "livro": null,
+                "folha": "15",
+                "horario_noturno": "nao",
+                "funcionario_tipo_id": 1,
+                "salario_base": 3500,
+                "percentual_comissao": null,
+                "hora_mensal": 220,
+                "hora_semanal": 44,
+                "hora_diaria": "8.80",
+                "insalubridade_adicional": null,
+                "insalubridade_incidencia_id": null,
+                "periculosidade_adicional": null,
+                "periculosidade_incidencia_id": null,
+                "noturno_adicional": null,
+                "noturno_incidencia_id": null,
+                "prazo_experiencia": "45",
+                "prazo_experiencia_fim": "2024-03-01",
+                "prazo_experiencia_prorrogacao": "45",
+                "prazo_experiencia_prorrogacao_fim": "2024-04-16",
+                "cartao_salario": null,
+                "recebe_vale_refeicao": 1,
+                "cartao_vr": "6070 1234 5678 9012",
+                "recebe_vale_alimentacao": 0,
+                "cartao_va": null,
+                "recebe_vale_transporte": 1,
+                "cartao_vt": "7890 0001 2345 6789",
+                "percentual_adiantamento": 40,
+                "contribuicao_sindical": "0",
+                "regime_tempo_parcial": "0",
+                "beneficio_desemprego": "0",
+                "log_liberacao_data": null,
+                "entrada_data": "2024-03-01",
+                "baixa_data": null,
+                "remuneracao": 8500
+              }
+            ]
+          }
+  - name: 401 Response
+    description: Token ausente ou inválido
+    request:
+      url: "{{baseUrl}}/api/v1/funcionario/completa"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa vinculada ao usuário
+        - name: tipo
+          value: funcionario
+          type: query
+          description: Filtrar por tipo de admissão
+          disabled: true
+        - name: tipo
+          value: contribuinte
+          type: query
+          description: Filtrar por tipo de admissão
+          disabled: true
+        - name: situacao
+          value: integrado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: liberado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: nao_liberado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: aguardando_integracao
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: recusado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: alterado_data
+          value: 2026-03-25 12:22:34
+          type: query
+          description: |-
+            Filtrar registros alterados a partir de uma determinada data. Retorna todos os cadastros cuja data de última alteração (`alterado_data`) seja **igual ou posterior** à data informada. Aceita os formatos de data (YYYY-MM-DD ou YYYY-MM-DD HH:MM:SS).
+             *
+             * Exemplo: informando `2026-03-25`, serão retornados todos os registros alterados no dia 25/03/2026 ou depois.
+        - name: funcionario_contribuinte_id
+          value: "1547"
+          type: query
+          description: Filtrar pelo ID do registro de funcionário/contribuinte
+        - name: v_funcionario_contribuinte_id
+          value: "1547"
+          type: query
+          description: Filtrar pelo ID legado do funcionário/contribuinte
+        - name: page
+          value: "1"
+          type: query
+          description: Página atual
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Sem permissão de acesso
+    request:
+      url: "{{baseUrl}}/api/v1/funcionario/completa"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa vinculada ao usuário
+        - name: tipo
+          value: funcionario
+          type: query
+          description: Filtrar por tipo de admissão
+          disabled: true
+        - name: tipo
+          value: contribuinte
+          type: query
+          description: Filtrar por tipo de admissão
+          disabled: true
+        - name: situacao
+          value: integrado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: liberado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: nao_liberado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: aguardando_integracao
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: recusado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: alterado_data
+          value: 2026-03-25 12:22:34
+          type: query
+          description: |-
+            Filtrar registros alterados a partir de uma determinada data. Retorna todos os cadastros cuja data de última alteração (`alterado_data`) seja **igual ou posterior** à data informada. Aceita os formatos de data (YYYY-MM-DD ou YYYY-MM-DD HH:MM:SS).
+             *
+             * Exemplo: informando `2026-03-25`, serão retornados todos os registros alterados no dia 25/03/2026 ou depois.
+        - name: funcionario_contribuinte_id
+          value: "1547"
+          type: query
+          description: Filtrar pelo ID do registro de funcionário/contribuinte
+        - name: v_funcionario_contribuinte_id
+          value: "1547"
+          type: query
+          description: Filtrar pelo ID legado do funcionário/contribuinte
+        - name: page
+          value: "1"
+          type: query
+          description: Página atual
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Erro de validação
+    request:
+      url: "{{baseUrl}}/api/v1/funcionario/completa"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa vinculada ao usuário
+        - name: tipo
+          value: funcionario
+          type: query
+          description: Filtrar por tipo de admissão
+          disabled: true
+        - name: tipo
+          value: contribuinte
+          type: query
+          description: Filtrar por tipo de admissão
+          disabled: true
+        - name: situacao
+          value: integrado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: liberado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: nao_liberado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: aguardando_integracao
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: situacao
+          value: recusado
+          type: query
+          description: |-
+            Filtrar por situação do cadastro do colaborador. Envie o identificador textual correspondente ao estado desejado. Valores aceitos (definidos em SituacaoLiberacaoEnum, verificar schema `SituacaoLiberacaoEnum`):
+             *  - `integrado` - Registro integrado com sucesso.
+             *  - `liberado` - Registro liberado para integração.
+             *  - `nao_liberado` - Registro não liberado para integração.
+             *  - `aguardando_integracao` - Registro aguardando conclusão da integração.
+             *  - `recusado` - Registro recusado na importação. É necessário corrigir antes de realizar nova liberação.
+          disabled: true
+        - name: alterado_data
+          value: 2026-03-25 12:22:34
+          type: query
+          description: |-
+            Filtrar registros alterados a partir de uma determinada data. Retorna todos os cadastros cuja data de última alteração (`alterado_data`) seja **igual ou posterior** à data informada. Aceita os formatos de data (YYYY-MM-DD ou YYYY-MM-DD HH:MM:SS).
+             *
+             * Exemplo: informando `2026-03-25`, serão retornados todos os registros alterados no dia 25/03/2026 ou depois.
+        - name: funcionario_contribuinte_id
+          value: "1547"
+          type: query
+          description: Filtrar pelo ID do registro de funcionário/contribuinte
+        - name: v_funcionario_contribuinte_id
+          value: "1547"
+          type: query
+          description: Filtrar pelo ID legado do funcionário/contribuinte
+        - name: page
+          value: "1"
+          type: query
+          description: Página atual
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Retorna lista paginada de admissões completas (funcionários e/ou contribuintes). Pode ser filtrada por empresa, tipo, situação e ID do colaborador.

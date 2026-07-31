@@ -1,0 +1,179 @@
+info:
+  name: Cadastra novas configurações de banco de horas
+  type: http
+  seq: 3
+  tags:
+    - Bancos de Horas
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/bancos-horas/configuracoes"
+  body:
+    type: json
+    data: |-
+      {
+        "sistema_id": 19,
+        "dados": [
+          {
+            "v_configuracao_id": 123456,
+            "descricao": "Configuração de banco de horas",
+            "observacao": "Observações adicionais"
+          }
+        ]
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Operação realizada com sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/bancos-horas/configuracoes"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "sistema_id": 19,
+            "dados": [
+              {
+                "v_configuracao_id": 123456,
+                "descricao": "Configuração de banco de horas",
+                "observacao": "Observações adicionais"
+              }
+            ]
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Operação realizada com sucesso",
+            "retorno": [
+              {
+                "v_configuracao_id": 123456,
+                "descricao": "Configuração de banco de horas padrão",
+                "observacao": "Observações gerais sobre a configuração",
+                "log_cadastro_data": "2024-01-01 00:00:00",
+                "log_alterado_data": "2024-06-01 00:00:00"
+              }
+            ]
+          }
+  - name: 401 Response
+    description: Erro de autenticação
+    request:
+      url: "{{baseUrl}}/api/v1/bancos-horas/configuracoes"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "sistema_id": 19,
+            "dados": [
+              {
+                "v_configuracao_id": 123456,
+                "descricao": "Configuração de banco de horas",
+                "observacao": "Observações adicionais"
+              }
+            ]
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Erro de permissão
+    request:
+      url: "{{baseUrl}}/api/v1/bancos-horas/configuracoes"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "sistema_id": 19,
+            "dados": [
+              {
+                "v_configuracao_id": 123456,
+                "descricao": "Configuração de banco de horas",
+                "observacao": "Observações adicionais"
+              }
+            ]
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Erro de validação
+    request:
+      url: "{{baseUrl}}/api/v1/bancos-horas/configuracoes"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "sistema_id": 19,
+            "dados": [
+              {
+                "v_configuracao_id": 123456,
+                "descricao": "Configuração de banco de horas",
+                "observacao": "Observações adicionais"
+              }
+            ]
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Permite cadastrar múltiplas configurações de banco de horas simultaneamente por meio de um array de dados. Restrito a usuários do tipo Pessoa via sistema SCI.

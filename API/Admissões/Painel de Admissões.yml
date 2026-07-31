@@ -1,0 +1,794 @@
+info:
+  name: Painel de Admissões
+  type: app
+  seq: 1
+code: |
+  <!--
+        ============================================================
+        BRUNO COLLECTION APP - Pasta "Admissões"
+        ============================================================
+        Substitui os scripts antigos (bru.visualize) e os botões de
+        "copiar para colar" por um painel único que lista, cria, edita
+        e exclui tanto admissões COMPLETAS quanto PRELIMINARES,
+        disparando as 8 requests da pasta via bru.ctx.runRequest().
+
+        PRÉ-REQUISITOS nos arquivos da pasta (já ajustados nos .yml
+        entregues junto com este arquivo):
+        - Cada request de listagem (GET) usa "?{{rt_query}}" na URL.
+        - Cada request de criação/edição (POST/PUT) tem o body como um
+          objeto JSON "achatado" (sem agrupamento), com TODOS os campos
+          como placeholders individuais: "campo": "{{campo}}".
+        - Cada request de exclusão (DELETE) tem o body com os campos-
+          chave como placeholders: {{empresa_id}}, {{funcionario_contribuinte_id}}
+          ou {{empresa_id}}, {{id}} (preliminar).
+
+        Como instalar:
+        1. Abra a pasta "Admissões" no Bruno.
+        2. Aba "App" da PASTA (não de uma request específica) → habilite.
+        3. Cole todo o conteúdo deste arquivo no editor de código do App.
+        4. Salve.
+
+        Como o App encontra as requests:
+        bru.ctx.listRequests() retorna todas as requests visíveis, com
+        {name, pathname}. Este App casa pelo campo "name" (exatamente o
+        "info.name" de cada arquivo) - por isso é importante não renomear
+        as requests sem atualizar a constante REQ abaixo.
+
+        Ressalva honesta: usar UM placeholder por campo (em vez de um
+        JSON inteiro em uma única variável) é a forma mais alinhada com
+        os exemplos oficiais de bru.ctx que consegui confirmar - mas com
+        ~174 campos por registro "completa", não há como testar isso a
+        fundo de antemão. Se algum campo específico não for interpolado
+        corretamente, abra "Depuração" no rodapé (mostra exatamente o que
+        cada chamada enviou e recebeu) e me avise.
+        ============================================================
+      -->
+
+      <style>
+        #app-funcionario {
+          --bg: #f5f6f8;
+          --surface: #ffffff;
+          --surface-alt: #fafbfc;
+          --border: #e2e5eb;
+          --text: #1f2430;
+          --text-muted: #6b7280;
+          --primary: #4f46e5;
+          --primary-soft: #eef0ff;
+          --green: #059669;
+          --green-soft: #ecfdf5;
+          --red: #dc2626;
+          --red-soft: #fef2f2;
+          --radius: 10px;
+          --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          background: var(--bg);
+          color: var(--text);
+          font-size: 14px;
+          padding: 16px;
+          border-radius: var(--radius);
+        }
+        #app-funcionario * { box-sizing: border-box; }
+        #app-funcionario button, #app-funcionario input, #app-funcionario select { font-family: inherit; }
+        #app-funcionario :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+        .ap-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+        .ap-header h2 { margin: 0; font-size: 19px; font-weight: 700; }
+        .ap-subtitle { font-size: 12px; color: var(--text-muted); }
+
+        .ap-resource-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+        .ap-resource-tab { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 8px 16px; font-size: 13.5px; font-weight: 700; color: var(--text-muted); cursor: pointer; }
+        .ap-resource-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+        .stat-pill { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 600; color: var(--text-muted); }
+        .stat-pill b { color: var(--text); }
+        .stat-pill.stat-green b { color: var(--green); }
+        .stat-pill.stat-red b { color: var(--red); }
+
+        .pf-filtros { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 14px; box-shadow: var(--shadow); }
+        .pf-filtros-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 12px; }
+        .campo { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .campo label { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; word-break: break-word; }
+        .campo input, .campo select { border: 1px solid var(--border); border-radius: 7px; padding: 7px 9px; font-size: 13px; color: var(--text); background: var(--surface-alt); width: 100%; }
+        .campo input:focus, .campo select:focus { outline: none; border-color: var(--primary); background: var(--surface); }
+        .campo input:disabled { opacity: 0.55; }
+        .pf-filtros-acoes { display: flex; gap: 8px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
+
+        .btn-refresh { display: inline-flex; align-items: center; gap: 6px; background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 9px 16px; font-size: 13.5px; font-weight: 700; cursor: pointer; }
+        .btn-refresh:hover { filter: brightness(1.06); }
+        .btn-refresh:disabled { opacity: 0.6; cursor: default; }
+        .btn-nova { background: var(--green); }
+        .spinner { width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); border-top-color: #fff; animation: pf-spin 0.7s linear infinite; display: inline-block; vertical-align: -2px; }
+        @keyframes pf-spin { to { transform: rotate(360deg); } }
+
+        .pf-error { background: var(--red-soft); color: var(--red); border: 1px solid var(--red); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; white-space: pre-wrap; }
+        .pf-sucesso { background: var(--green-soft); color: var(--green); border: 1px solid var(--green); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+
+        .pf-paginacao { display: flex; align-items: center; gap: 10px; justify-content: center; margin: 14px 0; font-size: 12.5px; color: var(--text-muted); }
+
+        .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+        .search-input { flex: 1; min-width: 220px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 13.5px; color: var(--text); }
+        .search-input:focus { outline: none; border-color: var(--primary); }
+        .toolbar-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+        .toolbar-btn:hover { background: var(--surface-alt); color: var(--text); }
+
+        .func-accordion { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; box-shadow: var(--shadow); }
+        .func-summary { padding: 12px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; list-style: none; flex-wrap: wrap; }
+        .func-summary::-webkit-details-marker { display: none; }
+        .func-summary:hover { background: var(--surface-alt); }
+        .func-summary-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .func-nome { font-weight: 700; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
+        .func-id { font-size: 12px; color: var(--text-muted); }
+        .func-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .action-btn { background: var(--primary-soft); color: var(--primary); border: 1px solid transparent; border-radius: 6px; padding: 5px 10px; font-size: 11.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+        .action-btn:hover { filter: brightness(0.95); }
+        .action-btn-danger { background: var(--red-soft); color: var(--red); }
+        .func-badges { display: flex; gap: 6px; flex-shrink: 0; }
+        .badge { padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+        .badge-ativo { background: var(--green-soft); color: var(--green); }
+        .badge-inativo { background: var(--red-soft); color: var(--red); }
+        .badge-info { background: var(--primary-soft); color: var(--primary); }
+
+        .inner-content { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; padding: 14px; background: var(--surface-alt); border-top: 1px solid var(--border); }
+        .group-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+        .group-title { font-size: 11.5px; color: var(--primary); font-weight: 700; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        .data-table tr { border-bottom: 1px solid var(--border); }
+        .data-table tr:last-child { border-bottom: none; }
+        .data-table td { padding: 5px 2px; vertical-align: top; }
+        .prop-name { color: var(--text-muted); width: 48%; }
+        .prop-value { color: var(--text); text-align: right; width: 52%; word-break: break-word; font-weight: 500; }
+        .val-null { color: #a1a5b0; font-style: italic; font-weight: 400; }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 13.5px; }
+
+        /* Formulário criar/editar */
+        .form-panel { background: var(--surface); border: 2px solid var(--primary); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; box-shadow: var(--shadow); }
+        .form-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .form-panel-header h3 { margin: 0; font-size: 16px; }
+        .form-fieldset { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
+        .form-fieldset legend { font-size: 11.5px; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 0 4px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px 10px; }
+        .form-panel-actions { display: flex; gap: 8px; margin-top: 12px; position: sticky; bottom: 0; background: var(--surface); padding-top: 10px; }
+
+        .pf-debug { margin-top: 18px; }
+        .pf-debug summary { cursor: pointer; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        #app-funcionario .pf-debug pre { background: #1e1e24; padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; color: #a5d6a7; font-family: "Fira Code", Consolas, Monaco, monospace; font-size: 12px; line-height: 1.5; margin-top: 8px; max-height: 260px; }
+      </style>
+
+      <div id="app-funcionario">
+
+        <div class="ap-header">
+          <div>
+            <h2>Painel de Admissões</h2>
+            <div class="ap-subtitle" id="apStatus">Inicializando...</div>
+          </div>
+        </div>
+
+        <div class="ap-resource-tabs">
+          <button class="ap-resource-tab active" data-recurso="completas" onclick="trocarRecurso('completas')">Admissões Completas</button>
+          <button class="ap-resource-tab" data-recurso="preliminares" onclick="trocarRecurso('preliminares')">Admissões Preliminares</button>
+        </div>
+
+        <!-- ================= COMPLETAS ================= -->
+        <div id="secao-completas" class="ap-resource">
+          <div class="pf-filtros">
+            <div class="pf-filtros-grid">
+              <div class="campo"><label>Empresa ID</label><input id="cEmpresaId" type="text" value="900002"></div>
+              <div class="campo"><label>Funcionário/Contrib. ID</label><input id="cFuncionarioId" type="text"></div>
+              <div class="campo"><label>ID legado</label><input id="cFuncionarioIdLegado" type="text"></div>
+              <div class="campo"><label>Tipo</label>
+                <select id="cTipo"><option value="">Todos</option><option value="funcionario">Funcionário</option><option value="contribuinte">Contribuinte</option></select>
+              </div>
+              <div class="campo"><label>Situação</label>
+                <select id="cSituacao">
+                  <option value="">Todas</option>
+                  <option value="integrado">Integrado</option>
+                  <option value="liberado">Liberado</option>
+                  <option value="nao_liberado">Não liberado</option>
+                  <option value="aguardando_integracao">Aguardando integração</option>
+                  <option value="recusado">Recusado</option>
+                </select>
+              </div>
+              <div class="campo"><label>Alterado a partir de</label><input id="cAlteradoData" type="date"></div>
+              <div class="campo" style="max-width:90px;"><label>Página</label><input id="cPage" type="number" min="1" value="1"></div>
+            </div>
+            <div class="pf-filtros-acoes">
+              <button class="btn-refresh" id="btnBuscarCompletas" onclick="buscarCompletas(true)" disabled>
+                <span id="btnBuscarCompletasLabel">Inicializando...</span>
+              </button>
+              <button class="toolbar-btn" onclick="limparFiltrosCompletas()">Limpar filtros</button>
+              <button class="btn-refresh btn-nova" onclick="abrirFormCompleta('criar', null)">+ Nova admissão completa</button>
+              <span class="stat-pill">Total <b id="cTotal">–</b></span>
+              <span class="stat-pill stat-green">Ativos <b id="cAtivos">–</b></span>
+              <span class="stat-pill stat-red">Inativos <b id="cInativos">–</b></span>
+            </div>
+          </div>
+
+          <div id="pfErrorBoxCompletas"></div>
+          <div id="formCompletasContainer"></div>
+          <div id="pfPaginacaoCompletas" class="pf-paginacao"></div>
+
+          <div class="toolbar">
+            <input type="text" class="search-input" id="searchCompletas" placeholder="Filtrar dentro da página atual por nome, ID ou CPF..." oninput="filtrarLocal('cardsContainerCompletas','searchCompletas')">
+            <button class="toolbar-btn" onclick="toggleAll('cardsContainerCompletas', true)">Expandir tudo</button>
+            <button class="toolbar-btn" onclick="toggleAll('cardsContainerCompletas', false)">Recolher tudo</button>
+          </div>
+          <div id="cardsContainerCompletas">
+            <div class="empty-state">Ajuste os filtros acima e clique em "Buscar dados".</div>
+          </div>
+        </div>
+
+        <!-- ================= PRELIMINARES ================= -->
+        <div id="secao-preliminares" class="ap-resource" style="display:none;">
+          <div class="pf-filtros">
+            <div class="pf-filtros-grid">
+              <div class="campo"><label>Empresa ID</label><input id="pEmpresaId" type="text" value="900002"></div>
+              <div class="campo"><label>ID do registro</label><input id="pId" type="text"></div>
+              <div class="campo"><label>Situação</label>
+                <select id="pSituacao">
+                  <option value="">Todas</option>
+                  <option value="nao_liberado">Não liberado</option>
+                  <option value="liberado">Liberado</option>
+                  <option value="integrado">Integrado</option>
+                  <option value="aguardando_integracao">Aguardando integração</option>
+                  <option value="recusado">Recusado</option>
+                </select>
+              </div>
+              <div class="campo"><label>Alterado a partir de</label><input id="pAlteradoData" type="date"></div>
+              <div class="campo" style="max-width:90px;"><label>Página</label><input id="pPage" type="number" min="1" value="1"></div>
+            </div>
+            <div class="pf-filtros-acoes">
+              <button class="btn-refresh" id="btnBuscarPreliminares" onclick="buscarPreliminares(true)" disabled>
+                <span id="btnBuscarPreliminaresLabel">Inicializando...</span>
+              </button>
+              <button class="toolbar-btn" onclick="limparFiltrosPreliminares()">Limpar filtros</button>
+              <button class="btn-refresh btn-nova" onclick="abrirFormPreliminar('criar', null)">+ Nova admissão preliminar</button>
+              <span class="stat-pill">Total <b id="pTotal">–</b></span>
+            </div>
+          </div>
+
+          <div id="pfErrorBoxPreliminares"></div>
+          <div id="formPreliminaresContainer"></div>
+          <div id="pfPaginacaoPreliminares" class="pf-paginacao"></div>
+
+          <div class="toolbar">
+            <input type="text" class="search-input" id="searchPreliminares" placeholder="Filtrar dentro da página atual por nome, ID ou CPF..." oninput="filtrarLocal('cardsContainerPreliminares','searchPreliminares')">
+            <button class="toolbar-btn" onclick="toggleAll('cardsContainerPreliminares', true)">Expandir tudo</button>
+            <button class="toolbar-btn" onclick="toggleAll('cardsContainerPreliminares', false)">Recolher tudo</button>
+          </div>
+          <div id="cardsContainerPreliminares">
+            <div class="empty-state">Ajuste os filtros acima e clique em "Buscar dados".</div>
+          </div>
+        </div>
+
+        <details class="pf-debug">
+          <summary>Depuração: última chamada via bru.ctx.runRequest()</summary>
+          <pre id="pfDebugRaw"><code>—</code></pre>
+        </details>
+
+      </div>
+
+      <script>
+        // =============================================================
+        // Nomes EXATOS das requests (info.name em cada arquivo) - usados
+        // para casar com bru.ctx.listRequests() e chamar via runRequest().
+        // =============================================================
+        const REQ = {
+          listaCompletas: 'Lista Admissões Completas',
+          criaCompleta: 'Cria Admissões Completas',
+          atualizaCompleta: 'Atualiza Admissões Completas',
+          removeCompleta: 'Remove Admissões Completas',
+          listaPreliminares: 'Lista Admissões Preliminares',
+          criaPreliminar: 'Lista Admissões Preliminares',
+          atualizaPreliminar: 'Atualiza Admissões Preliminares',
+          removePreliminar: 'Remove Admissões Preliminares',
+        };
+
+        // =============================================================
+        // Schemas de campos (gerados a partir dos bodies reais das
+        // requests de criação/atualização - todos os campos existentes).
+        // =============================================================
+        const SCHEMA_COMPLETA_FORM = [
+        ['Identificação', ['empresa_id', 'funcionario_contribuinte_id', 'v_funcionario_contribuinte_id', 'id_admissao_preliminar', 'v_id_admissao_preliminar', 'tipo', 'situacao', 'cadastro_ativo', 'nome', 'nome_social']],
+        ['Dados Pessoais', ['email', 'telefone', 'celular', 'sexo', 'nascimento_data', 'nascimento_cidade_id', 'estado_civil_id', 'etnia_id', 'tipo_sanguineo_id', 'nacionalidade_id', 'grau_instrucao_id', 'possui_sinais_corpo']],
+        ['Documentação', ['cpf', 'rg', 'rg_orgao_emissor', 'rg_emissao', 'rg_uf', 'pis_numero', 'pis_emissao', 'titulo_eleitor', 'titulo_eleitor_zona', 'titulo_eleitor_secao', 'carteira_trabalho', 'carteira_trabalho_serie', 'carteira_trabalho_serie_digito', 'carteira_trabalho_emissao', 'carteira_trabalho_uf', 'cnh', 'cnh_uf', 'cnh_categoria', 'cnh_emissao', 'cnh_vencimento', 'cnh_primeira_habilitacao', 'certificado_reservista', 'ric_numero', 'ric_orgao_emissor', 'ric_emissao', 'oc_numero', 'oc_orgao_emissor', 'oc_emissao', 'oc_vencimento']],
+        ['Endereço Residencial', ['endereco_cep', 'endereco_logradouro_id', 'endereco', 'endereco_numero', 'endereco_complemento', 'endereco_bairro', 'endereco_cidade_id']],
+        ['Família e Cônjuge', ['mae_nome', 'pai_nome', 'conjuge_nome', 'conjuge_nascimento_cidade_id', 'conjuge_nascimento_data']],
+        ['Estrutura Contratual', ['cadastro_data', 'admissao_data', 'admissao_tipo_id', 'contrato_tipo_id', 'funcionario_tipo_id', 'categoria_esocial_id', 'regime_trabalhista_id', 'regime_previdenciario_id', 'sindicato_id', 'sindicalizado', 'contribuicao_sindical', 'classe_id', 'centro_custo_id', 'departamento_id', 'funcao_id', 'ocupacao_natureza_id', 'matricula_anterior', 'cnpj_empresa_anterior', 'transferencia_onus', 'transferencia_data', 'data_adicional_tempo_servico_inicio', 'data_reintegracao', 'aposentadoria_data', 'desligamento_data', 'entrada_data', 'baixa_data']],
+        ['Financeiro e Jornada', ['salario_base', 'remuneracao', 'forma_pagamento', 'percentual_comissao', 'hora_mensal', 'hora_semanal', 'hora_diaria', 'regime_jornada_trabalho_id', 'tipo_jornada_id', 'tipo_jornada_descricao', 'tipo_escala_id', 'descanso_semanal_id', 'quadro_horario_id', 'regime_tempo_parcial', 'horario_noturno', 'prazo_experiencia', 'prazo_experiencia_fim', 'prazo_experiencia_prorrogacao', 'prazo_experiencia_prorrogacao_fim', 'beneficio_desemprego']],
+        ['Adicionais e Incidências', ['insalubridade_adicional', 'insalubridade_incidencia_id', 'periculosidade_adicional', 'periculosidade_incidencia_id', 'noturno_adicional', 'noturno_incidencia_id', 'valor_previdencia_privada', 'valor_previdencia_privada13']],
+        ['Dados Bancários', ['banco_id', 'banco_conta_agencia', 'banco_conta', 'banco_conta_digito', 'banco_conta_tipo_id', 'banco_modo_pagamento', 'recebe_adiantamento', 'percentual_adiantamento', 'cartao_salario']],
+        ['Benefícios e Vales', ['recebe_vale_refeicao', 'cartao_vr', 'recebe_vale_alimentacao', 'cartao_va', 'recebe_vale_transporte', 'cartao_vt']],
+        ['FGTS e Registros Legais', ['fgts_conta', 'fgts_ocorrencia_id', 'cartao_ponto', 'ficha_registro', 'livro', 'folha', 'registro_civil_id', 'registro_civil_termo_matricula', 'registro_civil_cartorio', 'registro_civil_livro', 'registro_civil_folha', 'registro_civil_cidade_id', 'registro_civil_emissao']],
+        ['Banco de Horas', ['banco_horas_utilizacao_id', 'banco_horas_configuracao_id', 'banco_horas_data_inicio']],
+        ['Dados de Estrangeiro', ['eh_estrangeiro', 'pais_nacionalidade_id', 'estrangeiro_endereco_pais_id', 'estrangeiro_endereco', 'estrangeiro_endereco_numero', 'estrangeiro_complemento', 'estrangeiro_endereco_bairro', 'estrangeiro_endereco_cidade', 'estrangeiro_endereco_cod_postal', 'estrangeiro_data_chegada_brasil', 'estrangeiro_casado_com_brasileiro', 'estrangeiro_com_filho_brasileiro', 'estrangeirocondicaoingresso', 'estrangeiro_tipo_residencia', 'rne_numero', 'rne_orgao_emissor', 'rne_emissao']],
+        ['Deficiências / PCD', ['deficiencia_id', 'deficiencia_cota', 'deficiencia_fisica', 'deficiencia_auditiva', 'deficiencia_visual', 'deficiencia_intelectual', 'deficiencia_mental', 'deficiencia_reabilitado', 'deficiencia_observacao']],
+        ];
+
+        // Igual ao form, + o grupo Logs (só leitura - nunca enviado no PUT,
+        // por isso fica fora do SCHEMA_COMPLETA_FORM).
+        const SCHEMA_COMPLETA_DISPLAY = [
+        ['Identificação', ['empresa_id', 'v_funcionario_contribuinte_id', 'id_admissao_preliminar', 'v_id_admissao_preliminar', 'tipo', 'nome_social']],
+        ['Dados Pessoais', ['email', 'telefone', 'celular', 'sexo', 'nascimento_data', 'nascimento_cidade_id', 'estado_civil_id', 'etnia_id', 'tipo_sanguineo_id', 'nacionalidade_id', 'grau_instrucao_id', 'possui_sinais_corpo']],
+        ['Documentação', ['cpf', 'rg', 'rg_orgao_emissor', 'rg_emissao', 'rg_uf', 'pis_numero', 'pis_emissao', 'titulo_eleitor', 'titulo_eleitor_zona', 'titulo_eleitor_secao', 'carteira_trabalho', 'carteira_trabalho_serie', 'carteira_trabalho_serie_digito', 'carteira_trabalho_emissao', 'carteira_trabalho_uf', 'cnh', 'cnh_uf', 'cnh_categoria', 'cnh_emissao', 'cnh_vencimento', 'cnh_primeira_habilitacao', 'certificado_reservista', 'ric_numero', 'ric_orgao_emissor', 'ric_emissao', 'oc_numero', 'oc_orgao_emissor', 'oc_emissao', 'oc_vencimento']],
+        ['Endereço Residencial', ['endereco_cep', 'endereco_logradouro_id', 'endereco', 'endereco_numero', 'endereco_complemento', 'endereco_bairro', 'endereco_cidade_id']],
+        ['Família e Cônjuge', ['mae_nome', 'pai_nome', 'conjuge_nome', 'conjuge_nascimento_cidade_id', 'conjuge_nascimento_data']],
+        ['Estrutura Contratual', ['cadastro_data', 'admissao_data', 'admissao_tipo_id', 'contrato_tipo_id', 'funcionario_tipo_id', 'categoria_esocial_id', 'regime_trabalhista_id', 'regime_previdenciario_id', 'sindicato_id', 'sindicalizado', 'contribuicao_sindical', 'classe_id', 'centro_custo_id', 'departamento_id', 'funcao_id', 'ocupacao_natureza_id', 'matricula_anterior', 'cnpj_empresa_anterior', 'transferencia_onus', 'transferencia_data', 'data_adicional_tempo_servico_inicio', 'data_reintegracao', 'aposentadoria_data', 'desligamento_data', 'entrada_data', 'baixa_data']],
+        ['Financeiro e Jornada', ['salario_base', 'remuneracao', 'forma_pagamento', 'percentual_comissao', 'hora_mensal', 'hora_semanal', 'hora_diaria', 'regime_jornada_trabalho_id', 'tipo_jornada_id', 'tipo_jornada_descricao', 'tipo_escala_id', 'descanso_semanal_id', 'quadro_horario_id', 'regime_tempo_parcial', 'horario_noturno', 'prazo_experiencia', 'prazo_experiencia_fim', 'prazo_experiencia_prorrogacao', 'prazo_experiencia_prorrogacao_fim', 'beneficio_desemprego']],
+        ['Adicionais e Incidências', ['insalubridade_adicional', 'insalubridade_incidencia_id', 'periculosidade_adicional', 'periculosidade_incidencia_id', 'noturno_adicional', 'noturno_incidencia_id', 'valor_previdencia_privada', 'valor_previdencia_privada13']],
+        ['Dados Bancários', ['banco_id', 'banco_conta_agencia', 'banco_conta', 'banco_conta_digito', 'banco_conta_tipo_id', 'banco_modo_pagamento', 'recebe_adiantamento', 'percentual_adiantamento', 'cartao_salario']],
+        ['Benefícios e Vales', ['recebe_vale_refeicao', 'cartao_vr', 'recebe_vale_alimentacao', 'cartao_va', 'recebe_vale_transporte', 'cartao_vt']],
+        ['FGTS e Registros Legais', ['fgts_conta', 'fgts_ocorrencia_id', 'cartao_ponto', 'ficha_registro', 'livro', 'folha', 'registro_civil_id', 'registro_civil_termo_matricula', 'registro_civil_cartorio', 'registro_civil_livro', 'registro_civil_folha', 'registro_civil_cidade_id', 'registro_civil_emissao']],
+        ['Banco de Horas', ['banco_horas_utilizacao_id', 'banco_horas_configuracao_id', 'banco_horas_data_inicio']],
+        ['Dados de Estrangeiro', ['eh_estrangeiro', 'pais_nacionalidade_id', 'estrangeiro_endereco_pais_id', 'estrangeiro_endereco', 'estrangeiro_endereco_numero', 'estrangeiro_complemento', 'estrangeiro_endereco_bairro', 'estrangeiro_endereco_cidade', 'estrangeiro_endereco_cod_postal', 'estrangeiro_data_chegada_brasil', 'estrangeiro_casado_com_brasileiro', 'estrangeiro_com_filho_brasileiro', 'estrangeirocondicaoingresso', 'estrangeiro_tipo_residencia', 'rne_numero', 'rne_orgao_emissor', 'rne_emissao']],
+        ['Deficiências / PCD', ['deficiencia_id', 'deficiencia_cota', 'deficiencia_fisica', 'deficiencia_auditiva', 'deficiencia_visual', 'deficiencia_intelectual', 'deficiencia_mental', 'deficiencia_reabilitado', 'deficiencia_observacao']],
+        ['Logs e Auditoria (somente leitura)', ['log_cadastro_data', 'log_cadastro_usuario_id', 'log_alterado_data', 'log_alterado_usuario_id', 'log_liberacao_data', 'log_sincronizacao_data', 'log_integracao_data', 'rg_arquivo', 'cpf_arquivo', 'pis_arquivo', 'carteira_trabalho_arquivo', 'observacao']],
+        ];
+
+        const SCHEMA_PRELIMINAR_FORM = [
+          ['Dados do Registro', ['id', 'empresa_id', 'v_id', 'tipo_colaborador', 'tipo_admissao', 'classe_id', 'nome',
+            'matricula_anterior', 'nascimento_data', 'admissao_data', 'cpf', 'pis', 'numero_recibo', 'data_integracao',
+            'preenchimento_dados_cadastrais', 'email', 'matricula_esocial', 'categoria_esocial_id', 'funcao_id', 'tipo',
+            'salario', 'contrato_tipo_id', 'prazo_experiencia', 'fim_prazo_experiencia', 'funcionario_contribuinte_id']],
+        ];
+        const SCHEMA_PRELIMINAR_DISPLAY = [
+          ['Dados do Registro', ['id', 'empresa_id', 'v_id', 'tipo_colaborador', 'tipo_admissao', 'classe_id',
+            'matricula_anterior', 'nascimento_data', 'admissao_data', 'cpf', 'pis', 'numero_recibo', 'data_integracao',
+            'preenchimento_dados_cadastrais', 'email', 'matricula_esocial', 'categoria_esocial_id', 'funcao_id', 'tipo',
+            'salario', 'contrato_tipo_id', 'prazo_experiencia', 'fim_prazo_experiencia', 'funcionario_contribuinte_id']],
+          ['Auditoria (somente leitura)', ['log_cadastro_data', 'log_alterado_data']],
+        ];
+
+        // Campos que viram <select> em vez de <input> no formulário de completa
+        const SELECTS_COMPLETA = {
+          tipo: ['', 'funcionario', 'contribuinte'],
+          situacao: ['', 'integrado', 'liberado', 'nao_liberado', 'aguardando_integracao', 'recusado'],
+          cadastro_ativo: ['', 'true', 'false'],
+        };
+
+        // =============================================================
+        // Helpers genéricos
+        // =============================================================
+        const v = (id) => (document.getElementById(id)?.value ?? '');
+
+        const renderVal = (val) => {
+          if (val === null || val === undefined || val === '') return '<span class="val-null">—</span>';
+          if (typeof val === 'boolean') return val ? 'true' : 'false';
+          return String(val);
+        };
+
+        function mostrarErro(boxId, msg, ok) {
+          const box = document.getElementById(boxId);
+          if (!msg) { box.innerHTML = ''; return; }
+          box.innerHTML = `<div class="${ok ? 'pf-sucesso' : 'pf-error'}">${msg}</div>`;
+        }
+
+        function mostrarDebug(obj) {
+          try {
+            document.getElementById('pfDebugRaw').innerHTML = '<code>' + JSON.stringify(obj, null, 2) + '</code>';
+          } catch (e) {
+            document.getElementById('pfDebugRaw').innerHTML = '<code>' + String(obj) + '</code>';
+          }
+        }
+
+        function montarQueryString(pares) {
+          return pares
+            .filter(([, val]) => (val ?? '').toString().trim() !== '')
+            .map(([chave, val]) => `${chave}=${encodeURIComponent(val.toString().trim())}`)
+            .join('&');
+        }
+
+        function extrairBody(res) { return res?.data ?? res?.body ?? null; }
+
+        function interpretarResposta(res) {
+          const status = res?.status;
+          const body = extrairBody(res);
+          if (status && status >= 400) {
+            const msg = (body && body.mensagem) || `A API retornou status ${status}.`;
+            const detalhes = (body && body.erros) ? '\n' + JSON.stringify(body.erros, null, 2) : '';
+            return { ok: false, status, body, msg: msg + detalhes };
+          }
+          return { ok: true, status, body, msg: (body && body.mensagem) || '' };
+        }
+
+        function toggleAll(containerId, open) {
+          document.querySelectorAll(`#${containerId} .func-accordion`).forEach(el => { el.open = open; });
+        }
+
+        function filtrarLocal(containerId, inputId) {
+          const term = (document.getElementById(inputId).value || '').trim().toLowerCase();
+          const cards = document.querySelectorAll(`#${containerId} .func-accordion`);
+          cards.forEach(card => {
+            card.style.display = card.dataset.search.includes(term) ? '' : 'none';
+          });
+        }
+
+        function trocarRecurso(nome) {
+          document.getElementById('secao-completas').style.display = nome === 'completas' ? '' : 'none';
+          document.getElementById('secao-preliminares').style.display = nome === 'preliminares' ? '' : 'none';
+          document.querySelectorAll('.ap-resource-tab').forEach(b => b.classList.toggle('active', b.dataset.recurso === nome));
+        }
+        window.trocarRecurso = trocarRecurso;
+
+        // =============================================================
+        // Formulário genérico (usado por completa e preliminar)
+        // =============================================================
+        function campoHtml(nome, prefixo, valor, selects) {
+          const id = `${prefixo}__${nome}`;
+          const val = (valor === null || valor === undefined) ? '' : valor;
+          if (selects && selects[nome]) {
+            const opts = selects[nome].map(o =>
+              `<option value="${o}" ${String(val) === o ? 'selected' : ''}>${o || 'Selecione'}</option>`
+            ).join('');
+            return `<div class="campo"><label>${nome}</label><select id="${id}">${opts}</select></div>`;
+          }
+          const isDate = /_data$/.test(nome) && !nome.startsWith('log_');
+          const type = isDate ? 'date' : 'text';
+          const safeVal = String(val).replace(/"/g, '&quot;');
+          return `<div class="campo"><label>${nome}</label><input id="${id}" type="${type}" value="${safeVal}"></div>`;
+        }
+
+        function renderCampos(schema, prefixo, valores, selects) {
+          return schema.map(([titulo, campos]) => `
+            <fieldset class="form-fieldset">
+              <legend>${titulo}</legend>
+              <div class="form-grid">${campos.map(c => campoHtml(c, prefixo, valores[c], selects)).join('')}</div>
+            </fieldset>`).join('');
+        }
+
+        function coletarCampos(schema, prefixo) {
+          const out = {};
+          schema.forEach(([, campos]) => campos.forEach(c => {
+            out[c] = document.getElementById(`${prefixo}__${c}`)?.value ?? '';
+          }));
+          return out;
+        }
+
+        // =============================================================
+        // Orquestração via bru.ctx (Collection App)
+        // =============================================================
+        let mapaRequests = {};
+        let ctxPronto = false;
+        let carregandoCompletas = false;
+        let carregandoPreliminares = false;
+        let dadosCompletas = [];
+        let dadosPreliminares = [];
+        let modoFormCompleta = null;
+        let modoFormPreliminar = null;
+
+        async function chamar(nomeRequest, runtimeVariables) {
+          const pathname = mapaRequests[nomeRequest];
+          if (!pathname) {
+            throw new Error(`Request "${nomeRequest}" não encontrada na coleção. Confira o nome exato em bru.ctx.listRequests() (aba Depuração).`);
+          }
+          const res = await bru.ctx.runRequest(pathname, { runtimeVariables });
+          mostrarDebug({ request: nomeRequest, enviado: runtimeVariables, resposta: res });
+          return res;
+        }
+
+        function atualizarBotao(btnId, labelId, carregando, jaCarregou, textoInicial) {
+          const btn = document.getElementById(btnId);
+          const label = document.getElementById(labelId);
+          if (!ctxPronto) { btn.disabled = true; label.textContent = 'Inicializando...'; return; }
+          if (carregando) { btn.disabled = true; label.innerHTML = '<span class="spinner"></span> Buscando...'; return; }
+          btn.disabled = false;
+          label.textContent = jaCarregou ? '🔄 Atualizar' : textoInicial;
+        }
+        const atualizarBotaoCompletas = () => atualizarBotao('btnBuscarCompletas', 'btnBuscarCompletasLabel', carregandoCompletas, dadosCompletas.length > 0, '▶ Buscar dados');
+        const atualizarBotaoPreliminares = () => atualizarBotao('btnBuscarPreliminares', 'btnBuscarPreliminaresLabel', carregandoPreliminares, dadosPreliminares.length > 0, '▶ Buscar dados');
+
+        // ---------------- COMPLETAS ----------------
+
+        function limparFiltrosCompletas() {
+          ['cEmpresaId','cFuncionarioId','cFuncionarioIdLegado','cTipo','cSituacao','cAlteradoData'].forEach(id => document.getElementById(id).value = '');
+          document.getElementById('cPage').value = '1';
+        }
+        window.limparFiltrosCompletas = limparFiltrosCompletas;
+
+        async function buscarCompletas(resetarPagina) {
+          if (!ctxPronto || carregandoCompletas) return;
+          if (resetarPagina) document.getElementById('cPage').value = '1';
+          mostrarErro('pfErrorBoxCompletas', '');
+          carregandoCompletas = true;
+          atualizarBotaoCompletas();
+          try {
+            const rt_query = montarQueryString([
+              ['empresa_id', v('cEmpresaId')],
+              ['funcionario_contribuinte_id', v('cFuncionarioId')],
+              ['v_funcionario_contribuinte_id', v('cFuncionarioIdLegado')],
+              ['tipo', v('cTipo')],
+              ['situacao', v('cSituacao')],
+              ['alterado_data', v('cAlteradoData')],
+              ['page', v('cPage') || '1'],
+            ]);
+            const res = await chamar(REQ.listaCompletas, { rt_query });
+            const r = interpretarResposta(res);
+            if (!r.ok) { mostrarErro('pfErrorBoxCompletas', r.msg); dadosCompletas = []; renderCompletas([], null); return; }
+            dadosCompletas = Array.isArray(r.body?.retorno) ? r.body.retorno : [];
+            renderCompletas(dadosCompletas, r.body?.paginacao || null);
+          } catch (err) {
+            mostrarErro('pfErrorBoxCompletas', err.message || String(err));
+          } finally {
+            carregandoCompletas = false;
+            atualizarBotaoCompletas();
+          }
+        }
+        window.buscarCompletas = buscarCompletas;
+
+        function irParaPaginaCompletas(n) {
+          if (n < 1) return;
+          document.getElementById('cPage').value = n;
+          buscarCompletas(false);
+        }
+        window.irParaPaginaCompletas = irParaPaginaCompletas;
+
+        function renderPaginacao(containerId, p, irFn) {
+          const box = document.getElementById(containerId);
+          if (!p) { box.innerHTML = ''; return; }
+          box.innerHTML = `
+            <button class="toolbar-btn" ${p.pagina_atual <= 1 ? 'disabled' : ''} onclick="${irFn}(${p.pagina_atual - 1})">← Anterior</button>
+            <span>Página ${p.pagina_atual} de ${p.ultima_pagina} · ${p.total} registros (mostrando ${p.inicio}–${p.fim})</span>
+            <button class="toolbar-btn" ${p.pagina_atual >= p.ultima_pagina ? 'disabled' : ''} onclick="${irFn}(${p.pagina_atual + 1})">Próxima →</button>
+          `;
+        }
+
+        function montarCardCompleta(f, idx) {
+          const groupsHtml = SCHEMA_COMPLETA_DISPLAY.map(([titulo, campos]) => `
+            <div class="group-box"><div class="group-title">${titulo}</div>
+              <table class="data-table">${campos.map(c => `<tr><td class="prop-name">${c}</td><td class="prop-value">${renderVal(f[c])}</td></tr>`).join('')}</table>
+            </div>`).join('');
+          const nomeBusca = `${f.nome || ''} ${f.funcionario_contribuinte_id || ''} ${f.cpf || ''}`.toLowerCase();
+          return `
+            <details class="func-accordion" data-search="${nomeBusca}">
+              <summary class="func-summary">
+                <div class="func-summary-main">
+                  <span class="func-nome">${f.nome || 'Nome não informado'}</span>
+                  <span class="func-id">ID ${f.funcionario_contribuinte_id ?? '—'}</span>
+                </div>
+                <div class="func-actions">
+                  <button class="action-btn" onclick="event.preventDefault();event.stopPropagation();abrirFormCompleta('editar', ${idx})">Editar</button>
+                  <button class="action-btn action-btn-danger" onclick="event.preventDefault();event.stopPropagation();excluirCompleta(${idx})">Excluir</button>
+                </div>
+                <div class="func-badges">
+                  <span class="badge ${f.cadastro_ativo ? 'badge-ativo' : 'badge-inativo'}">${f.cadastro_ativo ? 'Ativo' : 'Inativo'}</span>
+                  <span class="badge badge-info">${f.situacao ? String(f.situacao).replace(/_/g, ' ') : '—'}</span>
+                </div>
+              </summary>
+              <div class="inner-content">${groupsHtml}</div>
+            </details>`;
+        }
+
+        function renderCompletas(lista, paginacao) {
+          const total = paginacao ? paginacao.total : lista.length;
+          const ativos = lista.reduce((n, f) => n + (f.cadastro_ativo ? 1 : 0), 0);
+          document.getElementById('cTotal').textContent = total;
+          document.getElementById('cAtivos').textContent = ativos;
+          document.getElementById('cInativos').textContent = lista.length - ativos;
+          document.getElementById('cardsContainerCompletas').innerHTML =
+            lista.map(montarCardCompleta).join('') || '<div class="empty-state">Nenhum registro encontrado com esses filtros.</div>';
+          renderPaginacao('pfPaginacaoCompletas', paginacao, 'irParaPaginaCompletas');
+        }
+
+        function abrirFormCompleta(modo, idx) {
+          modoFormCompleta = modo;
+          const registro = modo === 'editar' ? dadosCompletas[idx] : {};
+          const valores = modo === 'editar' ? registro : { empresa_id: v('cEmpresaId') || '900002', tipo: 'funcionario', cadastro_ativo: 'true' };
+          const html = `
+            <div class="form-panel">
+              <div class="form-panel-header">
+                <h3>${modo === 'criar' ? '+ Nova admissão completa' : `Editar: ${registro.nome || registro.funcionario_contribuinte_id}`}</h3>
+                <button class="toolbar-btn" onclick="fecharFormCompleta()">Fechar</button>
+              </div>
+              ${renderCampos(SCHEMA_COMPLETA_FORM, 'cf', valores, SELECTS_COMPLETA)}
+              <div class="form-panel-actions">
+                <button class="btn-refresh" onclick="salvarCompleta()">${modo === 'criar' ? 'Criar' : 'Salvar alterações'}</button>
+                <button class="toolbar-btn" onclick="fecharFormCompleta()">Cancelar</button>
+              </div>
+            </div>`;
+          document.getElementById('formCompletasContainer').innerHTML = html;
+          document.getElementById('formCompletasContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        window.abrirFormCompleta = abrirFormCompleta;
+
+        function fecharFormCompleta() {
+          modoFormCompleta = null;
+          document.getElementById('formCompletasContainer').innerHTML = '';
+        }
+        window.fecharFormCompleta = fecharFormCompleta;
+
+        async function salvarCompleta() {
+          const dados = coletarCampos(SCHEMA_COMPLETA_FORM, 'cf');
+          const nomeRequest = modoFormCompleta === 'criar' ? REQ.criaCompleta : REQ.atualizaCompleta;
+          mostrarErro('pfErrorBoxCompletas', '');
+          try {
+            const res = await chamar(nomeRequest, dados);
+            const r = interpretarResposta(res);
+            if (!r.ok) { mostrarErro('pfErrorBoxCompletas', r.msg); return; }
+            mostrarErro('pfErrorBoxCompletas', modoFormCompleta === 'criar' ? 'Registro criado com sucesso.' : 'Registro atualizado com sucesso.', true);
+            fecharFormCompleta();
+            buscarCompletas(false);
+          } catch (err) {
+            mostrarErro('pfErrorBoxCompletas', err.message || String(err));
+          }
+        }
+        window.salvarCompleta = salvarCompleta;
+
+        async function excluirCompleta(idx) {
+          const f = dadosCompletas[idx];
+          if (!confirm(`Excluir o registro de "${f.nome || f.funcionario_contribuinte_id}"? Essa ação não pode ser desfeita.`)) return;
+          mostrarErro('pfErrorBoxCompletas', '');
+          try {
+            const res = await chamar(REQ.removeCompleta, {
+              empresa_id: String(f.empresa_id ?? ''),
+              funcionario_contribuinte_id: String(f.funcionario_contribuinte_id ?? ''),
+            });
+            const r = interpretarResposta(res);
+            if (!r.ok) { mostrarErro('pfErrorBoxCompletas', r.msg); return; }
+            mostrarErro('pfErrorBoxCompletas', 'Registro excluído com sucesso.', true);
+            buscarCompletas(false);
+          } catch (err) {
+            mostrarErro('pfErrorBoxCompletas', err.message || String(err));
+          }
+        }
+        window.excluirCompleta = excluirCompleta;
+
+        // ---------------- PRELIMINARES ----------------
+
+        function limparFiltrosPreliminares() {
+          ['pEmpresaId','pId','pSituacao','pAlteradoData'].forEach(id => document.getElementById(id).value = '');
+          document.getElementById('pPage').value = '1';
+        }
+        window.limparFiltrosPreliminares = limparFiltrosPreliminares;
+
+        async function buscarPreliminares(resetarPagina) {
+          if (!ctxPronto || carregandoPreliminares) return;
+          if (resetarPagina) document.getElementById('pPage').value = '1';
+          mostrarErro('pfErrorBoxPreliminares', '');
+          carregandoPreliminares = true;
+          atualizarBotaoPreliminares();
+          try {
+            const rt_query = montarQueryString([
+              ['empresa_id', v('pEmpresaId')],
+              ['id', v('pId')],
+              ['situacao', v('pSituacao')],
+              ['alterado_data', v('pAlteradoData')],
+              ['page', v('pPage') || '1'],
+            ]);
+            const res = await chamar(REQ.listaPreliminares, { rt_query });
+            const r = interpretarResposta(res);
+            if (!r.ok) { mostrarErro('pfErrorBoxPreliminares', r.msg); dadosPreliminares = []; renderPreliminares([], null); return; }
+            dadosPreliminares = Array.isArray(r.body?.retorno) ? r.body.retorno : [];
+            renderPreliminares(dadosPreliminares, r.body?.paginacao || null);
+          } catch (err) {
+            mostrarErro('pfErrorBoxPreliminares', err.message || String(err));
+          } finally {
+            carregandoPreliminares = false;
+            atualizarBotaoPreliminares();
+          }
+        }
+        window.buscarPreliminares = buscarPreliminares;
+
+        function irParaPaginaPreliminares(n) {
+          if (n < 1) return;
+          document.getElementById('pPage').value = n;
+          buscarPreliminares(false);
+        }
+        window.irParaPaginaPreliminares = irParaPaginaPreliminares;
+
+        function montarCardPreliminar(f, idx) {
+          const groupsHtml = SCHEMA_PRELIMINAR_DISPLAY.map(([titulo, campos]) => `
+            <div class="group-box"><div class="group-title">${titulo}</div>
+              <table class="data-table">${campos.map(c => `<tr><td class="prop-name">${c}</td><td class="prop-value">${renderVal(f[c])}</td></tr>`).join('')}</table>
+            </div>`).join('');
+          const nomeBusca = `${f.nome || ''} ${f.id || ''} ${f.cpf || ''}`.toLowerCase();
+          return `
+            <details class="func-accordion" data-search="${nomeBusca}">
+              <summary class="func-summary">
+                <div class="func-summary-main">
+                  <span class="func-nome">${f.nome || 'Nome não informado'}</span>
+                  <span class="func-id">ID ${f.id ?? '—'}</span>
+                </div>
+                <div class="func-actions">
+                  <button class="action-btn" onclick="event.preventDefault();event.stopPropagation();abrirFormPreliminar('editar', ${idx})">Editar</button>
+                  <button class="action-btn action-btn-danger" onclick="event.preventDefault();event.stopPropagation();excluirPreliminar(${idx})">Excluir</button>
+                </div>
+              </summary>
+              <div class="inner-content">${groupsHtml}</div>
+            </details>`;
+        }
+
+        function renderPreliminares(lista, paginacao) {
+          document.getElementById('pTotal').textContent = paginacao ? paginacao.total : lista.length;
+          document.getElementById('cardsContainerPreliminares').innerHTML =
+            lista.map(montarCardPreliminar).join('') || '<div class="empty-state">Nenhum registro encontrado com esses filtros.</div>';
+          renderPaginacao('pfPaginacaoPreliminares', paginacao, 'irParaPaginaPreliminares');
+        }
+
+        function abrirFormPreliminar(modo, idx) {
+          modoFormPreliminar = modo;
+          const registro = modo === 'editar' ? dadosPreliminares[idx] : {};
+          const valores = modo === 'editar' ? registro : { empresa_id: v('pEmpresaId') || '900002' };
+          const html = `
+            <div class="form-panel">
+              <div class="form-panel-header">
+                <h3>${modo === 'criar' ? '+ Nova admissão preliminar' : `Editar: ${registro.nome || registro.id}`}</h3>
+                <button class="toolbar-btn" onclick="fecharFormPreliminar()">Fechar</button>
+              </div>
+              ${renderCampos(SCHEMA_PRELIMINAR_FORM, 'pf', valores)}
+              <div class="form-panel-actions">
+                <button class="btn-refresh" onclick="salvarPreliminar()">${modo === 'criar' ? 'Criar' : 'Salvar alterações'}</button>
+                <button class="toolbar-btn" onclick="fecharFormPreliminar()">Cancelar</button>
+              </div>
+            </div>`;
+          document.getElementById('formPreliminaresContainer').innerHTML = html;
+          document.getElementById('formPreliminaresContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (modo === 'criar') {
+            const idInput = document.getElementById('pf__id');
+            if (idInput) { idInput.disabled = true; idInput.placeholder = 'gerado automaticamente'; }
+          }
+        }
+        window.abrirFormPreliminar = abrirFormPreliminar;
+
+        function fecharFormPreliminar() {
+          modoFormPreliminar = null;
+          document.getElementById('formPreliminaresContainer').innerHTML = '';
+        }
+        window.fecharFormPreliminar = fecharFormPreliminar;
+
+        async function salvarPreliminar() {
+          const dados = coletarCampos(SCHEMA_PRELIMINAR_FORM, 'pf');
+          const nomeRequest = modoFormPreliminar === 'criar' ? REQ.criaPreliminar : REQ.atualizaPreliminar;
+          mostrarErro('pfErrorBoxPreliminares', '');
+          try {
+            const res = await chamar(nomeRequest, dados);
+            const r = interpretarResposta(res);
+            if (!r.ok) { mostrarErro('pfErrorBoxPreliminares', r.msg); return; }
+            mostrarErro('pfErrorBoxPreliminares', modoFormPreliminar === 'criar' ? 'Registro criado com sucesso.' : 'Registro atualizado com sucesso.', true);
+            fecharFormPreliminar();
+            buscarPreliminares(false);
+          } catch (err) {
+            mostrarErro('pfErrorBoxPreliminares', err.message || String(err));
+          }
+        }
+        window.salvarPreliminar = salvarPreliminar;
+
+        async function excluirPreliminar(idx) {
+          const f = dadosPreliminares[idx];
+          if (!confirm(`Excluir o registro de "${f.nome || f.id}"? Essa ação não pode ser desfeita.`)) return;
+          mostrarErro('pfErrorBoxPreliminares', '');
+          try {
+            const res = await chamar(REQ.removePreliminar, {
+              empresa_id: String(f.empresa_id ?? ''),
+              id: String(f.id ?? ''),
+            });
+            const r = interpretarResposta(res);
+            if (!r.ok) { mostrarErro('pfErrorBoxPreliminares', r.msg); return; }
+            mostrarErro('pfErrorBoxPreliminares', 'Registro excluído com sucesso.', true);
+            buscarPreliminares(false);
+          } catch (err) {
+            mostrarErro('pfErrorBoxPreliminares', err.message || String(err));
+          }
+        }
+        window.excluirPreliminar = excluirPreliminar;
+
+        // =============================================================
+        // Inicialização - bru.ctx chega de forma assíncrona, então tudo
+        // que depende dele mora aqui dentro (nunca no topo do script).
+        // =============================================================
+        bru.ctx.onInit = async () => {
+          try {
+            const todas = await bru.ctx.listRequests();
+            todas.forEach(r => { mapaRequests[r.name] = r.pathname; });
+            const faltando = Object.values(REQ).filter(nome => !mapaRequests[nome]);
+            document.getElementById('apStatus').textContent = faltando.length
+              ? `Atenção: ${faltando.length} request(s) não encontrada(s): ${faltando.join(', ')}`
+              : `${todas.length} requests carregadas da coleção.`;
+          } catch (err) {
+            document.getElementById('apStatus').textContent = 'Erro ao listar requests: ' + (err.message || err);
+          }
+          ctxPronto = true;
+          atualizarBotaoCompletas();
+          atualizarBotaoPreliminares();
+        };
+      </script>

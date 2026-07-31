@@ -1,0 +1,313 @@
+info:
+  name: Lista lançamentos de banco de horas paginados
+  type: http
+  seq: 5
+  tags:
+    - Bancos de Horas
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/bancos-horas/lancamentos"
+  params:
+    - name: empresa_id
+      value: "12345"
+      type: query
+      description: ID da empresa vinculada ao usuário
+    - name: page
+      value: "1"
+      type: query
+      description: Página atual
+    - name: lancamento_id
+      value: "42"
+      type: query
+      description: Filtra pelo ID exato do lançamento
+    - name: data
+      value: 2026-06-10
+      type: query
+      description: Filtra pela data exata do lançamento (Y-m-d)
+    - name: situacao
+      value: nao_liberado
+      type: query
+      description: Filtra pela situação de liberação do lançamento
+      disabled: true
+    - name: situacao
+      value: liberado
+      type: query
+      description: Filtra pela situação de liberação do lançamento
+      disabled: true
+    - name: situacao
+      value: integrado
+      type: query
+      description: Filtra pela situação de liberação do lançamento
+      disabled: true
+    - name: situacao
+      value: recusado
+      type: query
+      description: Filtra pela situação de liberação do lançamento
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Lista paginada de lançamentos de banco de horas
+    request:
+      url: "{{baseUrl}}/api/v1/bancos-horas/lancamentos"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa vinculada ao usuário
+        - name: page
+          value: "1"
+          type: query
+          description: Página atual
+        - name: lancamento_id
+          value: "42"
+          type: query
+          description: Filtra pelo ID exato do lançamento
+        - name: data
+          value: 2026-06-10
+          type: query
+          description: Filtra pela data exata do lançamento (Y-m-d)
+        - name: situacao
+          value: nao_liberado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+        - name: situacao
+          value: liberado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+        - name: situacao
+          value: integrado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+        - name: situacao
+          value: recusado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Operação realizada com sucesso",
+            "paginacao": {
+              "registros_por_pagina": 15,
+              "total": 1000,
+              "pagina_atual": 1,
+              "ultima_pagina": 100,
+              "inicio": 1,
+              "fim": 15
+            },
+            "retorno": [
+              {
+                "cliente_id": 1234,
+                "empresa_id": 900001,
+                "lancamento_id": 42,
+                "funcionario_contribuinte_id": 15,
+                "data": "2026-06-10",
+                "credito": "08:00",
+                "debito": null,
+                "situacao": "liberado",
+                "observacao_liberacao": "Liberado após conferência.",
+                "log_cadastro_data": "2026-06-10 10:00:00",
+                "log_alterado_data": "2026-06-10 12:00:00"
+              }
+            ]
+          }
+  - name: 401 Response
+    description: Erro de autenticação
+    request:
+      url: "{{baseUrl}}/api/v1/bancos-horas/lancamentos"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa vinculada ao usuário
+        - name: page
+          value: "1"
+          type: query
+          description: Página atual
+        - name: lancamento_id
+          value: "42"
+          type: query
+          description: Filtra pelo ID exato do lançamento
+        - name: data
+          value: 2026-06-10
+          type: query
+          description: Filtra pela data exata do lançamento (Y-m-d)
+        - name: situacao
+          value: nao_liberado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+        - name: situacao
+          value: liberado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+        - name: situacao
+          value: integrado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+        - name: situacao
+          value: recusado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Erro de permissão
+    request:
+      url: "{{baseUrl}}/api/v1/bancos-horas/lancamentos"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa vinculada ao usuário
+        - name: page
+          value: "1"
+          type: query
+          description: Página atual
+        - name: lancamento_id
+          value: "42"
+          type: query
+          description: Filtra pelo ID exato do lançamento
+        - name: data
+          value: 2026-06-10
+          type: query
+          description: Filtra pela data exata do lançamento (Y-m-d)
+        - name: situacao
+          value: nao_liberado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+        - name: situacao
+          value: liberado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+        - name: situacao
+          value: integrado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+        - name: situacao
+          value: recusado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Erro de validação
+    request:
+      url: "{{baseUrl}}/api/v1/bancos-horas/lancamentos"
+      method: GET
+      params:
+        - name: empresa_id
+          value: "12345"
+          type: query
+          description: ID da empresa vinculada ao usuário
+        - name: page
+          value: "1"
+          type: query
+          description: Página atual
+        - name: lancamento_id
+          value: "42"
+          type: query
+          description: Filtra pelo ID exato do lançamento
+        - name: data
+          value: 2026-06-10
+          type: query
+          description: Filtra pela data exata do lançamento (Y-m-d)
+        - name: situacao
+          value: nao_liberado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+        - name: situacao
+          value: liberado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+        - name: situacao
+          value: integrado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+        - name: situacao
+          value: recusado
+          type: query
+          description: Filtra pela situação de liberação do lançamento
+          disabled: true
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Retorna lista paginada de lançamentos de banco de horas da empresa. Filtros opcionais por lancamento_id, data e situacao. Acesso permitido para usuários PESSOA/EMPRESA.

@@ -1,7 +1,0 @@
-info:
-  name: Centro de Custo
-  type: folder
-  seq: 7
-
-request:
-  auth: inherit

@@ -1,0 +1,205 @@
+info:
+  name: Cadastra novos centros de custo
+  type: http
+  seq: 3
+  tags:
+    - Centro de Custo
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/centros-custo"
+  body:
+    type: json
+    data: |-
+      {
+        "dados": [
+          {
+            "empresa_id": 900001,
+            "centro_custo": "001",
+            "nome": "Administrativo"
+          }
+        ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 201 Response
+    description: Centros de custo cadastrados com sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/centrocustos"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "empresa_id": 900001,
+                "centro_custo": "001",
+                "nome": "Administrativo"
+              }
+            ]
+          }
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 201,
+            "mensagem": "Operação realizada com sucesso",
+            "retorno": [
+              {
+                "cliente_id": 1234,
+                "empresa_id": 900001,
+                "centro_custo_id": 42,
+                "centro_custo": "001",
+                "nome": "Administrativo",
+                "log_cadastro_data": "2026-05-14 10:00:00",
+                "log_alterado_data": "2026-05-14 12:00:00"
+              }
+            ]
+          }
+  - name: 401 Response
+    description: Erro de autenticação
+    request:
+      url: "{{baseUrl}}/api/v1/centrocustos"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "empresa_id": 900001,
+                "centro_custo": "001",
+                "nome": "Administrativo"
+              }
+            ]
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Erro de permissão
+    request:
+      url: "{{baseUrl}}/api/v1/centrocustos"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "empresa_id": 900001,
+                "centro_custo": "001",
+                "nome": "Administrativo"
+              }
+            ]
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Erro de validação
+    request:
+      url: "{{baseUrl}}/api/v1/centrocustos"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "empresa_id": 900001,
+                "centro_custo": "001",
+                "nome": "Administrativo"
+              }
+            ]
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+  - name: 500 Response
+    description: Erro interno
+    request:
+      url: "{{baseUrl}}/api/v1/centrocustos"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "dados": [
+              {
+                "empresa_id": 900001,
+                "centro_custo": "001",
+                "nome": "Administrativo"
+              }
+            ]
+          }
+    response:
+      status: 500
+      statusText: Internal Server Error
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 500,
+            "mensagem": "Ocorreu um erro interno no servidor."
+          }
+
+docs: "Permite cadastrar múltiplos centros de custo de uma só vez através de um array de dados. O centro_custo_id é gerado automaticamente. ATENÇÃO: Os valores de 'centro_custo' são únicos por empresa, não é possível cadastrar valores com o mesmo 'centro_custo' para a mesma empresa."

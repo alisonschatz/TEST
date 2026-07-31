@@ -1,0 +1,350 @@
+info:
+  name: Upload de documento
+  type: http
+  seq: 2
+  tags:
+    - Documento
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/documentos/colaboradores/:tipo_documento"
+  params:
+    - name: tipo_documento
+      value: ""
+      type: path
+      description: Tipo de documento
+  body:
+    type: multipart-form
+    data:
+      - name: empresa_id
+        type: text
+        value: "12345"
+        description: ID da empresa
+      - name: funcionario_contribuinte_id
+        type: text
+        value: "98765"
+        description: ID do funcionário contribuinte
+      - name: arquivo
+        type: file
+        value: []
+        description: Arquivo do documento (máx. 5MB, JPG/PNG/PDF)
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 201 Response
+    description: Documento salvo com sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/documento/funcionario/:tipo_documento"
+      method: POST
+      params:
+        - name: tipo_documento
+          value: foto
+          type: path
+          description: Tipo de documento
+        - name: tipo_documento
+          value: cpf
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: rg
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: titulo_eleitor
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: pis
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: carteira_trabalho
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: cnh
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: comprovante_residencia
+          type: path
+          description: Tipo de documento
+          disabled: true
+      body:
+        type: multipart-form
+        data:
+          - name: empresa_id
+            type: text
+            value: "12345"
+            description: ID da empresa
+          - name: funcionario_contribuinte_id
+            type: text
+            value: "98765"
+            description: ID do funcionário contribuinte
+          - name: arquivo
+            type: file
+            value: []
+            description: Arquivo do documento (máx. 5MB, JPG/PNG/PDF)
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 201,
+            "mensagem": "Operação realizada com sucesso",
+            "retorno": {
+              "tipo_documento": "cpf",
+              "empresa_id": 12345,
+              "cliente_id": 1,
+              "funcionario_contribuinte_id": 98765,
+              "arquivo_id": 42
+            }
+          }
+  - name: 401 Response
+    description: Token ausente ou inválido
+    request:
+      url: "{{baseUrl}}/api/v1/documento/funcionario/:tipo_documento"
+      method: POST
+      params:
+        - name: tipo_documento
+          value: foto
+          type: path
+          description: Tipo de documento
+        - name: tipo_documento
+          value: cpf
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: rg
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: titulo_eleitor
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: pis
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: carteira_trabalho
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: cnh
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: comprovante_residencia
+          type: path
+          description: Tipo de documento
+          disabled: true
+      body:
+        type: multipart-form
+        data:
+          - name: empresa_id
+            type: text
+            value: "12345"
+            description: ID da empresa
+          - name: funcionario_contribuinte_id
+            type: text
+            value: "98765"
+            description: ID do funcionário contribuinte
+          - name: arquivo
+            type: file
+            value: []
+            description: Arquivo do documento (máx. 5MB, JPG/PNG/PDF)
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Sem permissão
+    request:
+      url: "{{baseUrl}}/api/v1/documento/funcionario/:tipo_documento"
+      method: POST
+      params:
+        - name: tipo_documento
+          value: foto
+          type: path
+          description: Tipo de documento
+        - name: tipo_documento
+          value: cpf
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: rg
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: titulo_eleitor
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: pis
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: carteira_trabalho
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: cnh
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: comprovante_residencia
+          type: path
+          description: Tipo de documento
+          disabled: true
+      body:
+        type: multipart-form
+        data:
+          - name: empresa_id
+            type: text
+            value: "12345"
+            description: ID da empresa
+          - name: funcionario_contribuinte_id
+            type: text
+            value: "98765"
+            description: ID do funcionário contribuinte
+          - name: arquivo
+            type: file
+            value: []
+            description: Arquivo do documento (máx. 5MB, JPG/PNG/PDF)
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Parâmetros ou arquivo inválidos
+    request:
+      url: "{{baseUrl}}/api/v1/documento/funcionario/:tipo_documento"
+      method: POST
+      params:
+        - name: tipo_documento
+          value: foto
+          type: path
+          description: Tipo de documento
+        - name: tipo_documento
+          value: cpf
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: rg
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: titulo_eleitor
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: pis
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: carteira_trabalho
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: cnh
+          type: path
+          description: Tipo de documento
+          disabled: true
+        - name: tipo_documento
+          value: comprovante_residencia
+          type: path
+          description: Tipo de documento
+          disabled: true
+      body:
+        type: multipart-form
+        data:
+          - name: empresa_id
+            type: text
+            value: "12345"
+            description: ID da empresa
+          - name: funcionario_contribuinte_id
+            type: text
+            value: "98765"
+            description: ID do funcionário contribuinte
+          - name: arquivo
+            type: file
+            value: []
+            description: Arquivo do documento (máx. 5MB, JPG/PNG/PDF)
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Realiza upload de um documento específico do funcionário.

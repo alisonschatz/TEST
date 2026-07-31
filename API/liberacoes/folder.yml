@@ -1,23 +1,10 @@
-opencollection: 1.0.0
-
 info:
-  name: RH NET Social
-config:
-  proxy:
-    inherit: true
-    config:
-      protocol: http
-      hostname: ""
-      port: ""
-      auth:
-        username: ""
-        password: ""
-      bypassProxy: ""
+  name: Liberações
+  type: folder
+  seq: 5
 
 request:
-  auth:
-    type: bearer
-    token: "{{token}}"
+  auth: inherit
   scripts:
     - type: before-request
       code: |-
@@ -33,29 +20,25 @@ request:
         // CONTEXTO. Ambos são fixos e vêm da environment (tokens_sistema /
         // tokens_contexto).
         //
-        // O perfil é escolhido pela variável de ambiente "tipo_perfil", usando uma
-        // chave descritiva que junta o sistema e o contexto (ex.: "unico_cliente",
-        // "parceiro_practice_admin"). Veja as chaves disponíveis no objeto PERFIS
-        // abaixo.
+        // O perfil (1 a 8) é escolhido pela variável de ambiente "perfil_escolhido".
         // ============================================================================
 
-                const PERFIS = {
-                  unico_cliente:               { nome: "Único · Cliente/Empresa",                               sistema: "unico",    contexto: "cliente_unico" },
-                  unico_admin:                 { nome: "Único · Administrador/Contabilidade",                   sistema: "unico",    contexto: "adm_unico" },
-                  practice_cliente:            { nome: "Practice · Cliente/Empresa",                            sistema: "practice", contexto: "cliente_practice" },
-                  practice_admin:              { nome: "Practice · Administrador/Contabilidade",                sistema: "practice", contexto: "adm_practice" },
-                  parceiro_unico_cliente:      { nome: "Parceiro (via Único) · Cliente/Empresa",                sistema: "parceiro", contexto: "cliente_unico" },
-                  parceiro_unico_admin:        { nome: "Parceiro (via Único) · Administrador/Contabilidade",    sistema: "parceiro", contexto: "adm_unico" },
-                  parceiro_practice_cliente:   { nome: "Parceiro (via Practice) · Cliente/Empresa",             sistema: "parceiro", contexto: "cliente_practice" },
-                  parceiro_practice_admin:     { nome: "Parceiro (via Practice) · Administrador/Contabilidade", sistema: "parceiro", contexto: "adm_practice" },
-                };
+                const PERFIS = [
+                  { nome: "Perfil 1 - Único · Cliente/Empresa",                              sistema: "unico",    contexto: "cliente_unico" },
+                  { nome: "Perfil 2 - Único · Administrador/Contabilidade",                  sistema: "unico",    contexto: "adm_unico" },
+                  { nome: "Perfil 3 - Practice · Cliente/Empresa",                           sistema: "practice", contexto: "cliente_practice" },
+                  { nome: "Perfil 4 - Practice · Administrador/Contabilidade",               sistema: "practice", contexto: "adm_practice" },
+                  { nome: "Perfil 5 - Parceiro (via Único) · Cliente/Empresa",               sistema: "parceiro", contexto: "cliente_unico" },
+                  { nome: "Perfil 6 - Parceiro (via Único) · Administrador/Contabilidade",   sistema: "parceiro", contexto: "adm_unico" },
+                  { nome: "Perfil 7 - Parceiro (via Practice) · Cliente/Empresa",            sistema: "parceiro", contexto: "cliente_practice" },
+                  { nome: "Perfil 8 - Parceiro (via Practice) · Administrador/Contabilidade",sistema: "parceiro", contexto: "adm_practice" },
+                ];
 
-                const tipoPerfil = bru.getEnvVar("tipo_perfil") || "unico_admin";
-                const perfil = PERFIS[tipoPerfil];
+                const perfilEscolhido = Number(bru.getEnvVar("perfil_escolhido")) || 2;
+                const perfil = PERFIS[perfilEscolhido - 1];
 
                 if (!perfil) {
-                  const opcoesDisponiveis = Object.keys(PERFIS).join(", ");
-                  console.error(`Erro: o tipo_perfil "${tipoPerfil}" não existe! Opções disponíveis: ${opcoesDisponiveis}`);
+                  console.error(`Erro: o perfil número ${perfilEscolhido} não existe! Escolha de 1 a 8.`);
                   return;
                 }
 
@@ -93,9 +76,3 @@ request:
                 } catch (error) {
                   console.error("Erro ao autenticar perfil automaticamente:", error.message);
                 }
-bundled: false
-extensions:
-  bruno:
-    ignore:
-      - node_modules
-      - .git

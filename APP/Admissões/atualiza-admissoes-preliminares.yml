@@ -1,0 +1,174 @@
+info:
+  name: Atualiza Admissões Preliminares
+  type: http
+  seq: 7
+  tags:
+    - Admissões
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/admissoes/preliminares"
+  body:
+    type: json
+    data: |-
+      {
+        "id": "{{id}}",
+        "empresa_id": "{{empresa_id}}",
+        "v_id": "{{v_id}}",
+        "tipo_colaborador": "{{tipo_colaborador}}",
+        "tipo_admissao": "{{tipo_admissao}}",
+        "classe_id": "{{classe_id}}",
+        "nome": "{{nome}}",
+        "matricula_anterior": "{{matricula_anterior}}",
+        "nascimento_data": "{{nascimento_data}}",
+        "admissao_data": "{{admissao_data}}",
+        "cpf": "{{cpf}}",
+        "pis": "{{pis}}",
+        "numero_recibo": "{{numero_recibo}}",
+        "data_integracao": "{{data_integracao}}",
+        "preenchimento_dados_cadastrais": "{{preenchimento_dados_cadastrais}}",
+        "email": "{{email}}",
+        "matricula_esocial": "{{matricula_esocial}}",
+        "categoria_esocial_id": "{{categoria_esocial_id}}",
+        "funcao_id": "{{funcao_id}}",
+        "tipo": "{{tipo}}",
+        "salario": "{{salario}}",
+        "contrato_tipo_id": "{{contrato_tipo_id}}",
+        "prazo_experiencia": "{{prazo_experiencia}}",
+        "fim_prazo_experiencia": "{{fim_prazo_experiencia}}",
+        "funcionario_contribuinte_id": "{{funcionario_contribuinte_id}}"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Atualização realizada com sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/funcionario/preliminar"
+      method: PUT
+      body:
+        type: json
+        data: "{}"
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Atualização realizada com sucesso",
+            "retorno": {
+              "empresa_id": 900001,
+              "v_id": 1001,
+              "id": 1233141,
+              "tipo_colaborador": 1,
+              "tipo_admissao": null,
+              "classe_id": 1,
+              "nome": "João da Silva",
+              "matricula_anterior": null,
+              "nascimento_data": "1990-05-15",
+              "admissao_data": "2025-09-24",
+              "cpf": "123.456.789-00",
+              "pis": "000.00000.00.0",
+              "numero_recibo": null,
+              "data_integracao": null,
+              "preenchimento_dados_cadastrais": true,
+              "email": "joao.silva@example.com",
+              "matricula_esocial": null,
+              "categoria_esocial_id": 101,
+              "funcao_id": null,
+              "tipo": null,
+              "salario": 3500.75,
+              "contrato_tipo_id": null,
+              "prazo_experiencia": 90,
+              "fim_prazo_experiencia": "2025-12-23",
+              "funcionario_contribuinte_id": null,
+              "log_cadastro_data": "2025-01-01 08:00:00",
+              "log_alterado_data": "2025-06-01 12:00:00"
+            }
+          }
+  - name: 401 Response
+    description: Token ausente ou inválido
+    request:
+      url: "{{baseUrl}}/api/v1/funcionario/preliminar"
+      method: PUT
+      body:
+        type: json
+        data: "{}"
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Erro de permissão
+    request:
+      url: "{{baseUrl}}/api/v1/funcionario/preliminar"
+      method: PUT
+      body:
+        type: json
+        data: "{}"
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Erro de validação
+    request:
+      url: "{{baseUrl}}/api/v1/funcionario/preliminar"
+      method: PUT
+      body:
+        type: json
+        data: "{}"
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Atualiza um registro existente. Mesmo payload do POST, porém o campo `id` passa a ser obrigatório.
