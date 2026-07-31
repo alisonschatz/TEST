@@ -1,0 +1,825 @@
+info:
+  name: atualiza-quadros-horarios
+  type: http
+  seq: 2
+  tags:
+    - Quadro de Horário
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/quadros-horarios"
+  headers:
+    - name: Authorization
+      value: Bearer {{token_atual}}
+  body:
+    type: json
+    data: |-
+      {
+        "quadro_id": "{{quadro_id}}",
+        "empresa_id": "{{empresa_id}}",
+        "v_quadro_horario_id": "{{v_quadro_horario_id}}",
+        "descricao": "{{descricao}}",
+        "horario_flexivel": {{horario_flexivel}},
+        "ativo": {{ativo}},
+        "dom": {
+          "entrada_1": "{{dom_entrada_1}}",
+          "saida_1": "{{dom_saida_1}}",
+          "entrada_2": "{{dom_entrada_2}}",
+          "saida_2": "{{dom_saida_2}}",
+          "entrada_3": "{{dom_entrada_3}}",
+          "saida_3": "{{dom_saida_3}}",
+          "entrada_4": "{{dom_entrada_4}}",
+          "saida_4": "{{dom_saida_4}}"
+        },
+        "seg": {
+          "entrada_1": "{{seg_entrada_1}}",
+          "saida_1": "{{seg_saida_1}}",
+          "entrada_2": "{{seg_entrada_2}}",
+          "saida_2": "{{seg_saida_2}}",
+          "entrada_3": "{{seg_entrada_3}}",
+          "saida_3": "{{seg_saida_3}}",
+          "entrada_4": "{{seg_entrada_4}}",
+          "saida_4": "{{seg_saida_4}}"
+        },
+        "ter": {
+          "entrada_1": "{{ter_entrada_1}}",
+          "saida_1": "{{ter_saida_1}}",
+          "entrada_2": "{{ter_entrada_2}}",
+          "saida_2": "{{ter_saida_2}}",
+          "entrada_3": "{{ter_entrada_3}}",
+          "saida_3": "{{ter_saida_3}}",
+          "entrada_4": "{{ter_entrada_4}}",
+          "saida_4": "{{ter_saida_4}}"
+        },
+        "qua": {
+          "entrada_1": "{{qua_entrada_1}}",
+          "saida_1": "{{qua_saida_1}}",
+          "entrada_2": "{{qua_entrada_2}}",
+          "saida_2": "{{qua_saida_2}}",
+          "entrada_3": "{{qua_entrada_3}}",
+          "saida_3": "{{qua_saida_3}}",
+          "entrada_4": "{{qua_entrada_4}}",
+          "saida_4": "{{qua_saida_4}}"
+        },
+        "qui": {
+          "entrada_1": "{{qui_entrada_1}}",
+          "saida_1": "{{qui_saida_1}}",
+          "entrada_2": "{{qui_entrada_2}}",
+          "saida_2": "{{qui_saida_2}}",
+          "entrada_3": "{{qui_entrada_3}}",
+          "saida_3": "{{qui_saida_3}}",
+          "entrada_4": "{{qui_entrada_4}}",
+          "saida_4": "{{qui_saida_4}}"
+        },
+        "sex": {
+          "entrada_1": "{{sex_entrada_1}}",
+          "saida_1": "{{sex_saida_1}}",
+          "entrada_2": "{{sex_entrada_2}}",
+          "saida_2": "{{sex_saida_2}}",
+          "entrada_3": "{{sex_entrada_3}}",
+          "saida_3": "{{sex_saida_3}}",
+          "entrada_4": "{{sex_entrada_4}}",
+          "saida_4": "{{sex_saida_4}}"
+        },
+        "sab": {
+          "entrada_1": "{{sab_entrada_1}}",
+          "saida_1": "{{sab_saida_1}}",
+          "entrada_2": "{{sab_entrada_2}}",
+          "saida_2": "{{sab_saida_2}}",
+          "entrada_3": "{{sab_entrada_3}}",
+          "saida_3": "{{sab_saida_3}}",
+          "entrada_4": "{{sab_entrada_4}}",
+          "saida_4": "{{sab_saida_4}}"
+        }
+      }
+  auth: inherit
+
+vars:
+  pre-request:
+    - name: quadro_id
+      value: "18660141"
+    - name: empresa_id
+      value: "900002"
+    - name: v_quadro_horario_id
+      value: "1190"
+    - name: descricao
+      value: "Comercial 8h-18h"
+    - name: horario_flexivel
+      value: "false"
+    - name: ativo
+      value: "true"
+    - name: dom_entrada_1
+      value: "00:00"
+    - name: dom_saida_1
+      value: "12:00"
+    - name: dom_entrada_2
+      value: "13:00"
+    - name: dom_saida_2
+      value: "18:00"
+    - name: dom_entrada_3
+      value: ""
+    - name: dom_saida_3
+      value: ""
+    - name: dom_entrada_4
+      value: ""
+    - name: dom_saida_4
+      value: ""
+    - name: seg_entrada_1
+      value: "08:00"
+    - name: seg_saida_1
+      value: "12:00"
+    - name: seg_entrada_2
+      value: "13:00"
+    - name: seg_saida_2
+      value: "18:00"
+    - name: seg_entrada_3
+      value: ""
+    - name: seg_saida_3
+      value: ""
+    - name: seg_entrada_4
+      value: ""
+    - name: seg_saida_4
+      value: ""
+    - name: ter_entrada_1
+      value: "08:00"
+    - name: ter_saida_1
+      value: "12:00"
+    - name: ter_entrada_2
+      value: "13:00"
+    - name: ter_saida_2
+      value: "18:00"
+    - name: ter_entrada_3
+      value: ""
+    - name: ter_saida_3
+      value: ""
+    - name: ter_entrada_4
+      value: ""
+    - name: ter_saida_4
+      value: ""
+    - name: qua_entrada_1
+      value: "08:00"
+    - name: qua_saida_1
+      value: "12:00"
+    - name: qua_entrada_2
+      value: "13:00"
+    - name: qua_saida_2
+      value: "18:00"
+    - name: qua_entrada_3
+      value: ""
+    - name: qua_saida_3
+      value: ""
+    - name: qua_entrada_4
+      value: ""
+    - name: qua_saida_4
+      value: ""
+    - name: qui_entrada_1
+      value: "08:00"
+    - name: qui_saida_1
+      value: "12:00"
+    - name: qui_entrada_2
+      value: "13:00"
+    - name: qui_saida_2
+      value: "18:00"
+    - name: qui_entrada_3
+      value: ""
+    - name: qui_saida_3
+      value: ""
+    - name: qui_entrada_4
+      value: ""
+    - name: qui_saida_4
+      value: ""
+    - name: sex_entrada_1
+      value: "08:00"
+    - name: sex_saida_1
+      value: "12:00"
+    - name: sex_entrada_2
+      value: "13:00"
+    - name: sex_saida_2
+      value: "18:00"
+    - name: sex_entrada_3
+      value: ""
+    - name: sex_saida_3
+      value: ""
+    - name: sex_entrada_4
+      value: ""
+    - name: sex_saida_4
+      value: ""
+    - name: sab_entrada_1
+      value: "08:00"
+    - name: sab_saida_1
+      value: "12:00"
+    - name: sab_entrada_2
+      value: "13:00"
+    - name: sab_saida_2
+      value: "18:00"
+    - name: sab_entrada_3
+      value: ""
+    - name: sab_saida_3
+      value: ""
+    - name: sab_entrada_4
+      value: ""
+    - name: sab_saida_4
+      value: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Quadro de horário atualizado com sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/quadrohorarios"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "quadro_id": 55,
+            "quadro_horario_id": 10,
+            "descricao": "Comercial 8h-18h (revisado)",
+            "horario_flexivel": true,
+            "ativo": true,
+            "dom": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "seg": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "ter": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "qua": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "qui": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "sex": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "sab": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            }
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": true,
+            "status": 200,
+            "mensagem": "Operação realizada com sucesso",
+            "retorno": {
+              "cliente_id": 1234,
+              "empresa_id": 900001,
+              "quadro_id": 55,
+              "quadro_horario_id": 10,
+              "descricao": "Comercial 8h-18h",
+              "horario_flexivel": false,
+              "ativo": true,
+              "dom": {
+                "entrada_1": "08:00",
+                "saida_1": "12:00",
+                "entrada_2": "13:00",
+                "saida_2": "18:00",
+                "entrada_3": null,
+                "saida_3": null,
+                "entrada_4": null,
+                "saida_4": null
+              },
+              "seg": {
+                "entrada_1": "08:00",
+                "saida_1": "12:00",
+                "entrada_2": "13:00",
+                "saida_2": "18:00",
+                "entrada_3": null,
+                "saida_3": null,
+                "entrada_4": null,
+                "saida_4": null
+              },
+              "ter": {
+                "entrada_1": "08:00",
+                "saida_1": "12:00",
+                "entrada_2": "13:00",
+                "saida_2": "18:00",
+                "entrada_3": null,
+                "saida_3": null,
+                "entrada_4": null,
+                "saida_4": null
+              },
+              "qua": {
+                "entrada_1": "08:00",
+                "saida_1": "12:00",
+                "entrada_2": "13:00",
+                "saida_2": "18:00",
+                "entrada_3": null,
+                "saida_3": null,
+                "entrada_4": null,
+                "saida_4": null
+              },
+              "qui": {
+                "entrada_1": "08:00",
+                "saida_1": "12:00",
+                "entrada_2": "13:00",
+                "saida_2": "18:00",
+                "entrada_3": null,
+                "saida_3": null,
+                "entrada_4": null,
+                "saida_4": null
+              },
+              "sex": {
+                "entrada_1": "08:00",
+                "saida_1": "12:00",
+                "entrada_2": "13:00",
+                "saida_2": "18:00",
+                "entrada_3": null,
+                "saida_3": null,
+                "entrada_4": null,
+                "saida_4": null
+              },
+              "sab": {
+                "entrada_1": "08:00",
+                "saida_1": "12:00",
+                "entrada_2": "13:00",
+                "saida_2": "18:00",
+                "entrada_3": null,
+                "saida_3": null,
+                "entrada_4": null,
+                "saida_4": null
+              },
+              "log_cadastro_data": "2026-06-22 10:00:00",
+              "log_alterado_data": "2026-06-22 10:00:00"
+            }
+          }
+  - name: 401 Response
+    description: Erro de autenticação
+    request:
+      url: "{{baseUrl}}/api/v1/quadrohorarios"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "quadro_id": 55,
+            "quadro_horario_id": 10,
+            "descricao": "Comercial 8h-18h (revisado)",
+            "horario_flexivel": true,
+            "ativo": true,
+            "dom": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "seg": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "ter": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "qua": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "qui": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "sex": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "sab": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            }
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: ""
+  - name: 403 Response
+    description: Erro de permissão
+    request:
+      url: "{{baseUrl}}/api/v1/quadrohorarios"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "quadro_id": 55,
+            "quadro_horario_id": 10,
+            "descricao": "Comercial 8h-18h (revisado)",
+            "horario_flexivel": true,
+            "ativo": true,
+            "dom": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "seg": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "ter": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "qua": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "qui": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "sex": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "sab": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            }
+          }
+    response:
+      status: 403
+      statusText: Forbidden
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 403,
+            "mensagem": "Você não tem permissão para realizar esta ação.",
+            "erros": {
+              "dados.0.empresa_id": [
+                "Usuário não está vinculado a essa empresa."
+              ]
+            }
+          }
+  - name: 422 Response
+    description: Registro não encontrado ou validação
+    request:
+      url: "{{baseUrl}}/api/v1/quadrohorarios"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "quadro_id": 55,
+            "quadro_horario_id": 10,
+            "descricao": "Comercial 8h-18h (revisado)",
+            "horario_flexivel": true,
+            "ativo": true,
+            "dom": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "seg": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "ter": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "qua": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "qui": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "sex": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "sab": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            }
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+  - name: 500 Response
+    description: Erro interno
+    request:
+      url: "{{baseUrl}}/api/v1/quadrohorarios"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "empresa_id": 900001,
+            "quadro_id": 55,
+            "quadro_horario_id": 10,
+            "descricao": "Comercial 8h-18h (revisado)",
+            "horario_flexivel": true,
+            "ativo": true,
+            "dom": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "seg": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "ter": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "qua": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "qui": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "sex": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            },
+            "sab": {
+              "entrada_1": "08:00",
+              "saida_1": "12:00",
+              "entrada_2": "13:00",
+              "saida_2": "18:00",
+              "entrada_3": null,
+              "saida_3": null,
+              "entrada_4": null,
+              "saida_4": null
+            }
+          }
+    response:
+      status: 500
+      statusText: Internal Server Error
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "sucesso": false,
+            "status": 422,
+            "mensagem": "The dados.0.descricao field must not be greater than 40 characters.",
+            "erros": {
+              "dados.0.descricao": [
+                "The dados.0.descricao field must not be greater than 40 characters."
+              ]
+            },
+            "retorno": null
+          }
+
+docs: Atualiza os dados de um quadro de horário. quadro_id é a chave de localização (imutável). quadro_horario_id é editável, com unicidade ignorando o próprio registro. Requer token de sistema.

@@ -7,7 +7,7 @@ variables:
     value: https://api-auth-hml.sci.com.br
     description: ""
   - name: tipo_perfil
-    value: parceiro_unico_cliente
+    value: unico_admin
     description: ""
   - name: tokens_sistema
     value: |-

@@ -1,0 +1,560 @@
+info:
+  name: Quadro de Horário
+  type: app
+  seq: 5
+code: |
+  <!--
+    ============================================================
+    BRUNO COLLECTION APP - Pasta "Quadro de Horário"
+    ============================================================
+    Mesmo padrão do App de Admissões: bru.ctx.listRequests() para
+    achar as 4 requests da pasta pelo nome, bru.ctx.runRequest()
+    para dispará-las com runtimeVariables.
+
+    Pré-requisitos nos arquivos da pasta (já aplicados nos .yml
+    entregues junto com este App):
+    - lista-quadros-horarios: URL usa "?{{rt_query}}".
+    - cria-quadros-horarios / atualiza-quadros-horarios: body com um
+      placeholder por campo, incluindo um por dia+horário (ex:
+      {{dom_entrada_1}}, {{seg_saida_2}}...) - names únicos por
+      combinação dia/campo, já que os 7 dias têm os mesmos nomes de
+      sub-campo (entrada_1, saida_1...) e precisam de valores
+      independentes.
+    - remove-quadros-horarios: body com {{empresa_id}} + {{quadro_id}}.
+    - cria/atualiza/remove têm um header Authorization: Bearer
+      {{token_atual}} (a API exige "token de sistema" nesses 3
+      endpoints). token_atual NÃO tem valor padrão aqui de propósito -
+      igual ao baseUrl, ele deve vir de uma variável de ambiente ou
+      de coleção já existente no seu Bruno; um valor fixo aqui
+      poderia mascarar o token real.
+
+    Como instalar: pasta "Quadro de Horário" → aba App → habilite →
+    cole este código.
+    ============================================================
+  -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    #app-quadro-horario {
+      --navy: #38486c;
+      --blue: #91d8f7;
+      --white: #ffffff;
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --surface-alt: rgba(56, 72, 108, 0.05);
+      --text: #263045;
+      --text-muted: rgba(56, 72, 108, 0.70);
+      --border: rgba(56, 72, 108, 0.15);
+      --primary: var(--navy);
+      --primary-soft: rgba(56, 72, 108, 0.08);
+      --accent: var(--blue);
+      --accent-soft: rgba(145, 216, 247, 0.25);
+      --green: #1f8a5f; --green-soft: #e6f6ee;
+      --red: #c1443a; --red-soft: #fbeae8;
+      --radius: 10px; --radius-lg: 14px;
+      --shadow: 0 1px 2px rgba(56,72,108,.06), 0 4px 14px rgba(56,72,108,.06);
+
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg); color: var(--text); font-size: 14px; padding: 20px; border-radius: var(--radius-lg);
+      letter-spacing: -0.01em;
+    }
+    #app-quadro-horario * { box-sizing: border-box; }
+    #app-quadro-horario button, #app-quadro-horario input, #app-quadro-horario select { font-family: inherit; letter-spacing: inherit; }
+    #app-quadro-horario :focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
+
+    .ap-header { display: flex; align-items: center; gap: 12px; margin-bottom: 2px; }
+    .ap-mark { width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(155deg, var(--navy), #2a3752); display: flex; align-items: center; justify-content: center; color: var(--blue); font-weight: 800; font-size: 13px; letter-spacing: 0; flex-shrink: 0; }
+    .ap-header h2 { margin: 0; font-size: 20px; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
+    .ap-subtitle { font-size: 12.5px; color: var(--text-muted); margin: 4px 0 18px 46px; }
+
+    .stat-pill { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 13px; font-size: 12.5px; font-weight: 600; color: var(--text-muted); }
+    .stat-pill b { color: var(--navy); font-weight: 800; }
+
+    .pf-filtros { background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 16px; }
+    .pf-filtros-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 12px; }
+    .campo { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .campo label { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+    .campo input, .campo select { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 13px; color: var(--text); background: var(--white); width: 100%; transition: border-color .15s; }
+    .campo input:focus, .campo select:focus { outline: none; border-color: var(--navy); }
+    .campo input:disabled { opacity: .55; }
+    .pf-filtros-acoes { display: flex; gap: 8px; margin-top: 14px; align-items: center; flex-wrap: wrap; }
+
+    .btn-refresh { display: inline-flex; align-items: center; gap: 6px; background: var(--navy); color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: filter .15s, transform .1s; }
+    .btn-refresh:hover { filter: brightness(1.15); }
+    .btn-refresh:active { transform: scale(.98); }
+    .btn-refresh:disabled { opacity: .5; cursor: default; }
+    .btn-nova { background: var(--white); color: var(--navy); border: 1.5px solid var(--navy); }
+    .btn-nova:hover { background: var(--primary-soft); filter: none; }
+    .btn-rapida { background: var(--blue); color: var(--navy); }
+    .btn-rapida:hover { filter: brightness(1.05); }
+    .spinner { width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(255,255,255,.5); border-top-color: #fff; animation: pf-spin .7s linear infinite; display: inline-block; vertical-align: -2px; }
+    @keyframes pf-spin { to { transform: rotate(360deg); } }
+
+    .pf-error { background: var(--red-soft); color: var(--red); border: 1px solid rgba(193,68,58,.3); border-radius: 8px; padding: 11px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; white-space: pre-wrap; }
+    .pf-sucesso { background: var(--green-soft); color: var(--green); border: 1px solid rgba(31,138,95,.3); border-radius: 8px; padding: 11px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+    .pf-paginacao { display: flex; align-items: center; gap: 10px; justify-content: center; margin: 16px 0; font-size: 12.5px; color: var(--text-muted); }
+
+    .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+    .search-input { flex: 1; min-width: 220px; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13.5px; }
+    .search-input:focus { outline: none; border-color: var(--navy); }
+    .toolbar-btn { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 8px 13px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: border-color .15s, color .15s; }
+    .toolbar-btn:hover { border-color: var(--navy); color: var(--navy); }
+
+    .func-accordion { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; box-shadow: var(--shadow); transition: border-left-color .15s; }
+    .func-accordion.is-ativo { border-left-color: var(--blue); }
+    .func-summary { padding: 13px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; list-style: none; flex-wrap: wrap; }
+    .func-summary::-webkit-details-marker { display: none; }
+    .func-summary:hover { background: var(--surface-alt); }
+    .func-summary-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .func-nome { font-weight: 700; font-size: 14.5px; color: var(--navy); }
+    .func-id { font-size: 11.5px; color: var(--text-muted); }
+    .func-summary-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-left: auto; }
+    .func-actions { display: flex; gap: 6px; }
+    .action-btn { background: var(--primary-soft); color: var(--navy); border: 1px solid transparent; border-radius: 6px; padding: 6px 11px; font-size: 11.5px; font-weight: 700; cursor: pointer; position: relative; z-index: 1; transition: filter .15s; }
+    .action-btn:hover { filter: brightness(.95); }
+    .action-btn-danger { background: var(--red-soft); color: var(--red); }
+    .badge { padding: 3px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+    .badge-ativo { background: var(--green-soft); color: var(--green); }
+    .badge-inativo { background: var(--red-soft); color: var(--red); }
+    .badge-info { background: var(--accent-soft); color: var(--navy); }
+
+    .inner-content { padding: 16px; background: var(--surface-alt); border-top: 1px solid var(--border); }
+    .empty-state { text-align: center; padding: 44px 20px; color: var(--text-muted); font-size: 13.5px; }
+
+    .semana-table { width: 100%; border-collapse: collapse; font-size: 12px; background: var(--white); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .semana-table th { background: var(--navy); color: var(--blue); font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: .04em; padding: 7px 4px; }
+    .semana-table td { padding: 6px 4px; text-align: center; border-bottom: 1px solid var(--border); }
+    .semana-table tr:nth-child(even) td { background: var(--surface-alt); }
+    .semana-table tr:last-child td { border-bottom: none; }
+    .semana-table .dia-nome { text-align: left; font-weight: 700; padding-left: 10px; color: var(--navy); }
+    .semana-table input[type="time"] { width: 80px; border: 1px solid var(--border); border-radius: 5px; padding: 3px 4px; font-size: 11.5px; background: var(--white); }
+    .semana-table input[type="time"]:focus { outline: none; border-color: var(--navy); }
+
+    .form-panel { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--navy); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow); }
+    .form-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .form-panel-header h3 { margin: 0; font-size: 16px; color: var(--navy); font-weight: 800; }
+    .form-fieldset { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+    .form-fieldset legend { font-size: 11px; color: var(--navy); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 0 4px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 9px 10px; }
+    .form-panel-actions { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+
+    .pf-debug { margin-top: 20px; }
+    .pf-debug summary { cursor: pointer; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+    #app-quadro-horario .pf-debug pre { background: #1e2434; padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; color: var(--blue); font-family: "Fira Code", Consolas, Monaco, monospace; font-size: 12px; line-height: 1.5; margin-top: 8px; max-height: 260px; }
+  </style>
+
+  <div id="app-quadro-horario">
+
+    <div class="ap-header">
+      <div class="ap-mark">QH</div>
+      <h2>Painel de Quadros de Horário</h2>
+    </div>
+    <div class="ap-subtitle" id="apStatus">Inicializando...</div>
+
+    <div class="pf-filtros">
+      <div class="pf-filtros-grid">
+        <div class="campo"><label>Empresa ID</label><input id="fEmpresaId" type="text" value="900002"></div>
+        <div class="campo"><label>Quadro ID (PK)</label><input id="fQuadroId" type="text"></div>
+        <div class="campo"><label>V. Quadro Horário ID</label><input id="fVQuadroHorarioId" type="text"></div>
+        <div class="campo"><label>Alterado a partir de</label><input id="fAlteradoData" type="date"></div>
+        <div class="campo" style="max-width:90px;"><label>Página</label><input id="fPage" type="number" min="1" value="1"></div>
+      </div>
+      <div class="pf-filtros-acoes">
+        <button class="btn-refresh" id="btnBuscar" onclick="buscar(false)" disabled><span id="btnBuscarLabel">Inicializando...</span></button>
+        <button class="toolbar-btn" onclick="limparFiltros()">Limpar filtros</button>
+        <button class="btn-refresh btn-nova" onclick="abrirForm('criar', null)">+ Novo quadro de horário</button>
+        <button class="btn-refresh btn-rapida" onclick="abrirCriacaoRapida()" title="Abre o formulário já preenchido com dados de teste aleatórios">⚡ Criação rápida</button>
+        <span class="stat-pill">Total <b id="statTotal">–</b></span>
+      </div>
+    </div>
+
+    <div id="pfErrorBox"></div>
+    <div id="formContainer"></div>
+    <div id="pfPaginacao" class="pf-paginacao"></div>
+
+    <div class="toolbar">
+      <input type="text" class="search-input" id="searchLocal" placeholder="Filtrar dentro da página atual por descrição ou ID..." oninput="filtrarLocal()">
+      <button class="toolbar-btn" onclick="toggleAll(true)">Expandir tudo</button>
+      <button class="toolbar-btn" onclick="toggleAll(false)">Recolher tudo</button>
+    </div>
+    <div id="cardsContainer"><div class="empty-state">Ajuste os filtros acima e clique em "Buscar dados".</div></div>
+
+    <details class="pf-debug">
+      <summary>Depuração: última chamada via bru.ctx.runRequest()</summary>
+      <pre id="pfDebugRaw"><code>—</code></pre>
+    </details>
+
+    <div id="pfConfirmOverlay" style="display:none;position:fixed;inset:0;background:rgba(38,48,69,.45);z-index:1000;align-items:center;justify-content:center;">
+      <div style="background:var(--surface);border-radius:var(--radius-lg);padding:20px;max-width:360px;width:90%;box-shadow:0 10px 30px rgba(38,48,69,.3);">
+        <div id="pfConfirmMsg" style="margin-bottom:16px;font-size:13.5px;color:var(--text);line-height:1.5;"></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button class="toolbar-btn" onclick="pfConfirmResolver(false)">Cancelar</button>
+          <button class="action-btn action-btn-danger" style="padding:8px 14px;" onclick="pfConfirmResolver(true)">Confirmar exclusão</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const REQ = {
+      lista: 'lista-quadros-horarios',
+      cria: 'cria-quadros-horarios',
+      atualiza: 'atualiza-quadros-horarios',
+      remove: 'remove-quadros-horarios',
+    };
+
+    const DIAS = [['dom','Dom'],['seg','Seg'],['ter','Ter'],['qua','Qua'],['qui','Qui'],['sex','Sex'],['sab','Sáb']];
+    const SLOTS = ['entrada_1','saida_1','entrada_2','saida_2','entrada_3','saida_3','entrada_4','saida_4'];
+    const CAMPOS_TOPO = ['quadro_id', 'empresa_id', 'v_quadro_horario_id', 'descricao', 'horario_flexivel', 'ativo'];
+    // horario_flexivel/ativo são obrigatórios e a API exige um boolean de verdade
+    // (não aceita a string "true"/"false") - por isso não tem opção em branco aqui,
+    // e o body da request usa {{campo}} sem aspas pra virar JSON boolean literal.
+    const SELECTS = { horario_flexivel: ['false', 'true'], ativo: ['true', 'false'] };
+
+    // ---------------- helpers genéricos ----------------
+    const v = (id) => (document.getElementById(id)?.value ?? '');
+    const renderVal = (val) => (val === null || val === undefined || val === '') ? '<span style="color:#a1a5b0;font-style:italic;">—</span>' : (typeof val === 'boolean' ? String(val) : String(val));
+
+    function mostrarErro(msg, ok) {
+      const box = document.getElementById('pfErrorBox');
+      box.innerHTML = msg ? `<div class="${ok ? 'pf-sucesso' : 'pf-error'}">${msg}</div>` : '';
+    }
+    function mostrarDebug(obj) {
+      try { document.getElementById('pfDebugRaw').innerHTML = '<code>' + JSON.stringify(obj, null, 2) + '</code>'; }
+      catch (e) { document.getElementById('pfDebugRaw').innerHTML = '<code>' + String(obj) + '</code>'; }
+    }
+    function montarQueryString(pares) {
+      return pares.filter(([, val]) => (val ?? '').toString().trim() !== '')
+        .map(([k, val]) => `${k}=${encodeURIComponent(val.toString().trim())}`).join('&');
+    }
+    function extrairBody(res) { return res?.data ?? res?.body ?? null; }
+    function interpretarResposta(res) {
+      const status = res?.status;
+      const body = extrairBody(res);
+      if (status && status >= 400) {
+        const msg = (body && body.mensagem) || `A API retornou status ${status}.`;
+        const detalhes = (body && body.erros) ? '\n' + JSON.stringify(body.erros, null, 2) : '';
+        return { ok: false, status, body, msg: msg + detalhes };
+      }
+      return { ok: true, status, body, msg: (body && body.mensagem) || '' };
+    }
+    function toggleAll(open) { document.querySelectorAll('#cardsContainer .func-accordion').forEach(el => { el.open = open; }); }
+
+    // Confirmação própria (não usamos window.confirm() - ele não é confiável
+    // dentro do webview isolado onde o App roda).
+    let pfConfirmResolve = null;
+    function confirmarAcao(msg) {
+      return new Promise((resolve) => {
+        pfConfirmResolve = resolve;
+        document.getElementById('pfConfirmMsg').textContent = msg;
+        document.getElementById('pfConfirmOverlay').style.display = 'flex';
+      });
+    }
+    function pfConfirmResolver(valor) {
+      document.getElementById('pfConfirmOverlay').style.display = 'none';
+      if (pfConfirmResolve) pfConfirmResolve(valor);
+      pfConfirmResolve = null;
+    }
+    window.pfConfirmResolver = pfConfirmResolver;
+    function filtrarLocal() {
+      const term = (document.getElementById('searchLocal').value || '').trim().toLowerCase();
+      document.querySelectorAll('#cardsContainer .func-accordion').forEach(card => {
+        card.style.display = card.dataset.search.includes(term) ? '' : 'none';
+      });
+    }
+    window.toggleAll = toggleAll;
+    window.filtrarLocal = filtrarLocal;
+
+    // ---------------- tabela semanal (leitura) ----------------
+    function tabelaSemanaLeitura(registro) {
+      const linhas = DIAS.map(([chave, nome]) => {
+        const dia = registro[chave] || {};
+        const celulas = SLOTS.map(s => `<td>${renderVal(dia[s])}</td>`).join('');
+        return `<tr><td class="dia-nome">${nome}</td>${celulas}</tr>`;
+      }).join('');
+      return `
+        <table class="semana-table">
+          <thead><tr><th>Dia</th><th>Ent.1</th><th>Saí.1</th><th>Ent.2</th><th>Saí.2</th><th>Ent.3</th><th>Saí.3</th><th>Ent.4</th><th>Saí.4</th></tr></thead>
+          <tbody>${linhas}</tbody>
+        </table>`;
+    }
+
+    // ---------------- tabela semanal (edição) ----------------
+    function tabelaSemanaEdicao(registro) {
+      const linhas = DIAS.map(([chave, nome]) => {
+        const dia = (registro && registro[chave]) || {};
+        const celulas = SLOTS.map(s => {
+          const val = dia[s] || '';
+          return `<td><input type="time" id="qf__${chave}_${s}" value="${val}"></td>`;
+        }).join('');
+        return `<tr><td class="dia-nome">${nome}</td>${celulas}</tr>`;
+      }).join('');
+      return `
+        <table class="semana-table">
+          <thead><tr><th>Dia</th><th>Ent.1</th><th>Saí.1</th><th>Ent.2</th><th>Saí.2</th><th>Ent.3</th><th>Saí.3</th><th>Ent.4</th><th>Saí.4</th></tr></thead>
+          <tbody>${linhas}</tbody>
+        </table>`;
+    }
+
+    function coletarSemana() {
+      const out = {};
+      DIAS.forEach(([chave]) => SLOTS.forEach(s => {
+        out[`${chave}_${s}`] = document.getElementById(`qf__${chave}_${s}`)?.value ?? '';
+      }));
+      return out;
+    }
+
+    // ---------------- geração de dados aleatórios (criação rápida) ----------------
+    const DESCRICOES_ALEATORIAS = ['Comercial', 'Administrativo', 'Escala Manhã', 'Escala Tarde', 'Turno Único', 'Operacional', 'Atendimento', 'Backoffice'];
+
+    function gerarHorarioAleatorioDia(chanceFolga) {
+      if (Math.random() < chanceFolga) {
+        return { entrada_1:'', saida_1:'', entrada_2:'', saida_2:'', entrada_3:'', saida_3:'', entrada_4:'', saida_4:'' };
+      }
+      const entradasManha = ['07:00', '08:00', '09:00'];
+      const saidasTarde = ['17:00', '18:00', '19:00'];
+      return {
+        entrada_1: entradasManha[Math.floor(Math.random() * entradasManha.length)],
+        saida_1: '12:00',
+        entrada_2: '13:00',
+        saida_2: saidasTarde[Math.floor(Math.random() * saidasTarde.length)],
+        entrada_3: '', saida_3: '', entrada_4: '', saida_4: '',
+      };
+    }
+
+    function preencherAleatorio() {
+      const desc = DESCRICOES_ALEATORIAS[Math.floor(Math.random() * DESCRICOES_ALEATORIAS.length)] + ' ' + (Math.floor(Math.random() * 900) + 100);
+      const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+      setVal('qf__descricao', desc);
+      setVal('qf__v_quadro_horario_id', String(Math.floor(Math.random() * 9000) + 1000));
+      setVal('qf__horario_flexivel', Math.random() < 0.2 ? 'true' : 'false');
+      setVal('qf__ativo', 'true');
+      DIAS.forEach(([chave]) => {
+        const chanceFolga = (chave === 'dom' || chave === 'sab') ? 0.6 : 0.08;
+        const horario = gerarHorarioAleatorioDia(chanceFolga);
+        SLOTS.forEach(s => setVal(`qf__${chave}_${s}`, horario[s]));
+      });
+    }
+    window.preencherAleatorio = preencherAleatorio;
+
+    function abrirCriacaoRapida() {
+      abrirForm('criar', null);
+      preencherAleatorio();
+    }
+    window.abrirCriacaoRapida = abrirCriacaoRapida;
+
+    // ---------------- campos do topo (form) ----------------
+    function campoTopoHtml(nome, valor) {
+      const id = `qf__${nome}`;
+      const val = (valor === null || valor === undefined) ? '' : valor;
+      if (SELECTS[nome]) {
+        const opts = SELECTS[nome].map(o => `<option value="${o}" ${String(val) === o ? 'selected' : ''}>${o || 'Selecione'}</option>`).join('');
+        return `<div class="campo"><label>${nome}</label><select id="${id}">${opts}</select></div>`;
+      }
+      const disabled = nome === 'quadro_id' && modoForm === 'criar' ? 'disabled placeholder="gerado automaticamente"' : '';
+      return `<div class="campo"><label>${nome}</label><input id="${id}" type="text" value="${String(val).replace(/"/g,'&quot;')}" ${disabled}></div>`;
+    }
+
+    function coletarTopo() {
+      const out = {};
+      CAMPOS_TOPO.forEach(c => { out[c] = document.getElementById(`qf__${c}`)?.value ?? ''; });
+      return out;
+    }
+
+    // ---------------- estado + orquestração ----------------
+    let mapaRequests = {};
+    let ctxPronto = false;
+    let carregando = false;
+    let dados = [];
+    let modoForm = null;
+
+    async function chamar(nomeRequest, runtimeVariables) {
+      const pathname = mapaRequests[nomeRequest];
+      if (!pathname) throw new Error(`Request "${nomeRequest}" não encontrada na coleção.`);
+      const res = await bru.ctx.runRequest(pathname, { runtimeVariables });
+      mostrarDebug({ request: nomeRequest, enviado: runtimeVariables, resposta: res });
+      return res;
+    }
+
+    function atualizarBotao() {
+      const btn = document.getElementById('btnBuscar');
+      const label = document.getElementById('btnBuscarLabel');
+      if (!ctxPronto) { btn.disabled = true; label.textContent = 'Inicializando...'; return; }
+      if (carregando) { btn.disabled = true; label.innerHTML = '<span class="spinner"></span> Buscando...'; return; }
+      btn.disabled = false;
+      label.textContent = dados.length > 0 ? '🔄 Atualizar' : '▶ Buscar dados';
+    }
+
+    function limparFiltros() {
+      ['fEmpresaId','fQuadroId','fVQuadroHorarioId','fAlteradoData'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('fPage').value = '1';
+    }
+    window.limparFiltros = limparFiltros;
+
+    async function buscar(resetarPagina) {
+      if (!ctxPronto || carregando) return;
+      if (resetarPagina) document.getElementById('fPage').value = '1';
+      mostrarErro('');
+      carregando = true;
+      atualizarBotao();
+      try {
+        const rt_query = montarQueryString([
+          ['empresa_id', v('fEmpresaId')],
+          ['quadro_id', v('fQuadroId')],
+          ['v_quadro_horario_id', v('fVQuadroHorarioId')],
+          ['alterado_data', v('fAlteradoData')],
+          ['page', v('fPage') || '1'],
+        ]);
+        const res = await chamar(REQ.lista, { rt_query });
+        const r = interpretarResposta(res);
+        if (!r.ok) { mostrarErro(r.msg); dados = []; renderLista([], null); return; }
+        dados = Array.isArray(r.body?.retorno) ? r.body.retorno : [];
+        renderLista(dados, r.body?.paginacao || null);
+      } catch (err) {
+        mostrarErro(err.message || String(err));
+      } finally {
+        carregando = false;
+        atualizarBotao();
+      }
+    }
+    window.buscar = buscar;
+
+    function irParaPagina(n) {
+      if (n < 1) return;
+      document.getElementById('fPage').value = n;
+      buscar(false);
+    }
+    window.irParaPagina = irParaPagina;
+
+    function renderPaginacao(p) {
+      const box = document.getElementById('pfPaginacao');
+      if (!p) { box.innerHTML = ''; return; }
+      box.innerHTML = `
+        <button class="toolbar-btn" ${p.pagina_atual <= 1 ? 'disabled' : ''} onclick="irParaPagina(${p.pagina_atual - 1})">← Anterior</button>
+        <span>Página ${p.pagina_atual} de ${p.ultima_pagina} · ${p.total} registros (mostrando ${p.inicio}–${p.fim})</span>
+        <button class="toolbar-btn" ${p.pagina_atual >= p.ultima_pagina ? 'disabled' : ''} onclick="irParaPagina(${p.pagina_atual + 1})">Próxima →</button>
+      `;
+    }
+
+    function montarCard(reg, idx) {
+      const nomeBusca = `${reg.descricao || ''} ${reg.quadro_id || ''} ${reg.v_quadro_horario_id || ''}`.toLowerCase();
+      return `
+        <details class="func-accordion ${reg.ativo ? 'is-ativo' : ''}" data-search="${nomeBusca}">
+          <summary class="func-summary">
+            <div class="func-summary-main">
+              <span class="func-nome">${reg.descricao || 'Sem descrição'}</span>
+              <span class="func-id">Quadro ID ${reg.quadro_id ?? '—'} · V. Quadro Horário ID ${reg.v_quadro_horario_id ?? '—'} · Cliente ${reg.cliente_id ?? '—'}</span>
+            </div>
+            <div class="func-summary-right">
+              <div>
+                <span class="badge ${reg.ativo ? 'badge-ativo' : 'badge-inativo'}">${reg.ativo ? 'Ativo' : 'Inativo'}</span>
+                <span class="badge badge-info">${reg.horario_flexivel ? 'Flexível' : 'Fixo'}</span>
+              </div>
+              <div class="func-actions">
+                <button class="action-btn" onclick="event.preventDefault();event.stopPropagation();abrirForm('editar', ${idx})">Editar</button>
+                <button class="action-btn action-btn-danger" onclick="event.preventDefault();event.stopPropagation();excluir(${idx})">Excluir</button>
+              </div>
+            </div>
+          </summary>
+          <div class="inner-content">${tabelaSemanaLeitura(reg)}</div>
+        </details>`;
+    }
+
+    function renderLista(lista, paginacao) {
+      document.getElementById('statTotal').textContent = paginacao ? paginacao.total : lista.length;
+      document.getElementById('cardsContainer').innerHTML =
+        lista.map(montarCard).join('') || '<div class="empty-state">Nenhum quadro de horário encontrado com esses filtros.</div>';
+      renderPaginacao(paginacao);
+    }
+
+    function abrirForm(modo, idx) {
+      modoForm = modo;
+      const registro = modo === 'editar' ? dados[idx] : {};
+      const valoresTopo = modo === 'editar' ? registro : { empresa_id: v('fEmpresaId') || '900002', ativo: 'true', horario_flexivel: 'false' };
+      const html = `
+        <div class="form-panel">
+          <div class="form-panel-header">
+            <h3>${modo === 'criar' ? '+ Novo quadro de horário' : `Editar: ${registro.descricao || registro.quadro_id}`}</h3>
+            <button class="toolbar-btn" onclick="fecharForm()">Fechar</button>
+          </div>
+          <fieldset class="form-fieldset">
+            <legend>Identificação</legend>
+            <div class="form-grid">${CAMPOS_TOPO.map(c => campoTopoHtml(c, valoresTopo[c])).join('')}</div>
+          </fieldset>
+          <fieldset class="form-fieldset">
+            <legend>Horários da semana</legend>
+            ${tabelaSemanaEdicao(modo === 'editar' ? registro : {})}
+          </fieldset>
+          <div class="form-panel-actions">
+            <button class="btn-refresh" onclick="salvar()">${modo === 'criar' ? 'Criar' : 'Salvar alterações'}</button>
+            <button class="toolbar-btn" onclick="fecharForm()">Cancelar</button>
+            ${modo === 'criar' ? '<button class="toolbar-btn" onclick="preencherAleatorio()" style="margin-left:auto;">🎲 Gerar outro aleatório</button>' : ''}
+          </div>
+        </div>`;
+      document.getElementById('formContainer').innerHTML = html;
+      document.getElementById('formContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    window.abrirForm = abrirForm;
+
+    function fecharForm() {
+      modoForm = null;
+      document.getElementById('formContainer').innerHTML = '';
+    }
+    window.fecharForm = fecharForm;
+
+    async function salvar() {
+      const dadosForm = { ...coletarTopo(), ...coletarSemana() };
+      const nomeRequest = modoForm === 'criar' ? REQ.cria : REQ.atualiza;
+      mostrarErro('');
+      try {
+        const res = await chamar(nomeRequest, dadosForm);
+        const r = interpretarResposta(res);
+        if (!r.ok) { mostrarErro(r.msg); return; }
+        mostrarErro(modoForm === 'criar' ? 'Quadro criado com sucesso.' : 'Quadro atualizado com sucesso.', true);
+        fecharForm();
+        buscar(false);
+      } catch (err) {
+        mostrarErro(err.message || String(err));
+      }
+    }
+    window.salvar = salvar;
+
+    async function excluir(idx) {
+      const reg = dados[idx];
+      const ok = await confirmarAcao(`Excluir o quadro "${reg.descricao || reg.quadro_id}"? Essa ação não pode ser desfeita.`);
+      if (!ok) return;
+      mostrarErro('');
+      try {
+        const res = await chamar(REQ.remove, {
+          empresa_id: String(reg.empresa_id ?? ''),
+          quadro_id: String(reg.quadro_id ?? ''),
+        });
+        const r = interpretarResposta(res);
+        if (!r.ok) { mostrarErro(r.msg); return; }
+        mostrarErro('Quadro excluído com sucesso.', true);
+        buscar(false);
+      } catch (err) {
+        mostrarErro(err.message || String(err));
+      }
+    }
+    window.excluir = excluir;
+
+    // ---------------- inicialização ----------------
+    bru.ctx.onInit = async () => {
+      try {
+        const todas = await bru.ctx.listRequests();
+        todas.forEach(r => { mapaRequests[r.name] = r.pathname; });
+        const faltando = Object.values(REQ).filter(nome => !mapaRequests[nome]);
+        document.getElementById('apStatus').textContent = faltando.length
+          ? `Atenção: request(s) não encontrada(s): ${faltando.join(', ')}`
+          : `${todas.length} requests carregadas da coleção.`;
+      } catch (err) {
+        document.getElementById('apStatus').textContent = 'Erro ao listar requests: ' + (err.message || err);
+      }
+      ctxPronto = true;
+      atualizarBotao();
+    };
+  </script>

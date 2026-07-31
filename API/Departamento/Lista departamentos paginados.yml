@@ -7,28 +7,32 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/api/v1/departamentos"
+  url: "{{baseUrl}}/api/v1/departamentos?empresa_id=900002"
   params:
     - name: empresa_id
-      value: "12345"
+      value: "900002"
       type: query
       description: ID da empresa vinculada ao usuário
     - name: page
       value: "1"
       type: query
       description: Página atual
+      disabled: true
     - name: departamento_id
       value: "7"
       type: query
       description: Filtra pelo ID exato do departamento
+      disabled: true
     - name: cod_departamento
       value: RH-001
       type: query
       description: Filtra pelo código do departamento (igualdade exata, máx. 20 caracteres)
+      disabled: true
     - name: alterado_data
       value: 2026-01-01 00:00:00
       type: query
       description: Filtra registros com logAlteradoData >= data informada (sincronização incremental)
+      disabled: true
   auth: inherit
 
 settings:
