@@ -7,28 +7,35 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/api/v1/autonomo/servicos"
+  url: "{{baseUrl}}/api/v1/autonomos/servicos?empresa_id=900001"
   params:
     - name: empresa_id
-      value: "12345"
+      value: "900001"
       type: query
-      description: ID da empresa vinculada ao usuário
     - name: page
       value: "1"
       type: query
       description: Página atual
+      disabled: true
     - name: per_page
       value: "15"
       type: query
       description: Registros por página
+      disabled: true
     - name: liberacao_id
       value: "1"
       type: query
       description: Filtro por liberação
+      disabled: true
     - name: alterado_data
       value: 2025-01-01 00:00:00
       type: query
       description: Retorna registros alterados a partir desta data/hora (YYYY-MM-DD / YYYY-MM-DD HH:MM:SS)
+      disabled: true
+    - name: situacao
+      value: nao_liberado
+      type: query
+      disabled: true
   auth: inherit
 
 settings:

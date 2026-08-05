@@ -7,7 +7,7 @@ info:
 
 http:
   method: POST
-  url: "{{baseUrl}}/api/v1/autonomo/tiposervicos"
+  url: "{{baseUrl}}/api/v1/autonomos/tipos-servico"
   body:
     type: json
     data: |-

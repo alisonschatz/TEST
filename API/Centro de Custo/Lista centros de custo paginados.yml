@@ -7,7 +7,11 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/api/v1/centros-custo"
+  url: "{{baseUrl}}/api/v1/centros-custo?empresa_id=900002"
+  params:
+    - name: empresa_id
+      value: "900002"
+      type: query
   auth: inherit
 
 settings:

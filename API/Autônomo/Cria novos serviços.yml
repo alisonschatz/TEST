@@ -7,7 +7,7 @@ info:
 
 http:
   method: POST
-  url: "{{baseUrl}}/api/v1/autonomo/servicos"
+  url: "{{baseUrl}}/api/v1/autonomos/servicos"
   body:
     type: json
     data: |-
@@ -22,7 +22,7 @@ http:
             "status": 1,
             "empresa_id": 900001,
             "etnia_id": 2,
-            "sexo": "masculino",
+            "sexo": "1",
             "estrangeiro": false,
             "pais_residencia_id": 105,
             "cep": "01234-321",
@@ -47,12 +47,12 @@ http:
             "deficiencia_reabilitado": false,
             "observacao_deficiencia": "Nenhuma",
             "v_servico_autonomo_id": 1,
-            "centro_custo_id": 1,
+            "centro_custo_id": 1965647,
             "descricao": "Serviço de Redes",
             "data_servico": "2025-06-10",
             "valor": 1500.75,
             "data_pagamento": "2025-06-12",
-            "tipo_servico_autonomo_id": 4,
+            "tipo_servico_autonomo_id": 2229,
             "documento": "012345678912345",
             "hora": "23:59"
           }
