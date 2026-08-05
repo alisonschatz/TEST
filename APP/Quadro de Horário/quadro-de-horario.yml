@@ -3,35 +3,6 @@ info:
   type: app
   seq: 5
 code: |
-  <!--
-    ============================================================
-    BRUNO COLLECTION APP - Pasta "Quadro de Horário"
-    ============================================================
-    Mesmo padrão do App de Admissões: bru.ctx.listRequests() para
-    achar as 4 requests da pasta pelo nome, bru.ctx.runRequest()
-    para dispará-las com runtimeVariables.
-
-    Pré-requisitos nos arquivos da pasta (já aplicados nos .yml
-    entregues junto com este App):
-    - lista-quadros-horarios: URL usa "?{{rt_query}}".
-    - cria-quadros-horarios / atualiza-quadros-horarios: body com um
-      placeholder por campo, incluindo um por dia+horário (ex:
-      {{dom_entrada_1}}, {{seg_saida_2}}...) - names únicos por
-      combinação dia/campo, já que os 7 dias têm os mesmos nomes de
-      sub-campo (entrada_1, saida_1...) e precisam de valores
-      independentes.
-    - remove-quadros-horarios: body com {{empresa_id}} + {{quadro_id}}.
-    - cria/atualiza/remove têm um header Authorization: Bearer
-      {{token_atual}} (a API exige "token de sistema" nesses 3
-      endpoints). token_atual NÃO tem valor padrão aqui de propósito -
-      igual ao baseUrl, ele deve vir de uma variável de ambiente ou
-      de coleção já existente no seu Bruno; um valor fixo aqui
-      poderia mascarar o token real.
-
-    Como instalar: pasta "Quadro de Horário" → aba App → habilite →
-    cole este código.
-    ============================================================
-  -->
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -200,8 +171,8 @@ code: |
       <div class="pf-filtros">
         <div class="pf-filtros-grid">
           <div class="campo"><label>Empresa ID</label><input id="fEmpresaId" type="text" value="900002"></div>
-          <div class="campo"><label>Quadro ID (PK)</label><input id="fQuadroId" type="text"></div>
-          <div class="campo"><label>V. Quadro Horário ID</label><input id="fVQuadroHorarioId" type="text"></div>
+          <div class="campo"><label>Quadro ID</label><input id="fQuadroId" type="text"></div>
+          <div class="campo"><label>V Quadro Horário ID</label><input id="fVQuadroHorarioId" type="text"></div>
           <div class="campo"><label>Alterado a partir de</label><input id="fAlteradoData" type="date"></div>
           <div class="campo campo-page"><label>Página</label><input id="fPage" type="number" min="1" value="1"></div>
           <div class="campo campo-busca">
@@ -230,13 +201,13 @@ code: |
     <div id="secao-testes" style="display:none;">
 
       <div class="pf-filtros">
-        <h3>Teste de ciclo de vida (CRUD completo)</h3>
-        <p class="hint">Cria um registro aleatório, busca de volta e confere campo a campo, edita, confere de novo, exclui e confirma que sumiu. Reporta cada etapa.</p>
+        <h3>Teste de ciclo de vida</h3>
+        <p class="hint">Cria um registro aleatório, busca de volta e confere campo a campo, edita, confere de novo, exclui e confirma que sumiu.</p>
         <button class="btn-refresh" onclick="rodarTesteCicloVida()">Rodar teste de ciclo de vida</button>
       </div>
 
       <div class="pf-filtros">
-        <h3>Geração de massa (teste de carga)</h3>
+        <h3>Geração de massa</h3>
         <p class="hint">Cria vários registros de uma vez, marcados com um prefixo identificável, pra testar paginação e volume. Todos ficam rastreados nesta sessão pra poderem ser limpos depois.</p>
         <div class="testes-linha">
           <div class="campo" style="max-width:110px;"><label>Quantidade</label><input id="massaQtd" type="number" min="1" max="200" value="10"></div>
