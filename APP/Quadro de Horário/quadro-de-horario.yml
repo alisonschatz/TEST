@@ -1,874 +1,923 @@
-info:
-  name: Quadro de Horário
-  type: app
-  seq: 5
-code: |
+  info:
+    name: Quadro de Horário
+    type: app
+    seq: 5
+  code: |
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <style>
-    #app-quadro-horario {
-      --navy: #38486c;
-      --blue: #91d8f7;
-      --white: #ffffff;
-      --bg: #eef1f6;
-      --surface: #ffffff;
-      --surface-alt: rgba(56, 72, 108, 0.06);
-      --text: #263045;
-      --text-muted: rgba(56, 72, 108, 0.70);
-      --border: rgba(56, 72, 108, 0.16);
-      --primary: var(--navy);
-      --primary-soft: rgba(56, 72, 108, 0.08);
-      --accent: var(--blue);
-      --accent-soft: rgba(145, 216, 247, 0.25);
-      --green: #1f8a5f; --green-soft: #e6f6ee;
-      --red: #c1443a; --red-soft: #fbeae8;
-      --radius: 10px; --radius-lg: 14px;
-      --shadow: 0 1px 2px rgba(56,72,108,.06), 0 4px 14px rgba(56,72,108,.06);
+    <style>
+      #app-quadro-horario {
+        --navy: #38486c;
+        --blue: #91d8f7;
+        --white: #ffffff;
+        --bg: #eef1f6;
+        --surface: #ffffff;
+        --surface-alt: rgba(56, 72, 108, 0.06);
+        --text: #263045;
+        --text-muted: rgba(56, 72, 108, 0.70);
+        --border: rgba(56, 72, 108, 0.16);
+        --primary: var(--navy);
+        --primary-soft: rgba(56, 72, 108, 0.08);
+        --accent: var(--blue);
+        --accent-soft: rgba(145, 216, 247, 0.25);
+        --green: #1f8a5f; --green-soft: #e6f6ee;
+        --red: #c1443a; --red-soft: #fbeae8;
+        --orange: #d97706; --orange-soft: #fff7ed;
+        --radius: 10px; --radius-lg: 14px;
+        --shadow: 0 1px 2px rgba(56,72,108,.06), 0 4px 14px rgba(56,72,108,.06);
 
-      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg); color: var(--text); font-size: 14px; padding: 20px; min-height: 100%;
-      letter-spacing: -0.01em;
-    }
-    #app-quadro-horario * { box-sizing: border-box; }
-    #app-quadro-horario button, #app-quadro-horario input, #app-quadro-horario select { font-family: inherit; letter-spacing: inherit; }
-    #app-quadro-horario :focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
-
-    .ap-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; flex-wrap: wrap; }
-    .ap-header h2 { margin: 0; font-size: 20px; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
-    .ap-header-actions { display: flex; gap: 8px; }
-    .ap-subtitle { font-size: 12.5px; color: var(--text-muted); }
-    .ap-subtitle:not(:empty) { margin-bottom: 10px; }
-
-    .btn-outline { display: inline-flex; align-items: center; gap: 6px; background: var(--white); color: var(--navy); border: 1.5px solid var(--navy); border-radius: 8px; padding: 9px 16px; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: background .15s; }
-    .btn-outline:hover { background: var(--primary-soft); }
-
-    .stat-pill { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 13px; font-size: 12.5px; font-weight: 600; color: var(--text-muted); }
-    .stat-pill b { color: var(--navy); font-weight: 800; }
-
-    .pf-filtros { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; margin: 14px 0 16px; box-shadow: var(--shadow); }
-    .pf-filtros-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px 14px; align-items: end; }
-    .campo-page { max-width: 100px; }
-    .campo-busca { min-width: 130px; }
-    .campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-    .campo label { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
-    .campo input, .campo select { height: 38px; border: 1px solid var(--border); border-radius: 8px; padding: 0 11px; font-size: 13px; color: var(--text); background: var(--surface-alt); width: 100%; transition: border-color .15s, box-shadow .15s, background .15s; }
-    .campo input:focus, .campo select:focus { outline: none; border-color: var(--navy); background: var(--white); box-shadow: 0 0 0 3px rgba(145,216,247,.4); }
-    .campo input:disabled { opacity: .55; }
-    .campo-busca .btn-refresh { height: 38px; width: 100%; justify-content: center; padding: 0 14px; }
-    .pf-filtros-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
-    .link-btn { background: none; border: none; padding: 0; font-size: 12.5px; font-weight: 700; color: var(--text-muted); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
-    .link-btn:hover { color: var(--navy); }
-
-    .btn-refresh { display: inline-flex; align-items: center; gap: 6px; background: var(--navy); color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: filter .15s, transform .1s; }
-    .btn-refresh:hover { filter: brightness(1.15); }
-    .btn-refresh:active { transform: scale(.98); }
-    .btn-refresh:disabled { opacity: .5; cursor: default; }
-    .btn-rapida { background: var(--blue); color: var(--navy); }
-    .btn-rapida:hover { filter: brightness(1.05); }
-    .spinner { width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(255,255,255,.5); border-top-color: #fff; animation: pf-spin .7s linear infinite; display: inline-block; vertical-align: -2px; }
-    @keyframes pf-spin { to { transform: rotate(360deg); } }
-
-    .pf-error { background: var(--red-soft); color: var(--red); border: 1px solid rgba(193,68,58,.3); border-radius: 8px; padding: 11px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; white-space: pre-wrap; }
-    .pf-sucesso { background: var(--green-soft); color: var(--green); border: 1px solid rgba(31,138,95,.3); border-radius: 8px; padding: 11px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
-    .pf-paginacao { display: flex; align-items: center; gap: 10px; justify-content: center; margin: 16px 0; font-size: 12.5px; color: var(--text-muted); }
-
-    .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
-    .search-input { flex: 1; min-width: 220px; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13.5px; }
-    .search-input:focus { outline: none; border-color: var(--navy); }
-    .toolbar-btn { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 8px 13px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: border-color .15s, color .15s; }
-    .toolbar-btn:hover { border-color: var(--navy); color: var(--navy); }
-
-    .func-accordion { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; box-shadow: var(--shadow); transition: border-left-color .15s; }
-    .func-accordion.is-ativo { border-left-color: var(--blue); }
-    .func-summary { padding: 13px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; list-style: none; flex-wrap: wrap; }
-    .func-summary::-webkit-details-marker { display: none; }
-    .func-summary:hover { background: var(--surface-alt); }
-    .func-summary-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-    .func-nome { font-weight: 700; font-size: 14.5px; color: var(--navy); }
-    .func-id { font-size: 11.5px; color: var(--text-muted); }
-    .func-summary-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-left: auto; }
-    .func-actions { display: flex; gap: 6px; }
-    .action-btn { background: var(--primary-soft); color: var(--navy); border: 1px solid transparent; border-radius: 6px; padding: 6px 11px; font-size: 11.5px; font-weight: 700; cursor: pointer; position: relative; z-index: 1; transition: filter .15s; }
-    .action-btn:hover { filter: brightness(.95); }
-    .action-btn-danger { background: var(--red-soft); color: var(--red); }
-    .badge { padding: 3px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
-    .badge-ativo { background: var(--green-soft); color: var(--green); }
-    .badge-inativo { background: var(--red-soft); color: var(--red); }
-    .badge-info { background: var(--accent-soft); color: var(--navy); }
-
-    .inner-content { padding: 16px; background: var(--surface-alt); border-top: 1px solid var(--border); }
-    .empty-state { text-align: center; padding: 44px 20px; color: var(--text-muted); font-size: 13.5px; }
-
-    .semana-table { width: 100%; border-collapse: collapse; font-size: 12px; background: var(--white); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-    .semana-table th { background: var(--navy); color: var(--blue); font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: .04em; padding: 7px 4px; }
-    .semana-table td { padding: 6px 4px; text-align: center; border-bottom: 1px solid var(--border); }
-    .semana-table tr:nth-child(even) td { background: var(--surface-alt); }
-    .semana-table tr:last-child td { border-bottom: none; }
-    .semana-table .dia-nome { text-align: left; font-weight: 700; padding-left: 10px; color: var(--navy); }
-    .semana-table input[type="time"] { width: 80px; border: 1px solid var(--border); border-radius: 5px; padding: 3px 4px; font-size: 11.5px; background: var(--white); }
-    .semana-table input[type="time"]:focus { outline: none; border-color: var(--navy); }
-
-    .form-panel { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--navy); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow); }
-    .form-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .form-panel-header h3 { margin: 0; font-size: 16px; color: var(--navy); font-weight: 800; }
-    .form-fieldset { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
-    .form-fieldset legend { font-size: 11px; color: var(--navy); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 0 4px; }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 9px 10px; }
-    .form-panel-actions { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
-
-    .ap-view-tabs { display: flex; gap: 4px; margin: 14px 0 0; border-bottom: 1px solid var(--border); }
-    .ap-view-tab { background: none; border: none; padding: 9px 4px; margin-right: 20px; font-size: 13.5px; font-weight: 700; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
-    .ap-view-tab:hover { color: var(--navy); }
-    .ap-view-tab.is-active { color: var(--navy); border-bottom-color: var(--navy); }
-
-    .pf-filtros h3 { margin: 0 0 4px; color: var(--navy); font-size: 14.5px; font-weight: 800; }
-    .pf-filtros p.hint { margin: 0 0 12px; font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
-    .testes-linha { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; }
-    .testes-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-    .btn-outline-danger { border-color: var(--red); color: var(--red); }
-    .btn-outline-danger:hover { background: var(--red-soft); }
-
-    .testes-log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
-    .log-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 4px; border-bottom: 1px solid var(--border); font-size: 12.5px; }
-    .log-item:last-child { border-bottom: none; }
-    .log-icone { font-weight: 800; width: 14px; flex-shrink: 0; text-align: center; }
-    .log-item.log-ok .log-icone { color: var(--green); }
-    .log-item.log-fail .log-icone { color: var(--red); }
-    .log-corpo { flex: 1; min-width: 0; }
-    .log-linha1 { color: var(--text); }
-    .log-linha1 b { color: var(--navy); }
-    .log-detalhes { color: var(--text-muted); margin-top: 2px; white-space: pre-wrap; }
-    .log-hora { color: var(--text-muted); font-size: 11px; flex-shrink: 0; white-space: nowrap; }
-    #logTestesContainer { max-height: 420px; overflow-y: auto; }
-
-    .pf-debug { margin-top: 20px; }
-    .pf-debug summary { cursor: pointer; font-size: 12px; color: var(--text-muted); font-weight: 600; }
-    #app-quadro-horario .pf-debug pre { background: #1e2434; padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; color: var(--blue); font-family: "Fira Code", Consolas, Monaco, monospace; font-size: 12px; line-height: 1.5; margin-top: 8px; max-height: 260px; }
-  </style>
-
-  <div id="app-quadro-horario">
-
-    <div class="ap-header">
-      <h2>Painel de Quadros de Horário</h2>
-      <div class="ap-header-actions">
-        <button class="btn-outline" onclick="abrirForm('criar', null)">+ Novo</button>
-        <button class="btn-refresh btn-rapida" onclick="abrirCriacaoRapida()" title="Abre o formulário já preenchido com dados de teste aleatórios">Criação rápida</button>
-      </div>
-    </div>
-    <div class="ap-subtitle" id="apStatus">Inicializando...</div>
-
-    <div class="ap-view-tabs">
-      <button class="ap-view-tab is-active" data-view="registros" onclick="trocarView('registros')">Registros</button>
-      <button class="ap-view-tab" data-view="testes" onclick="trocarView('testes')">Ferramentas de teste</button>
-    </div>
-
-    <div id="pfErrorBox"></div>
-
-    <div id="secao-registros">
-
-      <div class="pf-filtros">
-        <div class="pf-filtros-grid">
-          <div class="campo"><label>Empresa ID</label><input id="fEmpresaId" type="text" value="900002"></div>
-          <div class="campo"><label>Quadro ID</label><input id="fQuadroId" type="text"></div>
-          <div class="campo"><label>V Quadro Horário ID</label><input id="fVQuadroHorarioId" type="text"></div>
-          <div class="campo"><label>Alterado a partir de</label><input id="fAlteradoData" type="date"></div>
-          <div class="campo campo-page"><label>Página</label><input id="fPage" type="number" min="1" value="1"></div>
-          <div class="campo campo-busca">
-            <label>&nbsp;</label>
-            <button class="btn-refresh" id="btnBuscar" onclick="buscar(false)" disabled><span id="btnBuscarLabel">Inicializando...</span></button>
-          </div>
-        </div>
-        <div class="pf-filtros-footer">
-          <button class="link-btn" onclick="limparFiltros()">Limpar filtros</button>
-          <span class="stat-pill">Total <b id="statTotal">–</b></span>
-        </div>
-      </div>
-
-      <div id="formContainer"></div>
-      <div id="pfPaginacao" class="pf-paginacao"></div>
-
-      <div class="toolbar">
-        <input type="text" class="search-input" id="searchLocal" placeholder="Filtrar dentro da página atual por descrição ou ID..." oninput="filtrarLocal()">
-        <button class="toolbar-btn" onclick="toggleAll(true)">Expandir tudo</button>
-        <button class="toolbar-btn" onclick="toggleAll(false)">Recolher tudo</button>
-      </div>
-      <div id="cardsContainer"><div class="empty-state">Ajuste os filtros acima e clique em "Buscar dados".</div></div>
-
-    </div>
-
-    <div id="secao-testes" style="display:none;">
-
-      <div class="pf-filtros">
-        <h3>Teste de ciclo de vida</h3>
-        <p class="hint">Cria um registro aleatório, busca de volta e confere campo a campo, edita, confere de novo, exclui e confirma que sumiu.</p>
-        <button class="btn-refresh" onclick="rodarTesteCicloVida()">Rodar teste de ciclo de vida</button>
-      </div>
-
-      <div class="pf-filtros">
-        <h3>Geração de massa</h3>
-        <p class="hint">Cria vários registros de uma vez, marcados com um prefixo identificável, pra testar paginação e volume. Todos ficam rastreados nesta sessão pra poderem ser limpos depois.</p>
-        <div class="testes-linha">
-          <div class="campo" style="max-width:110px;"><label>Quantidade</label><input id="massaQtd" type="number" min="1" max="200" value="10"></div>
-          <button class="btn-refresh" onclick="criarEmMassa()">Criar em massa</button>
-          <button class="btn-outline btn-outline-danger" onclick="limparDadosTeste()">Limpar dados de teste desta sessão</button>
-          <span class="stat-pill">Pendentes de limpeza <b id="statPendentesLimpeza">0</b></span>
-        </div>
-        <div id="massaProgresso" class="hint" style="margin-top:10px;"></div>
-      </div>
-
-      <div class="pf-filtros">
-        <h3>Casos extremos</h3>
-        <p class="hint">Cada botão cria um registro com um valor de fronteira específico e reporta se a API aceitou ou rejeitou.</p>
-        <div class="testes-chips" id="casosExtremosContainer"></div>
-      </div>
-
-      <div class="pf-filtros">
-        <div class="testes-log-header">
-          <h3 style="margin:0;">Histórico de testes desta sessão</h3>
-          <div style="display:flex;gap:14px;align-items:center;">
-            <button class="link-btn" onclick="copiarRelatorio()">Copiar relatório</button>
-            <button class="link-btn" onclick="limparLog()">Limpar histórico</button>
-          </div>
-        </div>
-        <div id="logTestesContainer"><div class="empty-state">Nenhum teste rodado ainda nesta sessão.</div></div>
-      </div>
-
-    </div>
-
-    <details class="pf-debug">
-      <summary>Depuração: última chamada via bru.ctx.runRequest()</summary>
-      <pre id="pfDebugRaw"><code>—</code></pre>
-    </details>
-
-    <div id="pfConfirmOverlay" style="display:none;position:fixed;inset:0;background:rgba(38,48,69,.45);z-index:1000;align-items:center;justify-content:center;">
-      <div style="background:var(--surface);border-radius:var(--radius-lg);padding:20px;max-width:360px;width:90%;box-shadow:0 10px 30px rgba(38,48,69,.3);">
-        <div id="pfConfirmMsg" style="margin-bottom:16px;font-size:13.5px;color:var(--text);line-height:1.5;"></div>
-        <div style="display:flex;gap:8px;justify-content:flex-end;">
-          <button class="toolbar-btn" onclick="pfConfirmResolver(false)">Cancelar</button>
-          <button class="action-btn action-btn-danger" style="padding:8px 14px;" onclick="pfConfirmResolver(true)">Confirmar exclusão</button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <script>
-    const REQ = {
-      lista: 'lista-quadros-horarios',
-      cria: 'cria-quadros-horarios',
-      atualiza: 'atualiza-quadros-horarios',
-      remove: 'remove-quadros-horarios',
-    };
-
-    const DIAS = [['dom','Dom'],['seg','Seg'],['ter','Ter'],['qua','Qua'],['qui','Qui'],['sex','Sex'],['sab','Sáb']];
-    const SLOTS = ['entrada_1','saida_1','entrada_2','saida_2','entrada_3','saida_3','entrada_4','saida_4'];
-    const CAMPOS_TOPO = ['quadro_id', 'empresa_id', 'v_quadro_horario_id', 'descricao', 'horario_flexivel', 'ativo'];
-    // horario_flexivel/ativo são obrigatórios e a API exige um boolean de verdade
-    // (não aceita a string "true"/"false") - por isso não tem opção em branco aqui,
-    // e o body da request usa {{campo}} sem aspas pra virar JSON boolean literal.
-    const SELECTS = { horario_flexivel: ['false', 'true'], ativo: ['true', 'false'] };
-
-    // ---------------- helpers genéricos ----------------
-    const v = (id) => (document.getElementById(id)?.value ?? '');
-    const renderVal = (val) => (val === null || val === undefined || val === '') ? '<span style="color:#a1a5b0;font-style:italic;">—</span>' : (typeof val === 'boolean' ? String(val) : String(val));
-
-    function mostrarErro(msg, ok) {
-      const box = document.getElementById('pfErrorBox');
-      box.innerHTML = msg ? `<div class="${ok ? 'pf-sucesso' : 'pf-error'}">${msg}</div>` : '';
-    }
-    function mostrarDebug(obj) {
-      try { document.getElementById('pfDebugRaw').innerHTML = '<code>' + JSON.stringify(obj, null, 2) + '</code>'; }
-      catch (e) { document.getElementById('pfDebugRaw').innerHTML = '<code>' + String(obj) + '</code>'; }
-    }
-    function montarQueryString(pares) {
-      return pares.filter(([, val]) => (val ?? '').toString().trim() !== '')
-        .map(([k, val]) => `${k}=${encodeURIComponent(val.toString().trim())}`).join('&');
-    }
-    function extrairBody(res) { return res?.data ?? res?.body ?? null; }
-    function interpretarResposta(res) {
-      const status = res?.status;
-      const body = extrairBody(res);
-      if (status && status >= 400) {
-        const msg = (body && body.mensagem) || `A API retornou status ${status}.`;
-        const detalhes = (body && body.erros) ? '\n' + JSON.stringify(body.erros, null, 2) : '';
-        return { ok: false, status, body, msg: msg + detalhes };
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--bg); color: var(--text); font-size: 14px; padding: 20px; min-height: 100%;
+        letter-spacing: -0.01em;
       }
-      return { ok: true, status, body, msg: (body && body.mensagem) || '' };
-    }
-    function toggleAll(open) { document.querySelectorAll('#cardsContainer .func-accordion').forEach(el => { el.open = open; }); }
+      #app-quadro-horario * { box-sizing: border-box; }
+      #app-quadro-horario button, #app-quadro-horario input, #app-quadro-horario select { font-family: inherit; letter-spacing: inherit; }
+      #app-quadro-horario :focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
 
-    // Confirmação própria (não usamos window.confirm() - ele não é confiável
-    // dentro do webview isolado onde o App roda).
-    let pfConfirmResolve = null;
-    function confirmarAcao(msg) {
-      return new Promise((resolve) => {
-        pfConfirmResolve = resolve;
-        document.getElementById('pfConfirmMsg').textContent = msg;
-        document.getElementById('pfConfirmOverlay').style.display = 'flex';
-      });
-    }
-    function pfConfirmResolver(valor) {
-      document.getElementById('pfConfirmOverlay').style.display = 'none';
-      if (pfConfirmResolve) pfConfirmResolve(valor);
-      pfConfirmResolve = null;
-    }
-    window.pfConfirmResolver = pfConfirmResolver;
-    function filtrarLocal() {
-      const term = (document.getElementById('searchLocal').value || '').trim().toLowerCase();
-      document.querySelectorAll('#cardsContainer .func-accordion').forEach(card => {
-        card.style.display = card.dataset.search.includes(term) ? '' : 'none';
-      });
-    }
-    window.toggleAll = toggleAll;
-    window.filtrarLocal = filtrarLocal;
+      .ap-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; flex-wrap: wrap; }
+      .ap-header h2 { margin: 0; font-size: 20px; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
+      .ap-header-actions { display: flex; gap: 8px; }
+      .ap-subtitle { font-size: 12.5px; color: var(--text-muted); }
+      .ap-subtitle:not(:empty) { margin-bottom: 10px; }
 
-    function trocarView(nome) {
-      document.getElementById('secao-registros').style.display = nome === 'registros' ? '' : 'none';
-      document.getElementById('secao-testes').style.display = nome === 'testes' ? '' : 'none';
-      document.querySelectorAll('.ap-view-tab').forEach(b => b.classList.toggle('is-active', b.dataset.view === nome));
-    }
-    window.trocarView = trocarView;
+      .btn-outline { display: inline-flex; align-items: center; gap: 6px; background: var(--white); color: var(--navy); border: 1.5px solid var(--navy); border-radius: 8px; padding: 9px 16px; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: background .15s; }
+      .btn-outline:hover { background: var(--primary-soft); }
 
-    // ---------------- tabela semanal (leitura) ----------------
-    function tabelaSemanaLeitura(registro) {
-      const linhas = DIAS.map(([chave, nome]) => {
-        const dia = registro[chave] || {};
-        const celulas = SLOTS.map(s => `<td>${renderVal(dia[s])}</td>`).join('');
-        return `<tr><td class="dia-nome">${nome}</td>${celulas}</tr>`;
-      }).join('');
-      return `
-        <table class="semana-table">
-          <thead><tr><th>Dia</th><th>Ent.1</th><th>Saí.1</th><th>Ent.2</th><th>Saí.2</th><th>Ent.3</th><th>Saí.3</th><th>Ent.4</th><th>Saí.4</th></tr></thead>
-          <tbody>${linhas}</tbody>
-        </table>`;
-    }
+      .stat-pill { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 13px; font-size: 12.5px; font-weight: 600; color: var(--text-muted); }
+      .stat-pill b { color: var(--navy); font-weight: 800; }
 
-    // ---------------- tabela semanal (edição) ----------------
-    function tabelaSemanaEdicao(registro) {
-      const linhas = DIAS.map(([chave, nome]) => {
-        const dia = (registro && registro[chave]) || {};
-        const celulas = SLOTS.map(s => {
-          const val = dia[s] || '';
-          return `<td><input type="time" id="qf__${chave}_${s}" value="${val}"></td>`;
-        }).join('');
-        return `<tr><td class="dia-nome">${nome}</td>${celulas}</tr>`;
-      }).join('');
-      return `
-        <table class="semana-table">
-          <thead><tr><th>Dia</th><th>Ent.1</th><th>Saí.1</th><th>Ent.2</th><th>Saí.2</th><th>Ent.3</th><th>Saí.3</th><th>Ent.4</th><th>Saí.4</th></tr></thead>
-          <tbody>${linhas}</tbody>
-        </table>`;
-    }
+      .pf-filtros { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; margin: 14px 0 12px; box-shadow: var(--shadow); }
+      .pf-filtros-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px 14px; align-items: end; }
+      .campo-page { max-width: 90px; }
+      .campo-busca { min-width: 130px; }
+      .campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+      .campo label { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+      .campo input, .campo select { height: 38px; border: 1px solid var(--border); border-radius: 8px; padding: 0 11px; font-size: 13px; color: var(--text); background: var(--surface-alt); width: 100%; transition: border-color .15s, box-shadow .15s, background .15s; }
+      .campo input:focus, .campo select:focus { outline: none; border-color: var(--navy); background: var(--white); box-shadow: 0 0 0 3px rgba(145,216,247,.4); }
+      .campo input:disabled { opacity: .55; }
+      .campo-busca .btn-refresh { height: 38px; width: 100%; justify-content: center; padding: 0 14px; }
+      .pf-filtros-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+      .link-btn { background: none; border: none; padding: 0; font-size: 12.5px; font-weight: 700; color: var(--text-muted); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+      .link-btn:hover { color: var(--navy); }
 
-    function coletarSemana() {
-      const out = {};
-      DIAS.forEach(([chave]) => SLOTS.forEach(s => {
-        out[`${chave}_${s}`] = document.getElementById(`qf__${chave}_${s}`)?.value ?? '';
-      }));
-      return out;
-    }
+      .btn-refresh { display: inline-flex; align-items: center; gap: 6px; background: var(--navy); color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: filter .15s, transform .1s; }
+      .btn-refresh:hover { filter: brightness(1.15); }
+      .btn-refresh:active { transform: scale(.98); }
+      .btn-refresh:disabled { opacity: .5; cursor: default; }
+      .btn-rapida { background: var(--blue); color: var(--navy); }
+      .btn-rapida:hover { filter: brightness(1.05); }
+      .spinner { width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(255,255,255,.5); border-top-color: #fff; animation: pf-spin .7s linear infinite; display: inline-block; vertical-align: -2px; }
+      @keyframes pf-spin { to { transform: rotate(360deg); } }
 
-    // ---------------- geração de dados aleatórios (criação rápida) ----------------
-    const DESCRICOES_ALEATORIAS = ['Comercial', 'Administrativo', 'Escala Manhã', 'Escala Tarde', 'Turno Único', 'Operacional', 'Atendimento', 'Backoffice'];
+      .pf-error { background: var(--red-soft); color: var(--red); border: 1px solid rgba(193,68,58,.3); border-radius: 8px; padding: 11px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; white-space: pre-wrap; }
+      .pf-sucesso { background: var(--green-soft); color: var(--green); border: 1px solid rgba(31,138,95,.3); border-radius: 8px; padding: 11px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+      .pf-aviso { background: var(--orange-soft); color: var(--orange); border: 1px solid rgba(217,119,6,.3); border-radius: 8px; padding: 11px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+      .pf-paginacao { display: flex; align-items: center; gap: 10px; justify-content: center; margin: 16px 0; font-size: 12.5px; color: var(--text-muted); }
 
-    function gerarHorarioAleatorioDia(chanceFolga) {
-      if (Math.random() < chanceFolga) {
-        return { entrada_1:'', saida_1:'', entrada_2:'', saida_2:'', entrada_3:'', saida_3:'', entrada_4:'', saida_4:'' };
-      }
-      const entradasManha = ['07:00', '08:00', '09:00'];
-      const saidasTarde = ['17:00', '18:00', '19:00'];
-      return {
-        entrada_1: entradasManha[Math.floor(Math.random() * entradasManha.length)],
-        saida_1: '12:00',
-        entrada_2: '13:00',
-        saida_2: saidasTarde[Math.floor(Math.random() * saidasTarde.length)],
-        entrada_3: '', saida_3: '', entrada_4: '', saida_4: '',
-      };
-    }
+      .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+      .search-input { flex: 1; min-width: 220px; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13.5px; }
+      .search-input:focus { outline: none; border-color: var(--navy); }
+      .toolbar-btn { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 8px 13px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: border-color .15s, color .15s; }
+      .toolbar-btn:hover { border-color: var(--navy); color: var(--navy); }
 
-    function gerarDadosQuadroAleatorio(prefixoDescricao) {
-      const desc = (prefixoDescricao ? prefixoDescricao + ' ' : '') +
-        DESCRICOES_ALEATORIAS[Math.floor(Math.random() * DESCRICOES_ALEATORIAS.length)] + ' ' + (Math.floor(Math.random() * 900) + 100);
-      const dados = {
-        empresa_id: v('fEmpresaId') || '900002',
-        v_quadro_horario_id: String(Math.floor(Math.random() * 9000) + 1000),
-        descricao: desc,
-        horario_flexivel: Math.random() < 0.2 ? 'true' : 'false',
-        ativo: 'true',
-      };
-      DIAS.forEach(([chave]) => {
-        const chanceFolga = (chave === 'dom' || chave === 'sab') ? 0.6 : 0.08;
-        const horario = gerarHorarioAleatorioDia(chanceFolga);
-        SLOTS.forEach(s => { dados[`${chave}_${s}`] = horario[s]; });
-      });
-      return dados;
-    }
+      .func-accordion { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; box-shadow: var(--shadow); transition: border-left-color .15s; }
+      .func-accordion.is-ativo { border-left-color: var(--blue); }
+      .func-summary { padding: 13px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; list-style: none; flex-wrap: wrap; }
+      .func-summary::-webkit-details-marker { display: none; }
+      .func-summary:hover { background: var(--surface-alt); }
+      .func-summary-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+      .func-nome { font-weight: 700; font-size: 14.5px; color: var(--navy); }
+      .func-id { font-size: 11.5px; color: var(--text-muted); }
+      .func-summary-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-left: auto; }
+      .func-actions { display: flex; gap: 6px; }
+      .action-btn { background: var(--primary-soft); color: var(--navy); border: 1px solid transparent; border-radius: 6px; padding: 6px 11px; font-size: 11.5px; font-weight: 700; cursor: pointer; position: relative; z-index: 1; transition: filter .15s; }
+      .action-btn:hover { filter: brightness(.95); }
+      .action-btn-danger { background: var(--red-soft); color: var(--red); }
+      .badge { padding: 3px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+      .badge-ativo { background: var(--green-soft); color: var(--green); }
+      .badge-inativo { background: var(--red-soft); color: var(--red); }
+      .badge-info { background: var(--accent-soft); color: var(--navy); }
 
-    function preencherAleatorio() {
-      const dados = gerarDadosQuadroAleatorio(null);
-      const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
-      Object.keys(dados).forEach(campo => {
-        if (campo === 'empresa_id') return; // não mexe no campo já preenchido do form
-        setVal(`qf__${campo}`, dados[campo]);
-      });
-    }
-    window.preencherAleatorio = preencherAleatorio;
+      .inner-content { padding: 16px; background: var(--surface-alt); border-top: 1px solid var(--border); }
+      .empty-state { text-align: center; padding: 44px 20px; color: var(--text-muted); font-size: 13.5px; }
 
-    function abrirCriacaoRapida() {
-      abrirForm('criar', null);
-      preencherAleatorio();
-    }
-    window.abrirCriacaoRapida = abrirCriacaoRapida;
+      .semana-table { width: 100%; border-collapse: collapse; font-size: 12px; background: var(--white); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+      .semana-table th { background: var(--navy); color: var(--blue); font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: .04em; padding: 7px 4px; }
+      .semana-table td { padding: 6px 4px; text-align: center; border-bottom: 1px solid var(--border); }
+      .semana-table tr:nth-child(even) td { background: var(--surface-alt); }
+      .semana-table tr:last-child td { border-bottom: none; }
+      .semana-table .dia-nome { text-align: left; font-weight: 700; padding-left: 10px; color: var(--navy); }
+      .semana-table input[type="time"] { width: 80px; border: 1px solid var(--border); border-radius: 5px; padding: 3px 4px; font-size: 11.5px; background: var(--white); }
+      .semana-table input[type="time"]:focus { outline: none; border-color: var(--navy); }
 
-    // ---------------- campos do topo (form) ----------------
-    function campoTopoHtml(nome, valor) {
-      const id = `qf__${nome}`;
-      const val = (valor === null || valor === undefined) ? '' : valor;
-      if (SELECTS[nome]) {
-        const opts = SELECTS[nome].map(o => `<option value="${o}" ${String(val) === o ? 'selected' : ''}>${o || 'Selecione'}</option>`).join('');
-        return `<div class="campo"><label>${nome}</label><select id="${id}">${opts}</select></div>`;
-      }
-      const disabled = nome === 'quadro_id' && modoForm === 'criar' ? 'disabled placeholder="gerado automaticamente"' : '';
-      return `<div class="campo"><label>${nome}</label><input id="${id}" type="text" value="${String(val).replace(/"/g,'&quot;')}" ${disabled}></div>`;
-    }
+      .form-panel { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--navy); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow); }
+      .form-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+      .form-panel-header h3 { margin: 0; font-size: 16px; color: var(--navy); font-weight: 800; }
+      .form-fieldset { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+      .form-fieldset legend { font-size: 11px; color: var(--navy); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 0 4px; }
+      .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 9px 10px; }
+      .form-panel-actions { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
 
-    function coletarTopo() {
-      const out = {};
-      CAMPOS_TOPO.forEach(c => { out[c] = document.getElementById(`qf__${c}`)?.value ?? ''; });
-      return out;
-    }
+      .ap-view-tabs { display: flex; gap: 4px; margin: 14px 0 0; border-bottom: 1px solid var(--border); }
+      .ap-view-tab { background: none; border: none; padding: 9px 4px; margin-right: 20px; font-size: 13.5px; font-weight: 700; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+      .ap-view-tab:hover { color: var(--navy); }
+      .ap-view-tab.is-active { color: var(--navy); border-bottom-color: var(--navy); }
 
-    // ---------------- estado + orquestração ----------------
-    let mapaRequests = {};
-    let ctxPronto = false;
-    let carregando = false;
-    let dados = [];
-    let modoForm = null;
+      .pf-filtros h3 { margin: 0 0 4px; color: var(--navy); font-size: 14.5px; font-weight: 800; }
+      .pf-filtros p.hint { margin: 0 0 12px; font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+      .testes-linha { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; }
+      .btn-outline-danger { border-color: var(--red); color: var(--red); }
+      .btn-outline-danger:hover { background: var(--red-soft); }
 
-    async function chamar(nomeRequest, runtimeVariables) {
-      const pathname = mapaRequests[nomeRequest];
-      if (!pathname) throw new Error(`Request "${nomeRequest}" não encontrada na coleção.`);
-      const res = await bru.ctx.runRequest(pathname, { runtimeVariables });
-      mostrarDebug({ request: nomeRequest, enviado: runtimeVariables, resposta: res });
-      return res;
-    }
+      .op-progresso { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-muted); margin-top: 10px; min-height: 20px; }
+      .op-progresso.ativo { color: var(--navy); font-weight: 600; }
+      .op-progresso .spinner { border-color: rgba(56,72,108,.3); border-top-color: var(--navy); width: 12px; height: 12px; }
 
-    function atualizarBotao() {
-      const btn = document.getElementById('btnBuscar');
-      const label = document.getElementById('btnBuscarLabel');
-      if (!ctxPronto) { btn.disabled = true; label.textContent = 'Inicializando...'; return; }
-      if (carregando) { btn.disabled = true; label.innerHTML = '<span class="spinner"></span> Buscando...'; return; }
-      btn.disabled = false;
-      label.textContent = dados.length > 0 ? 'Atualizar' : 'Buscar dados';
-    }
+      .ultimo-teste { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow); }
+      .ultimo-teste-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+      .ultimo-teste-badge { padding: 3px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; }
+      .ultimo-teste-badge.ok { background: var(--green-soft); color: var(--green); }
+      .ultimo-teste-badge.fail { background: var(--red-soft); color: var(--red); }
+      .ultimo-teste-titulo { font-weight: 700; font-size: 14px; color: var(--navy); }
+      .ultimo-teste-hora { margin-left: auto; font-size: 11.5px; color: var(--text-muted); }
+      .ultimo-teste-detalhes { color: var(--text-muted); font-size: 12.5px; line-height: 1.6; margin-bottom: 14px; white-space: pre-wrap; }
+      .ultimo-teste-section { margin-bottom: 12px; }
+      .ultimo-teste-section-label { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+      .ultimo-teste-pre { background: #1e2434; padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; color: var(--blue); font-family: "Fira Code", Consolas, Monaco, monospace; font-size: 11.5px; line-height: 1.5; max-height: 200px; overflow-y: auto; }
 
-    function limparFiltros() {
-      ['fEmpresaId','fQuadroId','fVQuadroHorarioId','fAlteradoData'].forEach(id => document.getElementById(id).value = '');
-      document.getElementById('fPage').value = '1';
-    }
-    window.limparFiltros = limparFiltros;
+      .config-paginacao { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin: 8px 0 12px; font-size: 12.5px; color: var(--text-muted); }
+      .config-paginacao label { font-weight: 600; }
+      .config-paginacao input { width: 60px; height: 32px; border: 1px solid var(--border); border-radius: 6px; padding: 0 8px; font-size: 13px; text-align: center; background: var(--surface); }
 
-    async function buscar(resetarPagina) {
-      if (!ctxPronto || carregando) return;
-      if (resetarPagina) document.getElementById('fPage').value = '1';
-      mostrarErro('');
-      carregando = true;
-      atualizarBotao();
-      try {
-        const rt_query = montarQueryString([
-          ['empresa_id', v('fEmpresaId')],
-          ['quadro_id', v('fQuadroId')],
-          ['v_quadro_horario_id', v('fVQuadroHorarioId')],
-          ['alterado_data', v('fAlteradoData')],
-          ['page', v('fPage') || '1'],
-        ]);
-        const res = await chamar(REQ.lista, { rt_query });
-        const r = interpretarResposta(res);
-        if (!r.ok) { mostrarErro(r.msg); dados = []; renderLista([], null); return; }
-        dados = Array.isArray(r.body?.retorno) ? r.body.retorno : [];
-        renderLista(dados, r.body?.paginacao || null);
-      } catch (err) {
-        mostrarErro(err.message || String(err));
-      } finally {
-        carregando = false;
-        atualizarBotao();
-      }
-    }
-    window.buscar = buscar;
+      .pf-debug { margin-top: 20px; }
+      .pf-debug summary { cursor: pointer; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+      #app-quadro-horario .pf-debug pre { background: #1e2434; padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; color: var(--blue); font-family: "Fira Code", Consolas, Monaco, monospace; font-size: 12px; line-height: 1.5; margin-top: 8px; max-height: 260px; }
+    </style>
 
-    function irParaPagina(n) {
-      if (n < 1) return;
-      document.getElementById('fPage').value = n;
-      buscar(false);
-    }
-    window.irParaPagina = irParaPagina;
+    <div id="app-quadro-horario">
 
-    function renderPaginacao(p) {
-      const box = document.getElementById('pfPaginacao');
-      if (!p) { box.innerHTML = ''; return; }
-      box.innerHTML = `
-        <button class="toolbar-btn" ${p.pagina_atual <= 1 ? 'disabled' : ''} onclick="irParaPagina(${p.pagina_atual - 1})">← Anterior</button>
-        <span>Página ${p.pagina_atual} de ${p.ultima_pagina} · ${p.total} registros (mostrando ${p.inicio}–${p.fim})</span>
-        <button class="toolbar-btn" ${p.pagina_atual >= p.ultima_pagina ? 'disabled' : ''} onclick="irParaPagina(${p.pagina_atual + 1})">Próxima →</button>
-      `;
-    }
+      <div class="ap-header">
+        <h2>Painel de Quadros de Horário</h2>
+        <div class="ap-header-actions">
+          <button class="btn-outline" onclick="abrirForm('criar', null)">+ Novo</button>
+          <button class="btn-refresh btn-rapida" onclick="abrirCriacaoRapida()" title="Abre o formulário já preenchido com dados de teste aleatórios">Criação rápida</button>
+        </div>
+      </div>
+      <div class="ap-subtitle" id="apStatus">Inicializando...</div>
 
-    function montarCard(reg, idx) {
-      const nomeBusca = `${reg.descricao || ''} ${reg.quadro_id || ''} ${reg.v_quadro_horario_id || ''}`.toLowerCase();
-      return `
-        <details class="func-accordion ${reg.ativo ? 'is-ativo' : ''}" data-search="${nomeBusca}">
-          <summary class="func-summary">
-            <div class="func-summary-main">
-              <span class="func-nome">${reg.descricao || 'Sem descrição'}</span>
-              <span class="func-id">Quadro ID ${reg.quadro_id ?? '—'} · V. Quadro Horário ID ${reg.v_quadro_horario_id ?? '—'} · Cliente ${reg.cliente_id ?? '—'}</span>
+      <div class="ap-view-tabs">
+        <button class="ap-view-tab is-active" data-view="registros" onclick="trocarView('registros')">Registros</button>
+        <button class="ap-view-tab" data-view="testes" onclick="trocarView('testes')">Ferramentas de teste</button>
+      </div>
+
+      <div id="pfErrorBox" style="margin-top:12px;"></div>
+
+      <div id="secao-registros">
+
+        <div class="pf-filtros">
+          <div class="pf-filtros-grid">
+            <div class="campo"><label>Empresa ID</label><input id="fEmpresaId" type="text" value="900002"></div>
+            <div class="campo"><label>Quadro ID</label><input id="fQuadroId" type="text"></div>
+            <div class="campo"><label>V Quadro Horário ID</label><input id="fVQuadroHorarioId" type="text"></div>
+            <div class="campo"><label>Alterado a partir de</label><input id="fAlteradoData" type="date"></div>
+            <div class="campo campo-page"><label>Página</label><input id="fPage" type="number" min="1" value="1"></div>
+            <div class="campo campo-busca">
+              <label>&nbsp;</label>
+              <button class="btn-refresh" id="btnBuscar" onclick="buscar(false)" disabled><span id="btnBuscarLabel">Inicializando...</span></button>
             </div>
-            <div class="func-summary-right">
-              <div>
-                <span class="badge ${reg.ativo ? 'badge-ativo' : 'badge-inativo'}">${reg.ativo ? 'Ativo' : 'Inativo'}</span>
-                <span class="badge badge-info">${reg.horario_flexivel ? 'Flexível' : 'Fixo'}</span>
-              </div>
-              <div class="func-actions">
-                <button class="action-btn" onclick="event.preventDefault();event.stopPropagation();abrirForm('editar', ${idx})">Editar</button>
-                <button class="action-btn action-btn-danger" onclick="event.preventDefault();event.stopPropagation();excluir(${idx})">Excluir</button>
-              </div>
-            </div>
-          </summary>
-          <div class="inner-content">${tabelaSemanaLeitura(reg)}</div>
-        </details>`;
-    }
-
-    function renderLista(lista, paginacao) {
-      document.getElementById('statTotal').textContent = paginacao ? paginacao.total : lista.length;
-      document.getElementById('cardsContainer').innerHTML =
-        lista.map(montarCard).join('') || '<div class="empty-state">Nenhum quadro de horário encontrado com esses filtros.</div>';
-      renderPaginacao(paginacao);
-    }
-
-    function abrirForm(modo, idx) {
-      modoForm = modo;
-      const registro = modo === 'editar' ? dados[idx] : {};
-      const valoresTopo = modo === 'editar' ? registro : { empresa_id: v('fEmpresaId') || '900002', ativo: 'true', horario_flexivel: 'false' };
-      const html = `
-        <div class="form-panel">
-          <div class="form-panel-header">
-            <h3>${modo === 'criar' ? '+ Novo quadro de horário' : `Editar: ${registro.descricao || registro.quadro_id}`}</h3>
-            <button class="toolbar-btn" onclick="fecharForm()">Fechar</button>
           </div>
-          <fieldset class="form-fieldset">
-            <legend>Identificação</legend>
-            <div class="form-grid">${CAMPOS_TOPO.map(c => campoTopoHtml(c, valoresTopo[c])).join('')}</div>
-          </fieldset>
-          <fieldset class="form-fieldset">
-            <legend>Horários da semana</legend>
-            ${tabelaSemanaEdicao(modo === 'editar' ? registro : {})}
-          </fieldset>
-          <div class="form-panel-actions">
-            <button class="btn-refresh" onclick="salvar()">${modo === 'criar' ? 'Criar' : 'Salvar alterações'}</button>
-            <button class="toolbar-btn" onclick="fecharForm()">Cancelar</button>
-            ${modo === 'criar' ? '<button class="toolbar-btn" onclick="preencherAleatorio()" style="margin-left:auto;">Gerar outro aleatório</button>' : ''}
+          <div class="pf-filtros-footer">
+            <button class="link-btn" onclick="limparFiltros()">Limpar filtros</button>
+            <span class="stat-pill">Total <b id="statTotal">–</b></span>
           </div>
-        </div>`;
-      document.getElementById('formContainer').innerHTML = html;
-      document.getElementById('formContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    window.abrirForm = abrirForm;
+        </div>
 
-    function fecharForm() {
-      modoForm = null;
-      document.getElementById('formContainer').innerHTML = '';
-    }
-    window.fecharForm = fecharForm;
+        <div class="config-paginacao">
+          <label for="fPerPage">Registros por página</label>
+          <input id="fPerPage" type="number" min="1" max="100" value="15">
+        </div>
 
-    async function salvar() {
-      const dadosForm = { ...coletarTopo(), ...coletarSemana() };
-      const nomeRequest = modoForm === 'criar' ? REQ.cria : REQ.atualiza;
-      mostrarErro('');
-      try {
-        const res = await chamar(nomeRequest, dadosForm);
-        const r = interpretarResposta(res);
-        if (!r.ok) { mostrarErro(r.msg); return; }
-        mostrarErro(modoForm === 'criar' ? 'Quadro criado com sucesso.' : 'Quadro atualizado com sucesso.', true);
-        fecharForm();
-        buscar(false);
-      } catch (err) {
-        mostrarErro(err.message || String(err));
+        <div id="formContainer"></div>
+        <div id="pfPaginacao" class="pf-paginacao"></div>
+
+        <div class="toolbar">
+          <input type="text" class="search-input" id="searchLocal" placeholder="Filtrar dentro da página atual por descrição ou ID..." oninput="filtrarLocal()">
+          <button class="toolbar-btn" onclick="toggleAll(true)">Expandir tudo</button>
+          <button class="toolbar-btn" onclick="toggleAll(false)">Recolher tudo</button>
+        </div>
+        <div id="cardsContainer"><div class="empty-state">Ajuste os filtros acima e clique em "Buscar dados".</div></div>
+
+      </div>
+
+      <div id="secao-testes" style="display:none;">
+
+        <div class="pf-filtros">
+          <h3>Teste de ciclo de vida</h3>
+          <p class="hint">Cria um registro aleatório, busca de volta e confere campo a campo, edita, confere de novo, exclui e confirma que sumiu.</p>
+          <div class="testes-linha">
+            <button class="btn-refresh" id="btnCicloVida" onclick="rodarTesteCicloVida()">Rodar teste de ciclo de vida</button>
+          </div>
+        </div>
+
+        <div class="pf-filtros">
+          <h3>Geração de massa</h3>
+          <p class="hint">Cria vários registros de uma vez, marcados com um prefixo identificável. Todos ficam rastreados nesta sessão pra poderem ser limpos depois.</p>
+          <div class="testes-linha">
+            <div class="campo" style="max-width:110px;"><label>Quantidade</label><input id="massaQtd" type="number" min="1" max="200" value="10"></div>
+            <button class="btn-refresh" id="btnMassa" onclick="criarEmMassa()">Criar em massa</button>
+            <button class="btn-outline btn-outline-danger" id="btnLimparMassa" onclick="limparDadosTeste()">Limpar dados de teste desta sessão</button>
+          </div>
+          <div id="massaProgresso" class="op-progresso"></div>
+        </div>
+
+        <div class="pf-filtros">
+          <div class="testes-log-header">
+            <h3 style="margin:0;">Resultado do último teste</h3>
+            <button class="link-btn" onclick="copiarUltimoTeste()">Copiar JSON</button>
+          </div>
+          <div id="ultimoTesteContainer"><div class="empty-state">Nenhum teste executado ainda nesta sessão.</div></div>
+        </div>
+
+      </div>
+
+      <details class="pf-debug">
+        <summary>Depuração: última chamada via bru.ctx.runRequest()</summary>
+        <pre id="pfDebugRaw"><code>—</code></pre>
+      </details>
+
+      <div id="pfConfirmOverlay" style="display:none;position:fixed;inset:0;background:rgba(38,48,69,.45);z-index:1000;align-items:center;justify-content:center;">
+        <div style="background:var(--surface);border-radius:var(--radius-lg);padding:20px;max-width:360px;width:90%;box-shadow:0 10px 30px rgba(38,48,69,.3);">
+          <div id="pfConfirmMsg" style="margin-bottom:16px;font-size:13.5px;color:var(--text);line-height:1.5;"></div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="toolbar-btn" onclick="pfConfirmResolver(false)">Cancelar</button>
+            <button class="action-btn action-btn-danger" style="padding:8px 14px;" onclick="pfConfirmResolver(true)">Confirmar exclusão</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <script>
+      const REQ = {
+        lista: 'lista-quadros-horarios',
+        cria: 'cria-quadros-horarios',
+        atualiza: 'atualiza-quadros-horarios',
+        remove: 'remove-quadros-horarios',
+      };
+
+      const DIAS = [['dom','Dom'],['seg','Seg'],['ter','Ter'],['qua','Qua'],['qui','Qui'],['sex','Sex'],['sab','Sáb']];
+      const SLOTS = ['entrada_1','saida_1','entrada_2','saida_2','entrada_3','saida_3','entrada_4','saida_4'];
+      const CAMPOS_TOPO = ['quadro_id', 'empresa_id', 'v_quadro_horario_id', 'descricao', 'horario_flexivel', 'ativo'];
+      const SELECTS = { horario_flexivel: ['false', 'true'], ativo: ['true', 'false'] };
+
+      // ---------------- helpers genéricos ----------------
+      const v = (id) => (document.getElementById(id)?.value ?? '');
+      const renderVal = (val) => (val === null || val === undefined || val === '') ? '<span style="color:#a1a5b0;font-style:italic;">—</span>' : (typeof val === 'boolean' ? String(val) : String(val));
+
+      function mostrarErro(msg, ok) {
+        const box = document.getElementById('pfErrorBox');
+        box.innerHTML = msg ? `<div class="${ok ? 'pf-sucesso' : 'pf-error'}">${msg}</div>` : '';
       }
-    }
-    window.salvar = salvar;
+      function mostrarAviso(msg) {
+        const box = document.getElementById('pfErrorBox');
+        box.innerHTML = msg ? `<div class="pf-aviso">${msg}</div>` : '';
+      }
+      function mostrarDebug(obj) {
+        try { document.getElementById('pfDebugRaw').innerHTML = '<code>' + JSON.stringify(obj, null, 2) + '</code>'; }
+        catch (e) { document.getElementById('pfDebugRaw').innerHTML = '<code>' + String(obj) + '</code>'; }
+      }
+      function montarQueryString(pares) {
+        return pares.filter(([, val]) => (val ?? '').toString().trim() !== '')
+          .map(([k, val]) => `${k}=${encodeURIComponent(val.toString().trim())}`).join('&');
+      }
+      function extrairBody(res) { return res?.data ?? res?.body ?? null; }
+      function interpretarResposta(res) {
+        const status = res?.status;
+        const body = extrairBody(res);
+        if (status && status >= 400) {
+          const msg = (body && body.mensagem) || `A API retornou status ${status}.`;
+          const detalhes = (body && body.erros) ? '\n' + JSON.stringify(body.erros, null, 2) : '';
+          return { ok: false, status, body, msg: msg + detalhes };
+        }
+        return { ok: true, status, body, msg: (body && body.mensagem) || '' };
+      }
+      function toggleAll(open) { document.querySelectorAll('#cardsContainer .func-accordion').forEach(el => { el.open = open; }); }
 
-    async function excluir(idx) {
-      const reg = dados[idx];
-      const ok = await confirmarAcao(`Excluir o quadro "${reg.descricao || reg.quadro_id}"? Essa ação não pode ser desfeita.`);
-      if (!ok) return;
-      mostrarErro('');
-      try {
-        const res = await chamar(REQ.remove, {
-          empresa_id: String(reg.empresa_id ?? ''),
-          quadro_id: String(reg.quadro_id ?? ''),
+      let pfConfirmResolve = null;
+      function confirmarAcao(msg) {
+        return new Promise((resolve) => {
+          pfConfirmResolve = resolve;
+          document.getElementById('pfConfirmMsg').textContent = msg;
+          document.getElementById('pfConfirmOverlay').style.display = 'flex';
         });
-        const r = interpretarResposta(res);
-        if (!r.ok) { mostrarErro(r.msg); return; }
-        mostrarErro('Quadro excluído com sucesso.', true);
-        buscar(false);
-      } catch (err) {
-        mostrarErro(err.message || String(err));
       }
-    }
-    window.excluir = excluir;
-
-    // =============================================================
-    // FERRAMENTAS DE TESTE
-    // =============================================================
-    let testSessionIds = [];   // [{quadro_id, empresa_id}] criados nesta sessão - usado pra limpeza
-    let logTestes = [];        // [{ts, categoria, acao, ok, detalhes}]
-
-    const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
-
-    const normalizar = (val) => {
-      if (val === null || val === undefined) return '';
-      if (typeof val === 'boolean') return val ? 'true' : 'false';
-      return String(val);
-    };
-
-    // Compara o que foi ENVIADO (objeto flat, valores sempre string, vindo
-    // do form/gerador aleatório) com o que a API DEVOLVEU (objeto aninhado
-    // por dia). Usado pelo teste de ciclo de vida pra pegar campos que a
-    // API aceitou mas silenciosamente ignorou/transformou.
-    function compararRegistroCompleto(enviado, recebido) {
-      const diffs = [];
-      ['empresa_id', 'v_quadro_horario_id', 'descricao', 'horario_flexivel', 'ativo'].forEach((c) => {
-        const e = normalizar(enviado[c]);
-        const r = normalizar(recebido ? recebido[c] : undefined);
-        if (e !== r) diffs.push({ campo: c, esperado: e, recebido: r });
-      });
-      DIAS.forEach(([dia]) => SLOTS.forEach((slot) => {
-        const campo = `${dia}_${slot}`;
-        const e = normalizar(enviado[campo]);
-        const r = normalizar(recebido && recebido[dia] ? recebido[dia][slot] : undefined);
-        if (e !== r) diffs.push({ campo: `${dia}.${slot}`, esperado: e, recebido: r });
-      }));
-      return diffs;
-    }
-
-    function registrarLog(categoria, acao, ok, detalhes) {
-      logTestes.unshift({ ts: new Date(), categoria, acao, ok, detalhes: detalhes || '' });
-      renderLogTestes();
-    }
-
-    function renderLogTestes() {
-      const box = document.getElementById('logTestesContainer');
-      if (!box) return;
-      if (logTestes.length === 0) {
-        box.innerHTML = '<div class="empty-state">Nenhum teste rodado ainda nesta sessão.</div>';
-        return;
+      function pfConfirmResolver(valor) {
+        document.getElementById('pfConfirmOverlay').style.display = 'none';
+        if (pfConfirmResolve) pfConfirmResolve(valor);
+        pfConfirmResolve = null;
       }
-      box.innerHTML = logTestes.map((l) => `
-        <div class="log-item ${l.ok ? 'log-ok' : 'log-fail'}">
-          <span class="log-icone">${l.ok ? '✓' : '✗'}</span>
-          <div class="log-corpo">
-            <div class="log-linha1"><b>[${l.categoria}]</b> ${l.acao}</div>
-            ${l.detalhes ? `<div class="log-detalhes">${l.detalhes}</div>` : ''}
-          </div>
-          <span class="log-hora">${l.ts.toLocaleTimeString('pt-BR')}</span>
-        </div>`).join('');
-    }
-
-    function limparLog() {
-      logTestes = [];
-      renderLogTestes();
-    }
-    window.limparLog = limparLog;
-
-    function copiarRelatorio() {
-      if (logTestes.length === 0) { mostrarErro('Nada no histórico ainda pra copiar.'); return; }
-      const texto = logTestes.slice().reverse().map((l) =>
-        `[${l.ts.toLocaleString('pt-BR')}] ${l.ok ? 'OK' : 'FALHA'} - [${l.categoria}] ${l.acao}${l.detalhes ? ' — ' + l.detalhes.replace(/\n/g, ' ') : ''}`
-      ).join('\n');
-      navigator.clipboard.writeText(texto).then(() => mostrarErro('Relatório copiado para a área de transferência.', true));
-    }
-    window.copiarRelatorio = copiarRelatorio;
-
-    function atualizarContadorSessao() {
-      const el = document.getElementById('statPendentesLimpeza');
-      if (el) el.textContent = testSessionIds.length;
-    }
-
-    function rastrearCriado(respostaCriar, dados) {
-      const criado = Array.isArray(respostaCriar?.retorno) ? respostaCriar.retorno[0] : respostaCriar?.retorno;
-      if (criado && criado.quadro_id) {
-        testSessionIds.push({ quadro_id: criado.quadro_id, empresa_id: dados.empresa_id });
-        atualizarContadorSessao();
+      window.pfConfirmResolver = pfConfirmResolver;
+      function filtrarLocal() {
+        const term = (document.getElementById('searchLocal').value || '').trim().toLowerCase();
+        document.querySelectorAll('#cardsContainer .func-accordion').forEach(card => {
+          card.style.display = card.dataset.search.includes(term) ? '' : 'none';
+        });
       }
-      return criado;
-    }
+      window.toggleAll = toggleAll;
+      window.filtrarLocal = filtrarLocal;
 
-    // ---------------- 1+2. Teste de ciclo de vida (CRUD + integridade) ----------------
-    async function rodarTesteCicloVida() {
-      registrarLog('CRUD', 'Iniciando teste de ciclo de vida completo', true);
-      const dados = gerarDadosQuadroAleatorio('[TESTE-CICLO]');
-      let quadroId = null;
-      try {
-        const resCriar = await chamar(REQ.cria, dados);
-        const rCriar = interpretarResposta(resCriar);
-        if (!rCriar.ok) { registrarLog('CRUD', 'Criar', false, rCriar.msg); return; }
-        const criado = rastrearCriado(rCriar.body, dados);
-        quadroId = criado?.quadro_id;
-        if (!quadroId) { registrarLog('CRUD', 'Criar', false, 'A resposta não trouxe quadro_id - não dá pra continuar o ciclo.'); return; }
-        registrarLog('CRUD', `Criado com sucesso (quadro_id ${quadroId})`, true);
+      function trocarView(nome) {
+        document.getElementById('secao-registros').style.display = nome === 'registros' ? '' : 'none';
+        document.getElementById('secao-testes').style.display = nome === 'testes' ? '' : 'none';
+        document.querySelectorAll('.ap-view-tab').forEach(b => b.classList.toggle('is-active', b.dataset.view === nome));
+      }
+      window.trocarView = trocarView;
 
-        const buscarPorId = async () => {
-          const res = await chamar(REQ.lista, { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` });
-          const r = interpretarResposta(res);
-          if (!r.ok) return null;
-          const lista = Array.isArray(r.body?.retorno) ? r.body.retorno : [];
-          return lista.find((x) => String(x.quadro_id) === String(quadroId)) || null;
+      // ---------------- tabela semanal ----------------
+      function tabelaSemanaLeitura(registro) {
+        const linhas = DIAS.map(([chave, nome]) => {
+          const dia = registro[chave] || {};
+          const celulas = SLOTS.map(s => `<td>${renderVal(dia[s])}</td>`).join('');
+          return `<tr><td class="dia-nome">${nome}</td>${celulas}</tr>`;
+        }).join('');
+        return `
+          <table class="semana-table">
+            <thead><tr><th>Dia</th><th>Ent.1</th><th>Saí.1</th><th>Ent.2</th><th>Saí.2</th><th>Ent.3</th><th>Saí.3</th><th>Ent.4</th><th>Saí.4</th></tr></thead>
+            <tbody>${linhas}</tbody>
+          </table>`;
+      }
+
+      function tabelaSemanaEdicao(registro) {
+        const linhas = DIAS.map(([chave, nome]) => {
+          const dia = (registro && registro[chave]) || {};
+          const celulas = SLOTS.map(s => {
+            const val = dia[s] || '';
+            return `<td><input type="time" id="qf__${chave}_${s}" value="${val}"></td>`;
+          }).join('');
+          return `<tr><td class="dia-nome">${nome}</td>${celulas}</tr>`;
+        }).join('');
+        return `
+          <table class="semana-table">
+            <thead><tr><th>Dia</th><th>Ent.1</th><th>Saí.1</th><th>Ent.2</th><th>Saí.2</th><th>Ent.3</th><th>Saí.3</th><th>Ent.4</th><th>Saí.4</th></tr></thead>
+            <tbody>${linhas}</tbody>
+          </table>`;
+      }
+
+      function coletarSemana() {
+        const out = {};
+        DIAS.forEach(([chave]) => SLOTS.forEach(s => {
+          out[`${chave}_${s}`] = document.getElementById(`qf__${chave}_${s}`)?.value ?? '';
+        }));
+        return out;
+      }
+
+      // ---------------- geração de dados aleatórios ----------------
+      const DESCRICOES_ALEATORIAS = ['Comercial', 'Administrativo', 'Escala Manhã', 'Escala Tarde', 'Turno Único', 'Operacional', 'Atendimento', 'Backoffice'];
+
+      function gerarHorarioAleatorioDia(chanceFolga) {
+        if (Math.random() < chanceFolga) {
+          return { entrada_1:'', saida_1:'', entrada_2:'', saida_2:'', entrada_3:'', saida_3:'', entrada_4:'', saida_4:'' };
+        }
+        const entradasManha = ['07:00', '08:00', '09:00'];
+        const saidasTarde = ['17:00', '18:00', '19:00'];
+        return {
+          entrada_1: entradasManha[Math.floor(Math.random() * entradasManha.length)],
+          saida_1: '12:00',
+          entrada_2: '13:00',
+          saida_2: saidasTarde[Math.floor(Math.random() * saidasTarde.length)],
+          entrada_3: '', saida_3: '', entrada_4: '', saida_4: '',
         };
+      }
 
-        const encontrado1 = await buscarPorId();
-        if (!encontrado1) {
-          registrarLog('CRUD', 'Buscar após criar', false, 'Registro não encontrado na listagem logo após a criação.');
-        } else {
-          const diffs = compararRegistroCompleto(dados, encontrado1);
-          registrarLog('CRUD', 'Buscar após criar (integridade)', diffs.length === 0,
-            diffs.length ? `${diffs.length} campo(s) divergente(s): ` + diffs.map((d) => `${d.campo} (enviado "${d.esperado}", voltou "${d.recebido}")`).join('; ') : 'Todos os campos batem com o que foi enviado.');
+      function gerarDadosQuadroAleatorio(prefixoDescricao, opts) {
+        opts = opts || {};
+        const desc = (prefixoDescricao ? prefixoDescricao + ' ' : '') +
+          DESCRICOES_ALEATORIAS[Math.floor(Math.random() * DESCRICOES_ALEATORIAS.length)] + ' ' + (Math.floor(Math.random() * 900) + 100);
+        const dados = {
+          empresa_id: v('fEmpresaId') || '900002',
+          v_quadro_horario_id: String(Math.floor(Math.random() * 9000) + 1000),
+          descricao: desc,
+          horario_flexivel: opts.flexivel ? 'true' : (Math.random() < 0.2 ? 'true' : 'false'),
+          ativo: opts.inativo ? 'false' : 'true',
+        };
+        DIAS.forEach(([chave]) => {
+          const chanceFolga = (chave === 'dom' || chave === 'sab') ? 0.6 : 0.08;
+          const horario = gerarHorarioAleatorioDia(chanceFolga);
+          SLOTS.forEach(s => { dados[`${chave}_${s}`] = horario[s]; });
+        });
+        return dados;
+      }
+
+      function preencherAleatorio() {
+        const dados = gerarDadosQuadroAleatorio(null);
+        const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+        Object.keys(dados).forEach(campo => {
+          if (campo === 'empresa_id') return;
+          setVal(`qf__${campo}`, dados[campo]);
+        });
+      }
+      window.preencherAleatorio = preencherAleatorio;
+
+      function abrirCriacaoRapida() {
+        trocarView('registros');
+        abrirForm('criar', null);
+        preencherAleatorio();
+      }
+      window.abrirCriacaoRapida = abrirCriacaoRapida;
+
+      // ---------------- campos do topo (form) ----------------
+      function campoTopoHtml(nome, valor) {
+        const id = `qf__${nome}`;
+        const val = (valor === null || valor === undefined) ? '' : valor;
+        if (SELECTS[nome]) {
+          const opts = SELECTS[nome].map(o => `<option value="${o}" ${String(val) === o ? 'selected' : ''}>${o || 'Selecione'}</option>`).join('');
+          return `<div class="campo"><label>${nome}</label><select id="${id}">${opts}</select></div>`;
         }
+        const disabled = nome === 'quadro_id' && modoForm === 'criar' ? 'disabled placeholder="gerado automaticamente"' : '';
+        return `<div class="campo"><label>${nome}</label><input id="${id}" type="text" value="${String(val).replace(/"/g,'&quot;')}" ${disabled}></div>`;
+      }
 
-        const dadosAtualizados = gerarDadosQuadroAleatorio('[TESTE-CICLO-EDITADO]');
-        dadosAtualizados.quadro_id = String(quadroId);
-        dadosAtualizados.empresa_id = dados.empresa_id;
-        const resAtualizar = await chamar(REQ.atualiza, dadosAtualizados);
-        const rAtualizar = interpretarResposta(resAtualizar);
-        registrarLog('CRUD', 'Atualizar', rAtualizar.ok, rAtualizar.ok ? '' : rAtualizar.msg);
+      function coletarTopo() {
+        const out = {};
+        CAMPOS_TOPO.forEach(c => { out[c] = document.getElementById(`qf__${c}`)?.value ?? ''; });
+        return out;
+      }
 
-        if (rAtualizar.ok) {
-          const encontrado2 = await buscarPorId();
-          if (!encontrado2) {
-            registrarLog('CRUD', 'Buscar após editar', false, 'Registro não encontrado na listagem após a edição.');
-          } else {
-            const diffs2 = compararRegistroCompleto(dadosAtualizados, encontrado2);
-            registrarLog('CRUD', 'Buscar após editar (integridade)', diffs2.length === 0,
-              diffs2.length ? `${diffs2.length} campo(s) divergente(s): ` + diffs2.map((d) => `${d.campo} (enviado "${d.esperado}", voltou "${d.recebido}")`).join('; ') : 'Todos os campos batem com a edição enviada.');
-          }
+      // ---------------- estado + orquestração ----------------
+      let mapaRequests = {};
+      let ctxPronto = false;
+      let carregando = false;
+      let dados = [];
+      let modoForm = null;
+
+      async function chamar(nomeRequest, runtimeVariables) {
+        const pathname = mapaRequests[nomeRequest];
+        if (!pathname) throw new Error(`Request "${nomeRequest}" não encontrada na coleção.`);
+        const res = await bru.ctx.runRequest(pathname, { runtimeVariables });
+        mostrarDebug({ request: nomeRequest, enviado: runtimeVariables, resposta: res });
+        return res;
+      }
+
+      function atualizarBotao() {
+        const btn = document.getElementById('btnBuscar');
+        const label = document.getElementById('btnBuscarLabel');
+        if (!ctxPronto) { btn.disabled = true; label.textContent = 'Inicializando...'; return; }
+        if (carregando) { btn.disabled = true; label.innerHTML = '<span class="spinner"></span> Buscando...'; return; }
+        btn.disabled = false;
+        label.textContent = dados.length > 0 ? 'Atualizar' : 'Buscar dados';
+      }
+
+      function limparFiltros() {
+        ['fEmpresaId','fQuadroId','fVQuadroHorarioId','fAlteradoData'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('fPage').value = '1';
+        document.getElementById('fPerPage').value = '15';
+      }
+      window.limparFiltros = limparFiltros;
+
+      async function buscar(resetarPagina) {
+        if (!ctxPronto || carregando) return;
+        if (resetarPagina) document.getElementById('fPage').value = '1';
+        mostrarErro('');
+        carregando = true;
+        atualizarBotao();
+        try {
+          const rt_query = montarQueryString([
+            ['empresa_id', v('fEmpresaId')],
+            ['quadro_id', v('fQuadroId')],
+            ['v_quadro_horario_id', v('fVQuadroHorarioId')],
+            ['alterado_data', v('fAlteradoData')],
+            ['page', v('fPage') || '1'],
+            ['per_page', v('fPerPage') || '15'],
+          ]);
+          const res = await chamar(REQ.lista, { rt_query });
+          const r = interpretarResposta(res);
+          if (!r.ok) { mostrarErro(r.msg); dados = []; renderLista([], null); return; }
+          dados = Array.isArray(r.body?.retorno) ? r.body.retorno : [];
+          renderLista(dados, r.body?.paginacao || null);
+        } catch (err) {
+          mostrarErro(err.message || String(err));
+        } finally {
+          carregando = false;
+          atualizarBotao();
         }
+      }
+      window.buscar = buscar;
 
-        const resExcluir = await chamar(REQ.remove, { empresa_id: String(dados.empresa_id), quadro_id: String(quadroId) });
-        const rExcluir = interpretarResposta(resExcluir);
-        registrarLog('CRUD', 'Excluir', rExcluir.ok, rExcluir.ok ? '' : rExcluir.msg);
-        if (rExcluir.ok) {
-          testSessionIds = testSessionIds.filter((x) => String(x.quadro_id) !== String(quadroId));
+      function irParaPagina(n) {
+        if (n < 1) return;
+        document.getElementById('fPage').value = n;
+        buscar(false);
+      }
+      window.irParaPagina = irParaPagina;
+
+      function renderPaginacao(p) {
+        const box = document.getElementById('pfPaginacao');
+        if (!p) { box.innerHTML = ''; return; }
+        box.innerHTML = `
+          <button class="toolbar-btn" ${p.pagina_atual <= 1 ? 'disabled' : ''} onclick="irParaPagina(${p.pagina_atual - 1})">← Anterior</button>
+          <span>Página ${p.pagina_atual} de ${p.ultima_pagina} · ${p.total} registros (mostrando ${p.inicio}–${p.fim})</span>
+          <button class="toolbar-btn" ${p.pagina_atual >= p.ultima_pagina ? 'disabled' : ''} onclick="irParaPagina(${p.pagina_atual + 1})">Próxima →</button>
+        `;
+      }
+
+      function montarCard(reg, idx) {
+        const nomeBusca = `${reg.descricao || ''} ${reg.quadro_id || ''} ${reg.v_quadro_horario_id || ''}`.toLowerCase();
+        return `
+          <details class="func-accordion ${reg.ativo ? 'is-ativo' : ''}" data-search="${nomeBusca}">
+            <summary class="func-summary">
+              <div class="func-summary-main">
+                <span class="func-nome">${reg.descricao || 'Sem descrição'}</span>
+                <span class="func-id">Quadro ID ${reg.quadro_id ?? '—'} · V. Quadro Horário ID ${reg.v_quadro_horario_id ?? '—'} · Cliente ${reg.cliente_id ?? '—'}</span>
+              </div>
+              <div class="func-summary-right">
+                <div>
+                  <span class="badge ${reg.ativo ? 'badge-ativo' : 'badge-inativo'}">${reg.ativo ? 'Ativo' : 'Inativo'}</span>
+                  <span class="badge badge-info">${reg.horario_flexivel ? 'Flexível' : 'Fixo'}</span>
+                </div>
+                <div class="func-actions">
+                  <button class="action-btn" onclick="event.preventDefault();event.stopPropagation();abrirForm('editar', ${idx})">Editar</button>
+                  <button class="action-btn action-btn-danger" onclick="event.preventDefault();event.stopPropagation();excluir(${idx})">Excluir</button>
+                </div>
+              </div>
+            </summary>
+            <div class="inner-content">${tabelaSemanaLeitura(reg)}</div>
+          </details>`;
+      }
+
+      function renderLista(lista, paginacao) {
+        document.getElementById('statTotal').textContent = paginacao ? paginacao.total : lista.length;
+        document.getElementById('cardsContainer').innerHTML =
+          lista.map(montarCard).join('') || '<div class="empty-state">Nenhum quadro de horário encontrado com esses filtros.</div>';
+        renderPaginacao(paginacao);
+      }
+
+      function abrirForm(modo, idx) {
+        trocarView('registros');
+        modoForm = modo;
+        const registro = modo === 'editar' ? dados[idx] : {};
+        const valoresTopo = modo === 'editar' ? registro : { empresa_id: v('fEmpresaId') || '900002', ativo: 'true', horario_flexivel: 'false' };
+        const html = `
+          <div class="form-panel">
+            <div class="form-panel-header">
+              <h3>${modo === 'criar' ? '+ Novo quadro de horário' : `Editar: ${registro.descricao || registro.quadro_id}`}</h3>
+              <button class="toolbar-btn" onclick="fecharForm()">Fechar</button>
+            </div>
+            <fieldset class="form-fieldset">
+              <legend>Identificação</legend>
+              <div class="form-grid">${CAMPOS_TOPO.map(c => campoTopoHtml(c, valoresTopo[c])).join('')}</div>
+            </fieldset>
+            <fieldset class="form-fieldset">
+              <legend>Horários da semana</legend>
+              ${tabelaSemanaEdicao(modo === 'editar' ? registro : {})}
+            </fieldset>
+            <div class="form-panel-actions">
+              <button class="btn-refresh" onclick="salvar()">${modo === 'criar' ? 'Criar' : 'Salvar alterações'}</button>
+              <button class="toolbar-btn" onclick="fecharForm()">Cancelar</button>
+              ${modo === 'criar' ? '<button class="toolbar-btn" onclick="preencherAleatorio()" style="margin-left:auto;">Gerar outro aleatório</button>' : ''}
+            </div>
+          </div>`;
+        document.getElementById('formContainer').innerHTML = html;
+        document.getElementById('formContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      window.abrirForm = abrirForm;
+
+      function fecharForm() {
+        modoForm = null;
+        document.getElementById('formContainer').innerHTML = '';
+      }
+      window.fecharForm = fecharForm;
+
+      async function salvar() {
+        const dadosForm = { ...coletarTopo(), ...coletarSemana() };
+        const nomeRequest = modoForm === 'criar' ? REQ.cria : REQ.atualiza;
+        mostrarErro('');
+        try {
+          const res = await chamar(nomeRequest, dadosForm);
+          const r = interpretarResposta(res);
+          if (!r.ok) { mostrarErro(r.msg); return; }
+          mostrarErro(modoForm === 'criar' ? 'Quadro criado com sucesso.' : 'Quadro atualizado com sucesso.', true);
+          fecharForm();
+          buscar(false);
+        } catch (err) {
+          mostrarErro(err.message || String(err));
+        }
+      }
+      window.salvar = salvar;
+
+      async function excluir(idx) {
+        const reg = dados[idx];
+        const ok = await confirmarAcao(`Excluir o quadro "${reg.descricao || reg.quadro_id}"? Essa ação não pode ser desfeita.`);
+        if (!ok) return;
+        mostrarErro('');
+        try {
+          const res = await chamar(REQ.remove, {
+            empresa_id: String(reg.empresa_id ?? ''),
+            quadro_id: String(reg.quadro_id ?? ''),
+          });
+          const r = interpretarResposta(res);
+          if (!r.ok) { mostrarErro(r.msg); return; }
+          mostrarErro('Quadro excluído com sucesso.', true);
+          buscar(false);
+        } catch (err) {
+          mostrarErro(err.message || String(err));
+        }
+      }
+      window.excluir = excluir;
+
+      // =============================================================
+      // FERRAMENTAS DE TESTE
+      // =============================================================
+      let testSessionIds = [];
+      let ultimoTeste = null;
+
+      const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+
+      const normalizar = (val) => {
+        if (val === null || val === undefined) return '';
+        if (typeof val === 'boolean') return val ? 'true' : 'false';
+        return String(val);
+      };
+
+      function compararRegistroCompleto(enviado, recebido) {
+        const diffs = [];
+        ['empresa_id', 'v_quadro_horario_id', 'descricao', 'horario_flexivel', 'ativo'].forEach((c) => {
+          const e = normalizar(enviado[c]);
+          const r = normalizar(recebido ? recebido[c] : undefined);
+          if (e !== r) diffs.push({ campo: c, esperado: e, recebido: r });
+        });
+        DIAS.forEach(([dia]) => SLOTS.forEach((slot) => {
+          const campo = `${dia}_${slot}`;
+          const e = normalizar(enviado[campo]);
+          const r = normalizar(recebido && recebido[dia] ? recebido[dia][slot] : undefined);
+          if (e !== r) diffs.push({ campo: `${dia}.${slot}`, esperado: e, recebido: r });
+        }));
+        return diffs;
+      }
+
+      function renderUltimoTeste() {
+        const box = document.getElementById('ultimoTesteContainer');
+        if (!box) return;
+        if (!ultimoTeste) {
+          box.innerHTML = '<div class="empty-state">Nenhum teste executado ainda nesta sessão.</div>';
+          return;
+        }
+        const badgeClass = ultimoTeste.ok ? 'ok' : 'fail';
+        const badgeText = ultimoTeste.ok ? 'Sucesso' : 'Falha';
+        const detalhesHtml = ultimoTeste.detalhes ? `<div class="ultimo-teste-detalhes">${ultimoTeste.detalhes}</div>` : '';
+        const reqJson = ultimoTeste.requestJson ? `<div class="ultimo-teste-section"><div class="ultimo-teste-section-label">Request enviado</div><pre class="ultimo-teste-pre"><code>${JSON.stringify(ultimoTeste.requestJson, null, 2)}</code></pre></div>` : '';
+        const resJson = ultimoTeste.responseJson ? `<div class="ultimo-teste-section"><div class="ultimo-teste-section-label">Response recebido</div><pre class="ultimo-teste-pre"><code>${JSON.stringify(ultimoTeste.responseJson, null, 2)}</code></pre></div>` : '';
+        box.innerHTML = `
+          <div class="ultimo-teste">
+            <div class="ultimo-teste-header">
+              <span class="ultimo-teste-badge ${badgeClass}">${badgeText}</span>
+              <span class="ultimo-teste-titulo">[${ultimoTeste.categoria}] ${ultimoTeste.acao}</span>
+              <span class="ultimo-teste-hora">${ultimoTeste.ts.toLocaleString('pt-BR')}</span>
+            </div>
+            ${detalhesHtml}
+            ${reqJson}
+            ${resJson}
+          </div>`;
+      }
+
+      function registrarUltimoTeste(categoria, acao, ok, detalhes, requestJson, responseJson) {
+        ultimoTeste = { ts: new Date(), categoria, acao, ok, detalhes: detalhes || '', requestJson, responseJson };
+        renderUltimoTeste();
+      }
+
+      function copiarUltimoTeste() {
+        if (!ultimoTeste) { mostrarErro('Nenhum teste executado ainda.'); return; }
+        const payload = {
+          timestamp: ultimoTeste.ts.toISOString(),
+          categoria: ultimoTeste.categoria,
+          acao: ultimoTeste.acao,
+          ok: ultimoTeste.ok,
+          detalhes: ultimoTeste.detalhes,
+          request: ultimoTeste.requestJson,
+          response: ultimoTeste.responseJson,
+        };
+        navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).then(() => mostrarErro('JSON do último teste copiado.', true));
+      }
+      window.copiarUltimoTeste = copiarUltimoTeste;
+
+      function atualizarContadorSessao() {
+        const btn = document.getElementById('btnLimparMassa');
+        if (btn) {
+          const count = testSessionIds.length;
+          btn.textContent = count > 0 ? `Limpar ${count} registro(s) de teste` : 'Limpar dados de teste desta sessão';
+        }
+      }
+
+      function rastrearCriado(respostaCriar, dados) {
+        const criado = Array.isArray(respostaCriar?.retorno) ? respostaCriar.retorno[0] : respostaCriar?.retorno;
+        if (criado && criado.quadro_id) {
+          testSessionIds.push({ quadro_id: criado.quadro_id, empresa_id: dados.empresa_id });
           atualizarContadorSessao();
         }
-
-        const encontrado3 = await buscarPorId();
-        registrarLog('CRUD', 'Confirmar exclusão', !encontrado3, encontrado3 ? 'O registro ainda aparece na busca depois de excluído.' : 'Confirmado: o registro não aparece mais.');
-
-        registrarLog('CRUD', 'Teste de ciclo de vida concluído', true);
-      } catch (err) {
-        registrarLog('CRUD', 'Erro inesperado durante o ciclo', false, err.message || String(err));
+        return criado;
       }
-    }
-    window.rodarTesteCicloVida = rodarTesteCicloVida;
 
-    // ---------------- 3. Geração de massa + limpeza ----------------
-    async function criarEmMassa() {
-      const n = Math.max(1, Math.min(200, parseInt(document.getElementById('massaQtd').value || '10', 10)));
-      const prefixo = `[TESTE-MASSA-${Date.now()}]`;
-      const progresso = document.getElementById('massaProgresso');
-      registrarLog('Massa', `Iniciando criação de ${n} registro(s)`, true);
-      let sucesso = 0, falha = 0;
-      for (let i = 0; i < n; i++) {
-        progresso.textContent = `Criando ${i + 1} de ${n}... (${sucesso} ok, ${falha} falha)`;
-        const dadosItem = gerarDadosQuadroAleatorio(prefixo);
+      function setProgresso(elId, html, ativo) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        el.innerHTML = html;
+        el.classList.toggle('ativo', !!ativo);
+      }
+
+      // ---------------- Teste de ciclo de vida ----------------
+      async function rodarTesteCicloVida() {
+        const btn = document.getElementById('btnCicloVida');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Executando...';
+        const dados = gerarDadosQuadroAleatorio('[TESTE-CICLO]');
+        let quadroId = null;
+        let requestJson = null;
+        let responseJson = null;
         try {
-          const res = await chamar(REQ.cria, dadosItem);
-          const r = interpretarResposta(res);
-          if (r.ok) { rastrearCriado(r.body, dadosItem); sucesso++; }
-          else falha++;
-        } catch (err) {
-          falha++;
-        }
-        await esperar(200);
-      }
-      progresso.textContent = `Concluído: ${sucesso} criado(s), ${falha} falha(s).`;
-      registrarLog('Massa', `Criação em massa concluída (prefixo ${prefixo})`, falha === 0, `${sucesso} criado(s), ${falha} falha(s) de ${n} solicitado(s).`);
-    }
-    window.criarEmMassa = criarEmMassa;
+          const resCriar = await chamar(REQ.cria, dados);
+          const rCriar = interpretarResposta(resCriar);
+          requestJson = dados;
+          responseJson = rCriar.body;
+          if (!rCriar.ok) {
+            registrarUltimoTeste('CRUD', 'Criar', false, rCriar.msg, requestJson, responseJson);
+            return;
+          }
+          const criado = rastrearCriado(rCriar.body, dados);
+          quadroId = criado?.quadro_id;
+          if (!quadroId) {
+            registrarUltimoTeste('CRUD', 'Criar', false, 'A resposta não trouxe quadro_id.', requestJson, responseJson);
+            return;
+          }
 
-    async function limparDadosTeste() {
-      if (testSessionIds.length === 0) {
-        registrarLog('Limpeza', 'Nada para limpar', true, 'Nenhum registro de teste rastreado nesta sessão.');
-        return;
+          const buscarPorId = async () => {
+            const res = await chamar(REQ.lista, { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` });
+            const r = interpretarResposta(res);
+            if (!r.ok) return null;
+            const lista = Array.isArray(r.body?.retorno) ? r.body.retorno : [];
+            return lista.find((x) => String(x.quadro_id) === String(quadroId)) || null;
+          };
+
+          const encontrado1 = await buscarPorId();
+          if (!encontrado1) {
+            registrarUltimoTeste('CRUD', 'Buscar após criar', false, 'Registro não encontrado na listagem logo após a criação.', requestJson, responseJson);
+            return;
+          }
+          const diffs1 = compararRegistroCompleto(dados, encontrado1);
+          if (diffs1.length > 0) {
+            registrarUltimoTeste('CRUD', 'Buscar após criar (integridade)', false,
+              `${diffs1.length} campo(s) divergente(s):\n` + diffs1.map(d => `• ${d.campo}: enviado "${d.esperado}" → recebido "${d.recebido}"`).join('\n'),
+              requestJson, responseJson);
+            return;
+          }
+
+          const dadosAtualizados = gerarDadosQuadroAleatorio('[TESTE-CICLO-EDITADO]');
+          dadosAtualizados.quadro_id = String(quadroId);
+          dadosAtualizados.empresa_id = dados.empresa_id;
+          const resAtualizar = await chamar(REQ.atualiza, dadosAtualizados);
+          const rAtualizar = interpretarResposta(resAtualizar);
+          requestJson = dadosAtualizados;
+          responseJson = rAtualizar.body;
+          if (!rAtualizar.ok) {
+            registrarUltimoTeste('CRUD', 'Atualizar', false, rAtualizar.msg, requestJson, responseJson);
+            return;
+          }
+
+          const encontrado2 = await buscarPorId();
+          if (!encontrado2) {
+            registrarUltimoTeste('CRUD', 'Buscar após editar', false, 'Registro não encontrado após edição.', requestJson, responseJson);
+            return;
+          }
+          const diffs2 = compararRegistroCompleto(dadosAtualizados, encontrado2);
+          if (diffs2.length > 0) {
+            registrarUltimoTeste('CRUD', 'Buscar após editar (integridade)', false,
+              `${diffs2.length} campo(s) divergente(s):\n` + diffs2.map(d => `• ${d.campo}: enviado "${d.esperado}" → recebido "${d.recebido}"`).join('\n'),
+              requestJson, responseJson);
+            return;
+          }
+
+          const resExcluir = await chamar(REQ.remove, { empresa_id: String(dados.empresa_id), quadro_id: String(quadroId) });
+          const rExcluir = interpretarResposta(resExcluir);
+          requestJson = { empresa_id: dados.empresa_id, quadro_id: quadroId };
+          responseJson = rExcluir.body;
+          if (!rExcluir.ok) {
+            registrarUltimoTeste('CRUD', 'Excluir', false, rExcluir.msg, requestJson, responseJson);
+            return;
+          }
+          testSessionIds = testSessionIds.filter((x) => String(x.quadro_id) !== String(quadroId));
+          atualizarContadorSessao();
+
+          const encontrado3 = await buscarPorId();
+          if (encontrado3) {
+            registrarUltimoTeste('CRUD', 'Confirmar exclusão', false, 'O registro ainda aparece na busca depois de excluído.', requestJson, responseJson);
+            return;
+          }
+
+          registrarUltimoTeste('CRUD', 'Ciclo de vida completo', true,
+            `Criado (quadro_id ${quadroId}) → Buscado → Editado → Buscado → Excluído → Confirmado.\nTodos os campos bateram em todas as etapas.`,
+            dados, rCriar.body);
+        } catch (err) {
+          registrarUltimoTeste('CRUD', 'Erro inesperado', false, err.message || String(err), requestJson, responseJson);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = 'Rodar teste de ciclo de vida';
+        }
       }
-      const ok = await confirmarAcao(`Excluir ${testSessionIds.length} registro(s) de teste criados nesta sessão? Essa ação não pode ser desfeita.`);
-      if (!ok) return;
-      const pendentes = [...testSessionIds];
-      let sucesso = 0, falha = 0;
-      for (const item of pendentes) {
+      window.rodarTesteCicloVida = rodarTesteCicloVida;
+
+      // ---------------- Geração de massa + limpeza ----------------
+      async function criarEmMassa() {
+        const n = Math.max(1, Math.min(200, parseInt(document.getElementById('massaQtd').value || '10', 10)));
+        const prefixo = `[TESTE-MASSA-${Date.now()}]`;
+        const btn = document.getElementById('btnMassa');
+        const btnLimpar = document.getElementById('btnLimparMassa');
+        btn.disabled = true;
+        if (btnLimpar) btnLimpar.disabled = true;
+        setProgresso('massaProgresso', '<span class="spinner"></span> Iniciando criação em massa...', true);
+        let sucesso = 0, falha = 0;
+        let ultimoRequest = null;
+        let ultimoResponse = null;
+        for (let i = 0; i < n; i++) {
+          setProgresso('massaProgresso', `<span class="spinner"></span> Criando ${i + 1} de ${n}... (${sucesso} ok, ${falha} falha)`, true);
+          const dadosItem = gerarDadosQuadroAleatorio(prefixo);
+          ultimoRequest = dadosItem;
+          try {
+            const res = await chamar(REQ.cria, dadosItem);
+            const r = interpretarResposta(res);
+            ultimoResponse = r.body;
+            if (r.ok) { rastrearCriado(r.body, dadosItem); sucesso++; }
+            else falha++;
+          } catch (err) {
+            falha++;
+            ultimoResponse = { erro: err.message || String(err) };
+          }
+          await esperar(200);
+        }
+        setProgresso('massaProgresso', `Concluído: ${sucesso} criado(s), ${falha} falha(s).`, false);
+        registrarUltimoTeste('Massa', `Criação em massa (${n} solicitados)`, falha === 0,
+          `${sucesso} criado(s), ${falha} falha(s) de ${n} solicitado(s). Prefixo: ${prefixo}`,
+          ultimoRequest, ultimoResponse);
+        btn.disabled = false;
+        if (btnLimpar) btnLimpar.disabled = false;
+      }
+      window.criarEmMassa = criarEmMassa;
+
+      async function limparDadosTeste() {
+        if (testSessionIds.length === 0) {
+          registrarUltimoTeste('Limpeza', 'Limpar dados de teste', true, 'Nenhum registro de teste rastreado nesta sessão.', null, null);
+          return;
+        }
+        const ok = await confirmarAcao(`Excluir ${testSessionIds.length} registro(s) de teste criados nesta sessão? Essa ação não pode ser desfeita.`);
+        if (!ok) return;
+        const pendentes = [...testSessionIds];
+        const btn = document.getElementById('btnLimparMassa');
+        const btnCriar = document.getElementById('btnMassa');
+        btn.disabled = true;
+        if (btnCriar) btnCriar.disabled = true;
+        let sucesso = 0, falha = 0;
+        let ultimoRequest = null;
+        let ultimoResponse = null;
+        setProgresso('massaProgresso', '<span class="spinner"></span> Iniciando limpeza...', true);
+        for (const item of pendentes) {
+          setProgresso('massaProgresso', `<span class="spinner"></span> Excluindo ${sucesso + falha + 1} de ${pendentes.length}...`, true);
+          ultimoRequest = { empresa_id: item.empresa_id, quadro_id: item.quadro_id };
+          try {
+            const res = await chamar(REQ.remove, ultimoRequest);
+            const r = interpretarResposta(res);
+            ultimoResponse = r.body;
+            if (r.ok) {
+              sucesso++;
+              testSessionIds = testSessionIds.filter((x) => String(x.quadro_id) !== String(item.quadro_id));
+              atualizarContadorSessao();
+            } else falha++;
+          } catch (err) {
+            falha++;
+            ultimoResponse = { erro: err.message || String(err) };
+          }
+          await esperar(150);
+        }
+        setProgresso('massaProgresso', `Limpeza concluída: ${sucesso} excluído(s), ${falha} falha(s).`, false);
+        registrarUltimoTeste('Limpeza', 'Limpar dados de teste', falha === 0,
+          `${sucesso} excluído(s), ${falha} falha(s).`, ultimoRequest, ultimoResponse);
+        btn.disabled = false;
+        if (btnCriar) btnCriar.disabled = false;
+        buscar(false);
+      }
+      window.limparDadosTeste = limparDadosTeste;
+
+      // ---------------- inicialização ----------------
+      bru.ctx.onInit = async () => {
         try {
-          const res = await chamar(REQ.remove, { empresa_id: String(item.empresa_id), quadro_id: String(item.quadro_id) });
-          const r = interpretarResposta(res);
-          if (r.ok) {
-            sucesso++;
-            testSessionIds = testSessionIds.filter((x) => String(x.quadro_id) !== String(item.quadro_id));
-            atualizarContadorSessao();
-          } else falha++;
+          const todas = await bru.ctx.listRequests();
+          todas.forEach(r => { mapaRequests[r.name] = r.pathname; });
+          const faltando = Object.values(REQ).filter(nome => !mapaRequests[nome]);
+          document.getElementById('apStatus').textContent = faltando.length
+            ? `Atenção: request(s) não encontrada(s) na coleção: ${faltando.join(', ')}. Confira se o nome bate exatamente.`
+            : '';
         } catch (err) {
-          falha++;
+          document.getElementById('apStatus').textContent = 'Erro ao listar requests: ' + (err.message || err);
         }
-        await esperar(150);
-      }
-      registrarLog('Limpeza', 'Limpeza de dados de teste concluída', falha === 0, `${sucesso} excluído(s), ${falha} falha(s).`);
-      buscar(false);
-    }
-    window.limparDadosTeste = limparDadosTeste;
-
-    // ---------------- 4. Casos extremos ----------------
-    const CASOS_EXTREMOS = [
-      { nome: 'Descrição no limite (255 caract.)', montar: () => { const d = gerarDadosQuadroAleatorio('[TESTE-EDGE]'); d.descricao = d.descricao.slice(0, 20) + 'A'.repeat(230); return d; } },
-      { nome: 'Caracteres especiais/acentuação', montar: () => { const d = gerarDadosQuadroAleatorio('[TESTE-EDGE]'); d.descricao = 'Ção Ãéíóú çñ @#$%&* "aspas" \'apóstrofo\''; return d; } },
-      { nome: 'Todos os dias com 4 turnos', montar: () => { const d = gerarDadosQuadroAleatorio('[TESTE-EDGE]'); DIAS.forEach(([dia]) => { d[`${dia}_entrada_1`]='06:00'; d[`${dia}_saida_1`]='08:00'; d[`${dia}_entrada_2`]='09:00'; d[`${dia}_saida_2`]='12:00'; d[`${dia}_entrada_3`]='13:00'; d[`${dia}_saida_3`]='16:00'; d[`${dia}_entrada_4`]='17:00'; d[`${dia}_saida_4`]='20:00'; }); return d; } },
-      { nome: 'Nenhum dia com expediente', montar: () => { const d = gerarDadosQuadroAleatorio('[TESTE-EDGE]'); DIAS.forEach(([dia]) => SLOTS.forEach((s) => { d[`${dia}_${s}`] = ''; })); return d; } },
-      { nome: 'horario_flexivel = true', montar: () => { const d = gerarDadosQuadroAleatorio('[TESTE-EDGE]'); d.horario_flexivel = 'true'; return d; } },
-      { nome: 'horario_flexivel = false', montar: () => { const d = gerarDadosQuadroAleatorio('[TESTE-EDGE]'); d.horario_flexivel = 'false'; return d; } },
-    ];
-
-    function renderCasosExtremos() {
-      const box = document.getElementById('casosExtremosContainer');
-      if (!box) return;
-      box.innerHTML = CASOS_EXTREMOS.map((c, i) => `<button class="toolbar-btn" onclick="rodarCasoExtremo(${i})">${c.nome}</button>`).join('');
-    }
-
-    async function rodarCasoExtremo(idx) {
-      const caso = CASOS_EXTREMOS[idx];
-      const dados = caso.montar();
-      try {
-        const res = await chamar(REQ.cria, dados);
-        const r = interpretarResposta(res);
-        if (r.ok) rastrearCriado(r.body, dados);
-        registrarLog('Caso extremo', caso.nome, r.ok, r.ok ? 'A API aceitou o registro.' : r.msg);
-      } catch (err) {
-        registrarLog('Caso extremo', caso.nome, false, err.message || String(err));
-      }
-    }
-    window.rodarCasoExtremo = rodarCasoExtremo;
-
-    // ---------------- inicialização ----------------
-    renderCasosExtremos();
-
-    bru.ctx.onInit = async () => {
-      try {
-        const todas = await bru.ctx.listRequests();
-        todas.forEach(r => { mapaRequests[r.name] = r.pathname; });
-        const faltando = Object.values(REQ).filter(nome => !mapaRequests[nome]);
-        document.getElementById('apStatus').textContent = faltando.length
-          ? `Atenção: request(s) não encontrada(s) na coleção: ${faltando.join(', ')}. Confira se o nome bate exatamente.`
-          : '';
-      } catch (err) {
-        document.getElementById('apStatus').textContent = 'Erro ao listar requests: ' + (err.message || err);
-      }
-      ctxPronto = true;
-      atualizarBotao();
-    };
-  </script>
+        ctxPronto = true;
+        atualizarBotao();
+      };
+    </script>
