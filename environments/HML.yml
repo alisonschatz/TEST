@@ -1,33 +1,31 @@
-name: HML
+name: hml
 variables:
   - name: baseUrl
     value: https://api-rhnet-hml.sci.com.br
-    description: ""
   - name: authUrl
     value: https://api-auth-hml.sci.com.br
-    description: ""
   - name: tipo_perfil
     value: unico_admin
-    description: ""
-  - name: tokens_sistema
-    value: |-
-      {
-      "unico":"1547|hiItEus0L9C1s4IbUOLs9QZm8uYoSLUS0yxMBJSf",
-      "practice":"1546|fg5wIxRs3wtXqqg4TPHLMiekQpEk4wTGtu9gN1U0",
-      "parceiro":"1548|4Ia5ced8PVwaKvXpch9sVOZJAXXCvgE2XYVTEeLg"
-      }
-    description: ""
-  - name: tokens_contexto
-    value: |-
-      {
-      "cliente_unico":"1575|HItQDqQqcvRP638vDqKOqgljhnE3HLOMXj6iyTZD",
-      "adm_unico":"1576|KBmi7E4QN5u5DDH0qgmcHPCz4WwTB7NrrmbWBpsA",
-      "cliente_practice":"1552|TjRplq3iEgSSYZc20d9cRN0luBQMRGE4MiTL3Brt",
-      "adm_practice":"1553|Oy6O94f3ew4v5Pt6zoM8lVbWzJOkdA9MqiBVxmfS"
-      }
-    description: ""
+    description: "Valores aceitos: unico_admin | practice_admin | parceiro_cliente_unico | parceiro_cliente_practice"
   - name: usarDadosAleatorios
     value: "true"
-    description: ""
+  - name: token_sistema_unico
+    value: 1547|hiItEus0L9C1s4IbUOLs9QZm8uYoSLUS0yxMBJSf
+  - name: token_sistema_practice
+    value: 1546|fg5wIxRs3wtXqqg4TPHLMiekQpEk4wTGtu9gN1U0
+  - name: token_sistema_parceiro
+    value: 1548|4Ia5ced8PVwaKvXpch9sVOZJAXXCvgE2XYVTEeLg
+  - name: token_contexto_cliente_unico
+    value: 1575|HItQDqQqcvRP638vDqKOqgljhnE3HLOMXj6iyTZD
+  - name: token_contexto_adm_unico
+    value: 1576|KBmi7E4QN5u5DDH0qgmcHPCz4WwTB7NrrmbWBpsA
+  - name: token_contexto_cliente_practice
+    value: 1552|TjRplq3iEgSSYZc20d9cRN0luBQMRGE4MiTL3Brt
+  - name: token_contexto_adm_practice
+    value: 1553|Oy6O94f3ew4v5Pt6zoM8lVbWzJOkdA9MqiBVxmfS
   - secret: true
-    name: token    
+    name: token_app
+  - secret: true
+    name: username_app
+  - secret: true
+    name: password_app

@@ -8,9 +8,6 @@ info:
 http:
   method: DELETE
   url: "{{baseUrl}}/api/v1/quadros-horarios"
-  headers:
-    - name: Authorization
-      value: Bearer {{token_atual}}
   body:
     type: json
     data: |-

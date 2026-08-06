@@ -109,6 +109,33 @@ code: |2-
       </div>
       <div class="subtitle" id="statusText">Inicializando...</div>
     
+      <div class="card" style="border-left:3px solid var(--blue);">
+        <div class="card-header" style="margin-bottom:8px;">
+          <h3 class="card-title" style="font-size:13.5px;">🔐 Perfil de Acesso</h3>
+          <span id="authStatus" class="badge badge-bad">Não autenticado</span>
+        </div>
+        <div class="flex" style="gap:10px;flex-wrap:wrap;">
+          <div class="field" style="min-width:260px;flex:1;">
+            <label>Perfil / Combinação</label>
+            <select id="selPerfil">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+          <div class="field" style="min-width:130px;">
+            <label>&nbsp;</label>
+            <button class="btn btn-primary w-full" id="btnAuth" disabled>
+              <span id="spinnerAuth" class="spinner hidden"></span>
+              <span id="lblAuth">Gerar Token</span>
+            </button>
+          </div>
+          <div class="field" style="min-width:130px;">
+            <label>&nbsp;</label>
+            <button class="btn btn-outline w-full" id="btnRefresh" disabled>Refresh Token</button>
+          </div>
+        </div>
+        <div id="authError" style="margin-top:8px;font-size:12px;color:var(--red);font-weight:600;"></div>
+      </div>
+    
       <div class="tabs">
         <button class="tab active" data-view="registros">Registros</button>
         <button class="tab" data-view="testes">Ferramentas de teste</button>
@@ -208,7 +235,15 @@ code: |2-
     
     <script>
       // ===================== CONFIGURAÇÃO =====================
-      const REQ = { lista: 'lista-quadros-horarios', cria: 'cria-quadros-horarios', atualiza: 'atualiza-quadros-horarios', remove: 'remove-quadros-horarios' };
+      const REQ = { lista: 'lista-quadros-horarios', cria: 'cria-quadros-horarios', atualiza: 'atualiza-quadros-horarios', remove: 'remove-quadros-horarios', authGera: 'gera-token', authRefresh: 'atualiza-token' };
+    // Os "id" abaixo são exatamente os valores aceitos pela variável tipo_perfil,
+    // usada pelo script pre-request da requisição gera-token para montar username_app/password_app.
+    const PERFIS = [
+      { id: 'unico_admin', nome: 'Único + Único ADM', sistema: 'token_sistema_unico', contexto: 'token_contexto_adm_unico' },
+      { id: 'practice_admin', nome: 'Practice + Practice ADM', sistema: 'token_sistema_practice', contexto: 'token_contexto_adm_practice' },
+      { id: 'parceiro_cliente_unico', nome: 'Parceiro + Único Cliente', sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_unico' },
+      { id: 'parceiro_cliente_practice', nome: 'Parceiro + Practice Cliente', sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_practice' }
+    ];
       const DIAS = [['dom','Dom'],['seg','Seg'],['ter','Ter'],['qua','Qua'],['qui','Qui'],['sex','Sex'],['sab','Sab']];
       const SLOTS = ['entrada_1','saida_1','entrada_2','saida_2','entrada_3','saida_3','entrada_4','saida_4'];
       const CAMPOS_TOPO = ['quadro_id','empresa_id','v_quadro_horario_id','descricao','horario_flexivel','ativo'];
@@ -233,6 +268,8 @@ code: |2-
           this.testSessionIds = [];
           this.ultimoTeste = null;
           this.view = 'registros';
+          this.autenticado = false;
+          this.perfilAtual = null;
           this.els = {};
           this._bindElements();
           this._bindEvents();
@@ -244,7 +281,8 @@ code: |2-
             'btnCicloVida','spinnerCiclo','lblCiclo','btnMassa','spinnerMassa','btnLimparMassa','massaProgresso','massaQtd',
             'confirmOverlay','confirmMsg','confirmCancel','confirmOk','btnNovo','btnRapido','btnLimparFiltros',
             'fEmpresaId','fQuadroId','fVQuadroId','fAlteradoData','fPage','fPerPage',
-            'btnExpandir','btnRecolher','btnCopiarTeste'];
+            'btnExpandir','btnRecolher','btnCopiarTeste',
+            'selPerfil','btnAuth','spinnerAuth','lblAuth','btnRefresh','authStatus','authError'];
           ids.forEach(id => this.els[id] = document.getElementById(id));
         }
     
@@ -262,6 +300,9 @@ code: |2-
           this.els.btnCopiarTeste.onclick = () => this.copiarTeste();
           this.els.confirmCancel.onclick = () => this._resolveConfirm(false);
           this.els.confirmOk.onclick = () => this._resolveConfirm(true);
+          document.getElementById('selPerfil').onchange = () => this.renderAuthStatus();
+          document.getElementById('btnAuth').onclick = () => this.doAuth();
+          document.getElementById('btnRefresh').onclick = () => this.doRefresh();
           document.querySelectorAll('.tab').forEach(tab => {
             tab.onclick = () => this.trocarView(tab.dataset.view);
           });
@@ -296,8 +337,9 @@ code: |2-
         async chamar(nomeRequest, runtimeVars) {
           const pathname = this.mapaRequests[nomeRequest];
           if (!pathname) throw new Error(`Request "${nomeRequest}" não encontrada.`);
-          const res = await bru.ctx.runRequest(pathname, { runtimeVariables: runtimeVars });
-          this.setDebug({ request: nomeRequest, enviado: runtimeVars, resposta: res });
+          const vars = { ...runtimeVars };
+          const res = await bru.ctx.runRequest(pathname, { runtimeVariables: vars });
+          this.setDebug({ request: nomeRequest, enviado: vars, resposta: res });
           return res;
         }
         interpretar(res) {
@@ -309,6 +351,96 @@ code: |2-
             return { ok: false, status, body, msg: msg + det };
           }
           return { ok: true, status, body, msg: body?.mensagem || '' };
+        }
+        // Nota: a validação de credenciais acontece na resposta real da API (gera-token),
+        // não é mais checada aqui no widget — ver autenticar().
+        renderPerfis() {
+          const sel = document.getElementById('selPerfil');
+          if (!sel) return;
+          // Sempre lista os 4 perfis fixos. A checagem de credenciais é feita de verdade
+          // na resposta da API ao gerar o token — ler env var aqui, no contexto do widget,
+          // não é confiável e deixava o <select> vazio quando falhava silenciosamente.
+          sel.innerHTML = '<option value="">Selecione...</option>' +
+            PERFIS.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+          try {
+            const perfilEnv = bru.getEnvVar('tipo_perfil');
+            if (perfilEnv && PERFIS.some(p => p.id === perfilEnv)) sel.value = perfilEnv;
+          } catch (e) {}
+        }
+        renderAuthStatus() {
+          const badge = document.getElementById('authStatus');
+          const btnAuth = document.getElementById('btnAuth');
+          const btnRefresh = document.getElementById('btnRefresh');
+          const sel = document.getElementById('selPerfil');
+          if (!badge) return;
+          if (this.autenticado) {
+            badge.className = 'badge badge-ok';
+            const perfilNome = this.perfilAtual ? (PERFIS.find(p=>p.id===this.perfilAtual)?.nome || 'Autenticado') : 'Autenticado';
+            badge.textContent = `Token OK · ${perfilNome}`;
+            if (btnAuth) { btnAuth.disabled = false; document.getElementById('lblAuth').textContent = 'Trocar Perfil'; }
+            if (btnRefresh) btnRefresh.disabled = false;
+          } else {
+            badge.className = 'badge badge-bad';
+            badge.textContent = 'Não autenticado';
+            if (btnAuth) { btnAuth.disabled = !(sel && sel.value); document.getElementById('lblAuth').textContent = 'Gerar Token'; }
+            if (btnRefresh) btnRefresh.disabled = true;
+          }
+        }
+        async doAuth() {
+          const perfilId = document.getElementById('selPerfil').value;
+          if (!perfilId) return;
+          const btn = document.getElementById('btnAuth');
+          this.setLoading(btn, true);
+          const errBox = document.getElementById('authError');
+          if (errBox) errBox.textContent = '';
+          try {
+            await this.autenticar(perfilId);
+            this.alert('Token gerado com sucesso.', 'ok');
+          } catch (err) {
+            if (errBox) errBox.textContent = err.message;
+            this.alert(err.message);
+          } finally {
+            this.setLoading(btn, false);
+            this.renderAuthStatus();
+          }
+        }
+        async doRefresh() {
+          const btn = document.getElementById('btnRefresh');
+          this.setLoading(btn, true);
+          const errBox = document.getElementById('authError');
+          if (errBox) errBox.textContent = '';
+          try {
+            if (!this.autenticado) throw new Error('Nenhum token para atualizar');
+            const res = await this.chamar(REQ.authRefresh, {});
+            const r = this.interpretar(res);
+            if (!r.ok) throw new Error(r.msg);
+            const token = r.body?.token;
+            if (!token) throw new Error('Token não retornado no refresh');
+            // token_app já foi persistido pelo script post-response de atualiza-token.
+            this.autenticado = true;
+            this.alert('Token atualizado com sucesso.', 'ok');
+          } catch (err) {
+            if (errBox) errBox.textContent = err.message;
+            this.alert(err.message);
+          } finally {
+            this.setLoading(btn, false);
+            this.renderAuthStatus();
+          }
+        }
+        async autenticar(perfilId) {
+          const perfil = PERFIS.find(p => p.id === perfilId);
+          if (!perfil) throw new Error('Perfil não encontrado');
+          // Envia o perfil escolhido como variável de runtime desta chamada — o script
+          // pre-request de gera-token lê bru.getVar('tipo_perfil') (com fallback para o
+          // valor padrão do ambiente) e monta username_app/password_app sozinho.
+          const res = await this.chamar(REQ.authGera, { tipo_perfil: perfilId });
+          const r = this.interpretar(res);
+          if (!r.ok) throw new Error(r.msg);
+          const token = r.body?.token;
+          if (!token) throw new Error('Token não retornado pela API de autenticação');
+          // token_app já foi persistido pelo script post-response de gera-token.
+          this.autenticado = true;
+          this.perfilAtual = perfilId;
         }
         montarQS(pares) {
           return pares.filter(([,v]) => (v??'').toString().trim()!=='')
@@ -723,6 +855,16 @@ code: |2-
         app.ctxPronto = true;
         app.els.btnBuscar.disabled = false;
         app.els.lblBuscar.textContent = 'Buscar dados';
+        try { app.renderPerfis(); } catch (e) { app.setStatus('Erro ao montar perfis: ' + (e.message || e)); }
+        try {
+          const envToken = bru.getEnvVar('token_app');
+          const perfilEnv = bru.getEnvVar('tipo_perfil');
+          if (envToken) {
+            app.autenticado = true;
+            app.perfilAtual = PERFIS.some(p => p.id === perfilEnv) ? perfilEnv : null;
+          }
+        } catch(e) {}
+        app.renderAuthStatus();
       };
     </script>
     </body>

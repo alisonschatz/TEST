@@ -1,5 +1,5 @@
 info:
-  name: Gera o token de acesso com base nos tokens externos informados
+  name: gera-token
   type: http
   seq: 1
   tags:
@@ -10,8 +10,48 @@ http:
   url: "{{authUrl}}/api/v1/auth/credencial/login"
   auth:
     type: basic
-    username: "{{username}}"
-    password: "{{password}}"
+    username: "{{username_app}}"
+    password: "{{password_app}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Mapeia o perfil selecionado (tipo_perfil) para o par de tokens externos
+        // que o endpoint de login espera como username/password.
+        const perfis = {
+          unico_admin: { sistema: 'token_sistema_unico', contexto: 'token_contexto_adm_unico' },
+          practice_admin: { sistema: 'token_sistema_practice', contexto: 'token_contexto_adm_practice' },
+          parceiro_cliente_unico: { sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_unico' },
+          parceiro_cliente_practice: { sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_practice' }
+        };
+
+        const tipoPerfil = bru.getVar('tipo_perfil') || bru.getEnvVar('tipo_perfil');
+        const perfil = perfis[tipoPerfil];
+
+        if (!perfil) {
+          throw new Error(`tipo_perfil "${tipoPerfil}" inválido. Valores aceitos: ${Object.keys(perfis).join(', ')}`);
+        }
+
+        const tokenSistema = bru.getEnvVar(perfil.sistema);
+        const tokenContexto = bru.getEnvVar(perfil.contexto);
+
+        if (!tokenSistema || !tokenContexto) {
+          throw new Error(`Credenciais ausentes para o perfil "${tipoPerfil}" (variáveis ${perfil.sistema} / ${perfil.contexto}).`);
+        }
+
+        // username = token de sistema | password = token de contexto
+        bru.setEnvVar('username_app', tokenSistema);
+        bru.setEnvVar('password_app', tokenContexto);
+    - type: after-response
+      code: |-
+        // Salva o JWT gerado em token_app, usado pelo restante do app (auth: inherit / bearer).
+        if (res.getStatus() === 201) {
+          const token = res.getBody()?.token;
+          if (token) {
+            bru.setEnvVar('token_app', token);
+          }
+        }
 
 settings:
   encodeUrl: true
