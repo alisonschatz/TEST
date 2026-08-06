@@ -1,0 +1,999 @@
+info:
+  name: Funcoes
+  type: app
+  seq: 5
+code: |2-
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --navy: #38486c; --blue: #91d8f7; --bg: #eef1f6;
+        --surface: #ffffff; --text: #263045; --muted: rgba(56,72,108,.65);
+        --border: rgba(56,72,108,.14); --radius: 10px; --shadow: 0 4px 14px rgba(56,72,108,.06);
+        --green: #1f8a5f; --green-soft: #e6f6ee; --red: #c1443a; --red-soft: #fbeae8; --orange: #d97706; --orange-soft: #fff7ed;
+      }
+      * { box-sizing: border-box; }
+      body { font-family: "Inter", system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; margin: 0; padding: 20px; letter-spacing: -0.01em; }
+      h2 { margin: 0 0 4px; font-size: 20px; font-weight: 800; color: var(--navy); }
+      .subtitle { font-size: 12.5px; color: var(--muted); margin-bottom: 14px; }
+      .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+      .tab { background: none; border: none; padding: 10px 4px; margin-right: 18px; font-size: 13.5px; font-weight: 700; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+      .tab:hover { color: var(--navy); }
+      .tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+      .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; box-shadow: var(--shadow); }
+      .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+      .card-title { font-size: 14.5px; font-weight: 800; color: var(--navy); margin: 0; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 12px; align-items: end; }
+      .field { display: flex; flex-direction: column; gap: 5px; }
+      .field label { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+      .field input, .field select { height: 38px; border: 1px solid var(--border); border-radius: 8px; padding: 0 11px; font-size: 13px; background: rgba(56,72,108,.04); width: 100%; transition: .15s; font-family: inherit; }
+      .field input:focus, .field select:focus { outline: none; border-color: var(--navy); background: #fff; box-shadow: 0 0 0 3px rgba(145,216,247,.4); }
+      .field select optgroup { font-weight: 700; font-style: normal; color: var(--navy); }
+      .field select option { font-weight: 400; color: var(--text); }
+      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; border-radius: 8px; padding: 9px 16px; height: 38px; font-size: 13px; font-weight: 700; cursor: pointer; transition: .15s; font-family: inherit; white-space: nowrap; }
+      .btn-primary { background: var(--navy); color: #fff; }
+      .btn-primary:hover { filter: brightness(1.15); }
+      .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+      .btn-outline { background: #fff; color: var(--navy); border: 1.5px solid var(--navy); }
+      .btn-outline:hover { background: rgba(56,72,108,.06); }
+      .btn-danger { background: var(--red-soft); color: var(--red); border: 1.5px solid var(--red); }
+      .btn-danger:hover { filter: brightness(.95); }
+      .btn-sm { padding: 6px 12px; font-size: 12px; height: 32px; }
+      .toolbar { display: flex; gap: 8px; align-items: center; margin: 14px 0; flex-wrap: wrap; }
+      .search { flex: 1; min-width: 220px; height: 38px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13.5px; font-family: inherit; }
+      .search:focus { outline: none; border-color: var(--navy); }
+      .badge { padding: 3px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+      .badge-ok { background: var(--green-soft); color: var(--green); }
+      .badge-bad { background: var(--red-soft); color: var(--red); }
+      .badge-info { background: rgba(145,216,247,.25); color: var(--navy); }
+      .alert { border-radius: 8px; padding: 11px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+      .alert-err { background: var(--red-soft); color: var(--red); border: 1px solid rgba(193,68,58,.3); }
+      .alert-ok { background: var(--green-soft); color: var(--green); border: 1px solid rgba(31,138,95,.3); }
+      .alert-warn { background: var(--orange-soft); color: var(--orange); border: 1px solid rgba(217,119,6,.3); }
+      .empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13.5px; }
+      .spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; animation: spin .7s linear infinite; display: inline-block; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .spinner-dark { border-color: rgba(56,72,108,.3); border-top-color: var(--navy); }
+      details { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; box-shadow: var(--shadow); }
+      details[open] { border-left-color: var(--blue); }
+      summary { padding: 13px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; list-style: none; flex-wrap: wrap; }
+      summary::-webkit-details-marker { display: none; }
+      summary:hover { background: rgba(56,72,108,.04); }
+      .summary-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+      .summary-name { font-weight: 700; font-size: 14.5px; color: var(--navy); }
+      .summary-id { font-size: 11.5px; color: var(--muted); }
+      .summary-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-left: auto; }
+      .inner { padding: 14px; background: rgba(56,72,108,.04); border-top: 1px solid var(--border); }
+      table { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+      th { background: var(--navy); color: var(--blue); font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: .04em; padding: 7px 4px; }
+      td { padding: 5px 4px; text-align: center; border-bottom: 1px solid var(--border); }
+      tr:nth-child(even) td { background: rgba(56,72,108,.03); }
+      tr:last-child td { border-bottom: none; }
+      .form-panel { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--navy); border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow); }
+      .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 9px 10px; }
+      .info-label { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; display: block; margin-bottom: 3px; }
+      fieldset { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+      legend { font-size: 11px; color: var(--navy); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 0 4px; }
+      .paginacao { display: flex; align-items: center; gap: 10px; justify-content: center; margin: 16px 0; font-size: 12.5px; color: var(--muted); }
+      .step { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 8px; }
+      .step-h { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(56,72,108,.04); cursor: pointer; }
+      .step-h:hover { background: rgba(56,72,108,.08); }
+      .step-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+      .step-body { padding: 12px; border-top: 1px solid var(--border); background: var(--surface); }
+      .pre { background: #1e2434; padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; color: var(--blue); font-family: "Fira Code", Consolas, monospace; font-size: 11.5px; line-height: 1.5; max-height: 200px; overflow-y: auto; }
+      .overlay { display: none; position: fixed; inset: 0; background: rgba(38,48,69,.45); z-index: 1000; align-items: center; justify-content: center; }
+      .overlay.active { display: flex; }
+      .modal { background: var(--surface); border-radius: 12px; padding: 20px; max-width: 380px; width: 90%; box-shadow: 0 10px 30px rgba(38,48,69,.25); }
+      .hint { margin: 0 0 12px; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+      .progresso { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); margin-top: 10px; min-height: 20px; }
+      .progresso.ativo { color: var(--navy); font-weight: 600; }
+      .flex { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+      .align-end { align-items: flex-end; }
+      .perfil-chip { display: flex; align-items: center; gap: 9px; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+      .perfil-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+      .perfil-chip.ok { background: var(--green-soft); color: var(--green); border: 1px solid rgba(31,138,95,.3); }
+      .perfil-chip.bad { background: var(--red-soft); color: var(--red); border: 1px solid rgba(193,68,58,.3); }
+      .ml-auto { margin-left: auto; }
+      .w-full { width: 100%; }
+      .hidden { display: none !important; }
+    </style>
+    </head>
+    <body>
+    
+    <div id="app">
+      <h2>Painel de Funções</h2>
+      <div class="subtitle" id="statusText">Inicializando...</div>
+    
+      <div class="card" style="border-left:3px solid var(--blue);">
+        <div class="card-header" style="margin-bottom:8px;">
+          <h3 class="card-title" style="font-size:13.5px;">🔐 Perfil de Acesso</h3>
+        </div>
+        <div class="flex" style="gap:10px;flex-wrap:wrap;">
+          <div class="field" style="min-width:260px;flex:1;">
+            <label>Perfil / Combinação</label>
+            <select id="selPerfil">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+          <div class="field" style="min-width:130px;">
+            <label>&nbsp;</label>
+            <button class="btn btn-primary w-full" id="btnAuth" disabled>
+              <span id="spinnerAuth" class="spinner hidden"></span>
+              <span id="lblAuth">Gerar Token</span>
+            </button>
+          </div>
+          <div class="field" style="min-width:130px;">
+            <label>&nbsp;</label>
+            <button class="btn btn-outline w-full" id="btnRefresh" disabled>Refresh Token</button>
+          </div>
+        </div>
+        <div id="authError" style="margin-top:8px;font-size:12px;color:var(--red);font-weight:600;"></div>
+      </div>
+    
+      <div class="tabs">
+        <button class="tab active" data-view="registros">Registros</button>
+        <button class="tab" data-view="testes">Ferramentas de teste</button>
+      </div>
+    
+      <div id="perfilAtivoChip" class="perfil-chip bad">
+        <span class="dot"></span>
+        <span id="perfilAtivoTexto">Nenhum perfil autenticado — selecione e gere o token acima antes de continuar.</span>
+      </div>
+    
+      <div id="alertBox"></div>
+    
+      <!-- REGISTROS -->
+      <div id="view-registros">
+        <div class="card">
+          <div class="grid">
+            <div class="field"><label>Empresa ID</label><input type="text" id="fEmpresaId" value="900002"></div>
+            <div class="field"><label>Função ID</label><input type="text" id="fFuncaoId"></div>
+            <div class="field"><label>Alterado a partir de</label><input type="date" id="fAlteradoData"></div>
+            <div class="field" style="max-width:90px;"><label>Página</label><input type="number" min="1" id="fPage" value="1"></div>
+            <div class="field" style="min-width:130px;">
+              <label>&nbsp;</label>
+              <button class="btn btn-primary w-full" id="btnBuscar" disabled>
+                <span id="spinnerBuscar" class="spinner hidden"></span>
+                <span id="lblBuscar">Inicializando...</span>
+              </button>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+            <button class="btn" style="background:none;padding:0;height:auto;font-size:12.5px;color:var(--muted);text-decoration:underline;" id="btnLimparFiltros">Limpar filtros</button>
+            <span class="badge badge-info">Total <b id="statTotal">–</b></span>
+          </div>
+        </div>
+    
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 12px;flex-wrap:wrap;">
+          <div class="flex">
+            <button class="btn btn-outline btn-sm" id="btnNovo" disabled>+ Novo</button>
+            <button class="btn btn-primary btn-sm" style="background:var(--blue);color:var(--navy);" id="btnRapido" disabled>Criação rápida</button>
+          </div>
+          <div class="flex" style="font-size:12.5px;color:var(--muted);">
+            <label for="fPerPage" style="font-weight:600;">Registros por página</label>
+            <input id="fPerPage" type="number" min="1" max="100" value="15" style="width:60px;height:32px;border:1px solid var(--border);border-radius:6px;padding:0 8px;font-size:13px;text-align:center;background:#fff;">
+          </div>
+        </div>
+    
+        <div id="formContainer"></div>
+        <div id="paginacao" class="paginacao"></div>
+    
+        <div class="toolbar">
+          <input type="text" class="search" id="searchLocal" placeholder="Filtrar por nome da função ou ID...">
+          <button class="btn btn-outline btn-sm" id="btnExpandir">Expandir tudo</button>
+          <button class="btn btn-outline btn-sm" id="btnRecolher">Recolher tudo</button>
+        </div>
+        <div id="cardsContainer"><div class="empty">Ajuste os filtros e clique em "Buscar dados".</div></div>
+      </div>
+    
+      <!-- TESTES -->
+      <div id="view-testes" class="hidden">
+        <div class="card">
+          <h3 class="card-title">Teste de ciclo de vida</h3>
+          <p class="hint">Cria um registro aleatório, busca, confere campo a campo, edita, confere de novo, exclui e confirma que sumiu.</p>
+          <button class="btn btn-primary" id="btnCicloVida" disabled>
+            <span id="spinnerCiclo" class="spinner hidden"></span>
+            <span id="lblCiclo">Rodar teste de ciclo de vida</span>
+          </button>
+        </div>
+    
+        <div class="card">
+          <h3 class="card-title">Geração de massa</h3>
+          <p class="hint">Cria vários registros de uma vez, marcados com prefixo identificável. Todos ficam rastreados nesta sessão.</p>
+          <div class="flex align-end">
+            <div class="field" style="max-width:110px;"><label>Quantidade</label><input type="number" min="1" max="200" id="massaQtd" value="10"></div>
+            <button class="btn btn-primary" id="btnMassa" disabled>
+              <span id="spinnerMassa" class="spinner hidden"></span>
+              Criar em massa
+            </button>
+            <button class="btn btn-danger" id="btnLimparMassa" disabled>Limpar dados desta sessão</button>
+          </div>
+          <div id="massaProgresso" class="progresso"></div>
+        </div>
+    
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 class="card-title" style="margin:0;">Resultado do último teste</h3>
+            <button class="btn" style="background:none;padding:0;height:auto;font-size:12.5px;color:var(--muted);text-decoration:underline;" id="btnCopiarTeste">Copiar relatório</button>
+          </div>
+          <div id="ultimoTesteContainer"><div class="empty">Nenhum teste executado ainda nesta sessão.</div></div>
+        </div>
+      </div>
+    
+      <details style="margin-top:20px;">
+        <summary style="cursor:pointer;font-size:12px;color:var(--muted);font-weight:600;">Depuração: última chamada bru.ctx.runRequest()</summary>
+        <pre class="pre" style="margin-top:8px;max-height:260px;"><code id="debugRaw">—</code></pre>
+      </details>
+    
+      <!-- Modal -->
+      <div class="overlay" id="confirmOverlay">
+        <div class="modal">
+          <div style="margin-bottom:16px;font-size:13.5px;color:var(--text);line-height:1.5;" id="confirmMsg"></div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="btn btn-outline btn-sm" id="confirmCancel">Cancelar</button>
+            <button class="btn btn-danger btn-sm" id="confirmOk">Confirmar exclusão</button>
+          </div>
+        </div>
+      </div>
+    
+      <!-- Modal: copiar manualmente (fallback quando o clipboard automático não funciona) -->
+      <div class="overlay" id="textoCopiaOverlay">
+        <div class="modal" style="max-width:560px;">
+          <div style="margin-bottom:10px;font-size:13.5px;color:var(--text);font-weight:700;">Não foi possível copiar automaticamente. Selecione e copie manualmente (Ctrl+C / Cmd+C):</div>
+          <textarea id="textoCopiaArea" readonly style="width:100%;height:260px;border:1px solid var(--border);border-radius:8px;padding:10px;font-family:'Fira Code',Consolas,monospace;font-size:11.5px;line-height:1.5;resize:vertical;background:rgba(56,72,108,.04);color:var(--text);"></textarea>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
+            <button class="btn btn-outline btn-sm" id="textoCopiaFechar">Fechar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      // ===================== CONFIGURAÇÃO =====================
+      const REQ = { lista: 'lista-funcoes', cria: 'cria-funcoes', atualiza: 'atualiza-funcoes', remove: 'remove-funcoes', authGera: 'gera-token', authRefresh: 'atualiza-token' };
+    // Os "id" abaixo são exatamente os valores aceitos pela variável tipo_perfil,
+    // usada pelo script pre-request da requisição gera-token para montar username_app/password_app.
+    const PERFIS = [
+      { id: 'unico_admin', nome: 'Sistema Único + Módulo Administrador Único', grupo: 'sistema', grupoLabel: 'Tokens Sistema SCI', grupoCurto: 'Sistema SCI', sistema: 'token_sistema_unico', contexto: 'token_contexto_adm_unico' },
+      { id: 'practice_admin', nome: 'Sistema Practice + Módulo Administrador Practice', grupo: 'sistema', grupoLabel: 'Tokens Sistema SCI', grupoCurto: 'Sistema SCI', sistema: 'token_sistema_practice', contexto: 'token_contexto_adm_practice' },
+      { id: 'parceiro_cliente_unico', nome: 'Sistema Parceiro + Módulo Cliente Único', grupo: 'parceiro', grupoLabel: 'Tokens Sistema Parceiro', grupoCurto: 'Sistema Parceiro', sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_unico' },
+      { id: 'parceiro_cliente_practice', nome: 'Sistema Parceiro + Módulo Cliente Practice', grupo: 'parceiro', grupoLabel: 'Tokens Sistema Parceiro', grupoCurto: 'Sistema Parceiro', sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_practice' }
+    ];
+      const CAMPOS_TOPO = ['funcao_id','empresa_id','funcao','cbo_id','cbo','novo_esocial','ativo'];
+      const SELECTS = { novo_esocial: ['1','0'], ativo: ['true','false'] };
+      const DESCS = ['Analista de Folha','Auxiliar Administrativo','Coordenador de RH','Analista de Recursos Humanos','Assistente Financeiro','Gerente de Operações','Analista de Remuneração','Técnico em Segurança do Trabalho'];
+      const CBOS = [
+        { id: '252305', desc: 'Analista de remuneração' },
+        { id: '411010', desc: 'Auxiliar de escritório' },
+        { id: '141405', desc: 'Gerente de recursos humanos' },
+        { id: '252410', desc: 'Analista de recrutamento e seleção' },
+        { id: '353205', desc: 'Técnico em segurança do trabalho' },
+        { id: '131120', desc: 'Coordenador administrativo' }
+      ];
+      const esperar = ms => new Promise(r => setTimeout(r, ms));
+    
+      // ===================== APP CORE =====================
+      class FuncoesApp {
+        constructor() {
+          this.mapaRequests = {};
+          this.ctxPronto = false;
+          this.carregando = false;
+          this.salvando = false;
+          this.testando = false;
+          this.massando = false;
+          this.dados = [];
+          this.dadosFiltrados = [];
+          this.paginacao = null;
+          this.modoForm = null;
+          this.formEdit = null;
+          this.testSessionIds = [];
+          this.ultimoTeste = null;
+          this.view = 'registros';
+          this.autenticado = false;
+          this.perfilAtual = null;
+          this._acoesTravadas = false;
+          this.els = {};
+          this._bindElements();
+          this._bindEvents();
+          this._atualizarBtnLimparMassa();
+          this._sincronizarBotoesAcao();
+        }
+    
+        _bindElements() {
+          const ids = ['statusText','alertBox','view-registros','view-testes','btnBuscar','spinnerBuscar','lblBuscar','statTotal',
+            'formContainer','paginacao','cardsContainer','searchLocal','ultimoTesteContainer','debugRaw',
+            'btnCicloVida','spinnerCiclo','lblCiclo','btnMassa','spinnerMassa','btnLimparMassa','massaProgresso','massaQtd',
+            'confirmOverlay','confirmMsg','confirmCancel','confirmOk','btnNovo','btnRapido','btnLimparFiltros',
+            'textoCopiaOverlay','textoCopiaArea','textoCopiaFechar',
+            'fEmpresaId','fFuncaoId','fAlteradoData','fPage','fPerPage',
+            'btnExpandir','btnRecolher','btnCopiarTeste',
+            'selPerfil','btnAuth','spinnerAuth','lblAuth','btnRefresh','authError',
+            'perfilAtivoChip','perfilAtivoTexto'];
+          ids.forEach(id => this.els[id] = document.getElementById(id));
+        }
+    
+        _bindEvents() {
+          this.els.btnBuscar.onclick = () => this.buscar(true);
+          this.els.btnLimparFiltros.onclick = () => this.limparFiltros();
+          this.els.searchLocal.oninput = () => this.filtrarLocal();
+          this.els.btnExpandir.onclick = () => this.toggleAll(true);
+          this.els.btnRecolher.onclick = () => this.toggleAll(false);
+          this.els.btnNovo.onclick = () => this.abrirForm('criar');
+          this.els.btnRapido.onclick = () => this.criacaoRapida();
+          this.els.btnCicloVida.onclick = () => this.rodarCicloVida();
+          this.els.btnMassa.onclick = () => this.criarMassa();
+          this.els.btnLimparMassa.onclick = () => this.limparMassa();
+          this.els.btnCopiarTeste.onclick = () => this.copiarTeste();
+          this.els.confirmCancel.onclick = () => this._resolveConfirm(false);
+          this.els.textoCopiaFechar.onclick = () => this.els.textoCopiaOverlay.classList.remove('active');
+          this.els.confirmOk.onclick = () => this._resolveConfirm(true);
+          document.getElementById('selPerfil').onchange = () => this.renderAuthStatus();
+          document.getElementById('btnAuth').onclick = () => this.doAuth();
+          document.getElementById('btnRefresh').onclick = () => this.doRefresh();
+          document.querySelectorAll('.tab').forEach(tab => {
+            tab.onclick = () => this.trocarView(tab.dataset.view);
+          });
+        }
+    
+        // -------------------- UI HELPERS --------------------
+        alert(msg, type='err') {
+          const box = this.els.alertBox;
+          if (!msg) { box.innerHTML = ''; return; }
+          box.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+          setTimeout(() => { if (box.innerHTML.includes(msg)) box.innerHTML = ''; }, 6000);
+        }
+        setStatus(txt) { this.els.statusText.textContent = txt; }
+        setDebug(obj) { this.els.debugRaw.textContent = JSON.stringify(obj, null, 2); }
+        setLoading(el, active) {
+          const spin = el.querySelector('.spinner');
+          if (spin) spin.classList.toggle('hidden', !active);
+          el.disabled = active;
+        }
+        toggleView(name) {
+          this.view = name;
+          this.els['view-registros'].classList.toggle('hidden', name !== 'registros');
+          this.els['view-testes'].classList.toggle('hidden', name !== 'testes');
+          document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === name));
+        }
+        trocarView(name) {
+          if (this.modoForm) this.fecharForm();
+          this.toggleView(name);
+        }
+    
+        // -------------------- API BRUNO --------------------
+        async chamar(nomeRequest, runtimeVars) {
+          const pathname = this.mapaRequests[nomeRequest];
+          if (!pathname) throw new Error(`Request "${nomeRequest}" não encontrada.`);
+          const vars = { ...runtimeVars };
+          const res = await bru.ctx.runRequest(pathname, { runtimeVariables: vars });
+          this.setDebug({ request: nomeRequest, enviado: vars, resposta: res });
+          return res;
+        }
+        interpretar(res) {
+          const status = res?.status ?? null;
+          const body = res?.data ?? null;  // bru.ctx retorna .data, não .body
+          if (status && status >= 400) {
+            const msg = body?.mensagem || `API retornou status ${status}.`;
+            const det = body?.erros ? '\n' + JSON.stringify(body.erros, null, 2) : '';
+            return { ok: false, status, body, msg: msg + det };
+          }
+          return { ok: true, status, body, msg: body?.mensagem || '' };
+        }
+        // Nota: a validação de credenciais acontece na resposta real da API (gera-token),
+        // não é checada aqui no widget — ver autenticar().
+        renderPerfis() {
+          const sel = document.getElementById('selPerfil');
+          if (!sel) return;
+          // Agrupa visualmente em 2 subgrupos: Token de Sistema (unico/practice + adm)
+          // e Token de Parceiro (parceiro + cliente unico/practice) — usando <optgroup>.
+          const gruposOrdem = ['sistema', 'parceiro'];
+          const optgroupsHtml = gruposOrdem.map(g => {
+            const doGrupo = PERFIS.filter(p => p.grupo === g);
+            if (!doGrupo.length) return '';
+            const label = doGrupo[0].grupoLabel;
+            const opts = doGrupo.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+            return `<optgroup label="${label}">${opts}</optgroup>`;
+          }).join('');
+          sel.innerHTML = '<option value="">Selecione...</option>' + optgroupsHtml;
+          try {
+            const perfilEnv = bru.getEnvVar('tipo_perfil');
+            if (perfilEnv && PERFIS.some(p => p.id === perfilEnv)) sel.value = perfilEnv;
+          } catch (e) {}
+        }
+        renderAuthStatus() {
+          const btnAuth = document.getElementById('btnAuth');
+          const btnRefresh = document.getElementById('btnRefresh');
+          const sel = document.getElementById('selPerfil');
+          const chip = this.els.perfilAtivoChip;
+          const chipTexto = this.els.perfilAtivoTexto;
+          const perfilInfo = this.perfilAtual ? PERFIS.find(p => p.id === this.perfilAtual) : null;
+          if (this.autenticado) {
+            if (btnAuth) { btnAuth.disabled = false; document.getElementById('lblAuth').textContent = 'Trocar Perfil'; }
+            if (btnRefresh) btnRefresh.disabled = false;
+            if (chip) chip.className = 'perfil-chip ok';
+            if (chipTexto) chipTexto.textContent = perfilInfo ? `Perfil ativo: ${perfilInfo.grupoCurto} · ${perfilInfo.nome}` : 'Perfil ativo: token gerado';
+          } else {
+            if (btnAuth) { btnAuth.disabled = !(sel && sel.value); document.getElementById('lblAuth').textContent = 'Gerar Token'; }
+            if (btnRefresh) btnRefresh.disabled = true;
+            if (chip) chip.className = 'perfil-chip bad';
+            if (chipTexto) chipTexto.textContent = 'Nenhum perfil autenticado — selecione e gere o token acima antes de continuar.';
+          }
+          this._sincronizarBotoesAcao();
+        }
+        _sincronizarBotoesAcao() {
+          // Fonte única de verdade: enquanto não autenticado, TODAS as ações que chamam
+          // a API ficam bloqueadas — evita disparar requests com um token antigo/desconhecido.
+          const auth = this.autenticado;
+          const travado = !!this._acoesTravadas;
+          if (this.els.btnBuscar) this.els.btnBuscar.disabled = !auth || !this.ctxPronto;
+          if (this.els.btnNovo) this.els.btnNovo.disabled = !auth;
+          if (this.els.btnRapido) this.els.btnRapido.disabled = !auth;
+          if (this.els.btnMassa) this.els.btnMassa.disabled = !auth || travado;
+          if (this.els.btnLimparMassa) this.els.btnLimparMassa.disabled = !auth || travado;
+          if (this.els.btnCicloVida) this.els.btnCicloVida.disabled = !auth || travado;
+        }
+        async doAuth() {
+          const perfilId = document.getElementById('selPerfil').value;
+          if (!perfilId) return;
+          const btn = document.getElementById('btnAuth');
+          this.setLoading(btn, true);
+          const errBox = document.getElementById('authError');
+          if (errBox) errBox.textContent = '';
+          try {
+            await this.autenticar(perfilId);
+            this.alert('Token gerado com sucesso.', 'ok');
+          } catch (err) {
+            if (errBox) errBox.textContent = err.message;
+            this.alert(err.message);
+          } finally {
+            this.setLoading(btn, false);
+            this.renderAuthStatus();
+          }
+        }
+        async doRefresh() {
+          const btn = document.getElementById('btnRefresh');
+          this.setLoading(btn, true);
+          const errBox = document.getElementById('authError');
+          if (errBox) errBox.textContent = '';
+          try {
+            if (!this.autenticado) throw new Error('Nenhum token para atualizar');
+            const res = await this.chamar(REQ.authRefresh, {});
+            const r = this.interpretar(res);
+            if (!r.ok) throw new Error(r.msg);
+            const token = r.body?.token;
+            if (!token) throw new Error('Token não retornado no refresh');
+            // token_app já foi persistido pelo script post-response de atualiza-token.
+            this.autenticado = true;
+            this.alert('Token atualizado com sucesso.', 'ok');
+          } catch (err) {
+            if (errBox) errBox.textContent = err.message;
+            this.alert(err.message);
+          } finally {
+            this.setLoading(btn, false);
+            this.renderAuthStatus();
+          }
+        }
+        async autenticar(perfilId) {
+          const perfil = PERFIS.find(p => p.id === perfilId);
+          if (!perfil) throw new Error('Perfil não encontrado');
+          // Envia o perfil escolhido como variável de runtime desta chamada — o script
+          // pre-request de gera-token lê bru.getVar('tipo_perfil') (com fallback para o
+          // valor padrão do ambiente) e monta username_app/password_app sozinho.
+          const res = await this.chamar(REQ.authGera, { tipo_perfil: perfilId });
+          const r = this.interpretar(res);
+          if (!r.ok) throw new Error(r.msg);
+          const token = r.body?.token;
+          if (!token) throw new Error('Token não retornado pela API de autenticação');
+          // token_app já foi persistido pelo script post-response de gera-token.
+          this.autenticado = true;
+          this.perfilAtual = perfilId;
+        }
+        montarQS(pares) {
+          return pares.filter(([,v]) => (v??'').toString().trim()!=='')
+            .map(([k,v]) => `${k}=${encodeURIComponent(v.toString().trim())}`).join('&');
+        }
+    
+        // -------------------- LISTAGEM --------------------
+        limparFiltros() {
+          this.els.fEmpresaId.value = '900002';
+          ['fFuncaoId','fAlteradoData'].forEach(id => this.els[id].value = '');
+          this.els.fPage.value = '1';
+          this.els.fPerPage.value = '15';
+        }
+        async buscar(resetPage) {
+          if (!this.ctxPronto || !this.autenticado || this.carregando) return;
+          if (resetPage) this.els.fPage.value = '1';
+          this.alert('');
+          this.carregando = true;
+          this.setLoading(this.els.btnBuscar, true);
+          try {
+            const qs = this.montarQS([
+              ['empresa_id', this.els.fEmpresaId.value],
+              ['funcao_id', this.els.fFuncaoId.value],
+              ['alterado_data', this.els.fAlteradoData.value],
+              ['page', this.els.fPage.value || '1'],
+              ['per_page', this.els.fPerPage.value || '15'],
+            ]);
+            const res = await this.chamar(REQ.lista, { rt_query: qs });
+            const r = this.interpretar(res);
+            if (!r.ok) { this.alert(r.msg); this.dados=[]; this.dadosFiltrados=[]; this.paginacao=null; this.render(); return; }
+            this.dados = Array.isArray(r.body?.retorno) ? r.body.retorno : [];
+            this.paginacao = r.body?.paginacao || null;
+            this.filtrarLocal();
+          } catch (err) {
+            this.alert(err.message || String(err));
+          } finally {
+            this.carregando = false;
+            this.setLoading(this.els.btnBuscar, false);
+            this.els.lblBuscar.textContent = this.dados.length > 0 ? 'Atualizar' : 'Buscar dados';
+            this._sincronizarBotoesAcao();
+          }
+        }
+        irPagina(n) { if (n < 1) return; this.els.fPage.value = n; this.buscar(false); }
+        filtrarLocal() {
+          const term = this.els.searchLocal.value.trim().toLowerCase();
+          if (!term) { this.dadosFiltrados = [...this.dados]; }
+          else { this.dadosFiltrados = this.dados.filter(d => `${d.funcao||''} ${d.funcao_id||''}`.toLowerCase().includes(term)); }
+          this.render();
+        }
+        toggleAll(open) {
+          document.querySelectorAll('#cardsContainer details').forEach(el => el.open = open);
+        }
+    
+        // -------------------- RENDER --------------------
+        render() {
+          this.els.statTotal.textContent = this.paginacao ? this.paginacao.total : this.dadosFiltrados.length;
+          this.renderPaginacao();
+          this.renderCards();
+        }
+        renderPaginacao() {
+          const p = this.paginacao;
+          const box = this.els.paginacao;
+          if (!p) { box.innerHTML = ''; return; }
+          box.innerHTML = `
+            <button class="btn btn-outline btn-sm" ${p.pagina_atual <= 1 ? 'disabled' : ''} onclick="app.irPagina(${p.pagina_atual - 1})">← Anterior</button>
+            <span>Página ${p.pagina_atual} de ${p.ultima_pagina} · ${p.total} registros</span>
+            <button class="btn btn-outline btn-sm" ${p.pagina_atual >= p.ultima_pagina ? 'disabled' : ''} onclick="app.irPagina(${p.pagina_atual + 1})">Próxima →</button>`;
+        }
+        renderCards() {
+          const box = this.els.cardsContainer;
+          if (!this.dadosFiltrados.length) { box.innerHTML = '<div class="empty">Nenhuma função encontrada.</div>'; return; }
+          box.innerHTML = this.dadosFiltrados.map((reg, idx) => {
+            const originalIdx = this.dados.indexOf(reg);
+            const ativoClass = reg.ativo ? 'ativo' : '';
+            const badges = `<span class="badge ${reg.ativo ? 'badge-ok' : 'badge-bad'}">${reg.ativo ? 'Ativo' : 'Inativo'}</span> <span class="badge badge-info">${reg.novo_esocial ? 'Novo eSocial' : 'eSocial anterior'}</span>`;
+            return `
+            <details class="${ativoClass}">
+              <summary>
+                <div class="summary-main">
+                  <span class="summary-name">${reg.funcao || 'Sem nome'}</span>
+                  <span class="summary-id">Função ID ${reg.funcao_id ?? '—'} · CBO ${reg.cbo_id ?? '—'} · Cliente ${reg.cliente_id ?? '—'}</span>
+                </div>
+                <div class="summary-right">
+                  <div>${badges}</div>
+                  <div class="flex">
+                    <button class="btn btn-outline btn-sm" onclick="app.abrirForm('editar', ${originalIdx})">Editar</button>
+                    <button class="btn btn-danger btn-sm" onclick="app.excluir(${originalIdx})">Excluir</button>
+                  </div>
+                </div>
+              </summary>
+              <div class="inner">
+                <div class="form-grid">
+                  <div><span class="info-label">CBO</span>${reg.cbo || '—'} <span style="color:var(--muted);">(${reg.cbo_id ?? '—'})</span></div>
+                  <div><span class="info-label">Novo eSocial</span>${reg.novo_esocial ?? '—'}</div>
+                  <div><span class="info-label">Empresa ID</span>${reg.empresa_id ?? '—'}</div>
+                  <div><span class="info-label">Cadastrado em</span>${reg.log_cadastro_data || '—'}</div>
+                  <div><span class="info-label">Alterado em</span>${reg.log_alterado_data || '—'}</div>
+                </div>
+              </div>
+            </details>`;
+          }).join('');
+        }
+    
+        // -------------------- FORM --------------------
+        abrirForm(modo, idx) {
+          if (!this.autenticado) { this.alert('Sessão não autenticada. Gere um token no card "Perfil de Acesso" antes de continuar.'); return; }
+          this.toggleView('registros');
+          this.modoForm = modo;
+          this.formEdit = modo === 'editar' ? this.dados[idx] : null;
+          const base = modo === 'editar' ? this.dados[idx] : { empresa_id: this.els.fEmpresaId.value || '900002', ativo: 'true', novo_esocial: '1' };
+          const topoHtml = CAMPOS_TOPO.map(c => {
+            const val = (base[c] ?? '').toString().replace(/"/g, '&quot;');
+            if (SELECTS[c]) {
+              const opts = SELECTS[c].map(o => `<option value="${o}" ${val === o ? 'selected' : ''}>${o || 'Selecione'}</option>`).join('');
+              return `<div class="field"><label>${c}</label><select id="qf__${c}">${opts}</select></div>`;
+            }
+            // funcao_id é obrigatório na criação (não é gerado pelo servidor), mas é a
+            // chave de localização imutável na edição — por isso só trava no modo editar.
+            const disabled = c === 'funcao_id' && modo === 'editar' ? 'disabled' : '';
+            return `<div class="field"><label>${c}</label><input id="qf__${c}" type="text" value="${val}" ${disabled}></div>`;
+          }).join('');
+          this.els.formContainer.innerHTML = `
+            <div class="form-panel">
+              <div class="card-header">
+                <h3 class="card-title">${modo === 'criar' ? '+ Nova função' : `Editar: ${base.funcao || base.funcao_id}`}</h3>
+                <button class="btn btn-outline btn-sm" onclick="app.fecharForm()">Fechar</button>
+              </div>
+              <fieldset><legend>Identificação</legend><div class="form-grid">${topoHtml}</div></fieldset>
+              <div class="flex" style="margin-top:12px;">
+                <button class="btn btn-primary" onclick="app.salvar()" id="btnSalvar">
+                  <span id="spinnerSalvar" class="spinner hidden"></span>
+                  <span id="lblSalvar">${modo === 'criar' ? 'Criar' : 'Salvar alterações'}</span>
+                </button>
+                <button class="btn btn-outline" onclick="app.fecharForm()">Cancelar</button>
+                ${modo === 'criar' ? '<button class="btn btn-outline btn-sm ml-auto" onclick="app.preencherAleatorio()">Gerar aleatório</button>' : ''}
+              </div>
+            </div>`;
+          setTimeout(() => this.els.formContainer.querySelector('.form-panel')?.scrollIntoView({behavior:'smooth',block:'start'}), 50);
+        }
+        fecharForm() { this.modoForm = null; this.formEdit = null; this.els.formContainer.innerHTML = ''; }
+        coletarForm() {
+          const out = {};
+          CAMPOS_TOPO.forEach(c => { out[c] = document.getElementById(`qf__${c}`)?.value ?? ''; });
+          return out;
+        }
+        async salvar() {
+          if (!this.autenticado) { this.alert('Sessão não autenticada. Gere um token no card "Perfil de Acesso" antes de continuar.'); return; }
+          const payload = this.coletarForm();
+          const nomeReq = this.modoForm === 'criar' ? REQ.cria : REQ.atualiza;
+          const btn = document.getElementById('btnSalvar');
+          this.alert('');
+          this.salvando = true;
+          if (btn) this.setLoading(btn, true);
+          try {
+            const res = await this.chamar(nomeReq, payload);
+            const r = this.interpretar(res);
+            if (!r.ok) { this.alert(r.msg); return; }
+            this.alert(this.modoForm === 'criar' ? 'Função criada com sucesso.' : 'Função atualizada com sucesso.', 'ok');
+            this.fecharForm();
+            this.buscar(false);
+          } catch (err) {
+            this.alert(err.message || String(err));
+          } finally {
+            this.salvando = false;
+            if (btn) this.setLoading(btn, false);
+          }
+        }
+        async excluir(idx) {
+          if (!this.autenticado) { this.alert('Sessão não autenticada. Gere um token no card "Perfil de Acesso" antes de continuar.'); return; }
+          const reg = this.dados[idx];
+          const ok = await this.confirmar(`Excluir a função "${reg.funcao || reg.funcao_id}"? Essa ação não pode ser desfeita.`);
+          if (!ok) return;
+          this.alert('');
+          try {
+            const res = await this.chamar(REQ.remove, { empresa_id: String(reg.empresa_id ?? ''), funcao_id: String(reg.funcao_id ?? '') });
+            const r = this.interpretar(res);
+            if (!r.ok) { this.alert(r.msg); return; }
+            this.alert('Função excluída com sucesso.', 'ok');
+            this.buscar(false);
+          } catch (err) {
+            this.alert(err.message || String(err));
+          }
+        }
+        confirmar(msg) {
+          return new Promise(resolve => {
+            this._resolveConfirm = (v) => { this.els.confirmOverlay.classList.remove('active'); resolve(v); };
+            this.els.confirmMsg.textContent = msg;
+            this.els.confirmOverlay.classList.add('active');
+          });
+        }
+    
+        // -------------------- DADOS ALEATÓRIOS --------------------
+        gerarDadosFuncao(prefixo, opts={}) {
+          const cboEscolhido = CBOS[Math.floor(Math.random()*CBOS.length)];
+          const nome = (prefixo ? prefixo + ' ' : '') + DESCS[Math.floor(Math.random()*DESCS.length)] + ' ' + (Math.floor(Math.random()*900)+100);
+          return {
+            empresa_id: this.els.fEmpresaId.value || '900002',
+            funcao_id: String(Math.floor(Math.random()*900000)+100000),
+            funcao: nome,
+            cbo_id: cboEscolhido.id,
+            cbo: cboEscolhido.desc,
+            novo_esocial: opts.esocialAntigo ? '0' : '1',
+            ativo: opts.inativo ? 'false' : 'true'
+          };
+        }
+        preencherAleatorio() {
+          const dados = this.gerarDadosFuncao();
+          Object.keys(dados).forEach(k => { if (k !== 'empresa_id') { const el = document.getElementById(`qf__${k}`); if (el) el.value = dados[k]; } });
+        }
+        criacaoRapida() { this.abrirForm('criar'); this.preencherAleatorio(); }
+    
+        // -------------------- TESTES --------------------
+        normalizar(v) { if (v === null || v === undefined) return ''; if (typeof v === 'boolean') return v ? 'true' : 'false'; return String(v); }
+        compararCompleto(enviado, recebido) {
+          const diffs = [];
+          ['empresa_id','funcao_id','funcao','cbo_id','cbo','novo_esocial','ativo'].forEach(c => {
+            const e = this.normalizar(enviado[c]), r = this.normalizar(recebido?.[c]);
+            if (e !== r) diffs.push({ campo: c, esperado: e, recebido: r });
+          });
+          return diffs;
+        }
+        iniciarTeste(cat, acao) { this.ultimoTeste = { ts: new Date(), categoria: cat, acao, ok: true, detalhes: '', steps: [] }; }
+        addStep(acao, ok, detalhes, req, res, skipped) {
+          if (!this.ultimoTeste) return;
+          this.ultimoTeste.steps.push({ ts: new Date(), acao, ok: !!ok, skipped: !!skipped, detalhes: detalhes || '', requestJson: req || null, responseJson: res || null });
+          if (!ok && !skipped) this.ultimoTeste.ok = false;
+        }
+        finalizarTeste(det) { if (!this.ultimoTeste) return; if (det) this.ultimoTeste.detalhes = det; if (!this.ultimoTeste.steps.length) this.ultimoTeste.ok = false; this.renderTeste(); }
+        renderTeste() {
+          const box = this.els.ultimoTesteContainer;
+          const t = this.ultimoTeste;
+          if (!t) { box.innerHTML = '<div class="empty">Nenhum teste executado ainda nesta sessão.</div>'; return; }
+          const badgeClass = t.ok ? 'badge-ok' : 'badge-bad';
+          const badgeText = t.ok ? 'Sucesso' : 'Falha';
+          const stepsHtml = t.steps.map((step, i) => {
+            const bClass = step.ok ? 'badge-ok' : (step.skipped ? 'badge-warn' : 'badge-bad');
+            const bText = step.ok ? 'OK' : (step.skipped ? 'Skip' : 'Fail');
+            const reqBlock = step.requestJson ? `<div style="margin-bottom:10px;"><div style="font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Request enviado</div><pre class="pre"><code>${this._esc(JSON.stringify(step.requestJson, null, 2))}</code></pre></div>` : '';
+            const resBlock = step.responseJson ? `<div><div style="font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Response recebido</div><pre class="pre"><code>${this._esc(JSON.stringify(step.responseJson, null, 2))}</code></pre></div>` : '';
+            return `
+            <details class="step" ${!step.ok ? 'open' : ''}>
+              <summary class="step-h">
+                <span style="font-size:11px;color:var(--muted);font-weight:600;min-width:28px;">#${i+1}</span>
+                <span class="step-badge ${bClass}">${bText}</span>
+                <span style="font-size:13px;font-weight:700;color:var(--navy);flex:1;">${step.acao}</span>
+                <span style="font-size:11px;color:var(--muted);">${step.ts ? step.ts.toLocaleTimeString('pt-BR') : ''}</span>
+              </summary>
+              <div class="step-body">
+                ${step.detalhes ? `<div style="font-size:12.5px;color:var(--text);line-height:1.6;margin-bottom:12px;white-space:pre-wrap;">${this._esc(step.detalhes)}</div>` : ''}
+                ${reqBlock}${resBlock}
+              </div>
+            </details>`;
+          }).join('');
+          box.innerHTML = `
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+                <span class="badge ${badgeClass}">${badgeText}</span>
+                <span style="font-weight:700;font-size:14px;color:var(--navy);">[${t.categoria}] ${t.acao}</span>
+                <span class="ml-auto" style="font-size:11.5px;color:var(--muted);">${t.ts.toLocaleString('pt-BR')}</span>
+              </div>
+              ${t.detalhes ? `<div style="color:var(--muted);font-size:12.5px;line-height:1.6;margin-bottom:14px;white-space:pre-wrap;">${this._esc(t.detalhes)}</div>` : ''}
+              ${stepsHtml}
+            </div>`;
+        }
+        _esc(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+        async rodarCicloVida() {
+          if (!this.autenticado) { this.alert('Sessão não autenticada. Gere um token no card "Perfil de Acesso" antes de continuar.'); return; }
+          this.setLoading(this.els.btnCicloVida, true);
+          this._travarAcoesTeste(true);
+          this.iniciarTeste('CRUD', 'Ciclo de vida completo');
+          const dados = this.gerarDadosFuncao('[TESTE-CICLO]');
+          let funcaoId = dados.funcao_id;
+          const buscarPorId = async () => {
+            const res = await this.chamar(REQ.lista, { rt_query: `empresa_id=${dados.empresa_id}&funcao_id=${funcaoId}` });
+            const r = this.interpretar(res);
+            if (!r.ok) return null;
+            const lista = Array.isArray(r.body?.retorno) ? r.body.retorno : [];
+            return lista.find(x => String(x.funcao_id) === String(funcaoId)) || null;
+          };
+          try {
+            const resC = await this.chamar(REQ.cria, dados);
+            const rC = this.interpretar(resC);
+            this.addStep('Criar registro', rC.ok, rC.ok ? `Status ${rC.status}` : rC.msg, dados, rC.body);
+            if (!rC.ok) { this.finalizarTeste('Falhou na criação.'); return; }
+            const criado = Array.isArray(rC.body?.retorno) ? rC.body.retorno[0] : rC.body?.retorno;
+            if (!criado?.funcao_id) { this.addStep('Verificar funcao_id', false, 'Resposta sem funcao_id.', null, rC.body); this.finalizarTeste('Criação não retornou funcao_id.'); return; }
+            funcaoId = criado.funcao_id;
+            this.addStep('Verificar funcao_id', true, `funcao_id = ${funcaoId}`, null, null);
+            this.testSessionIds.push({ funcao_id: funcaoId, empresa_id: dados.empresa_id });
+            this._atualizarBtnLimparMassa();
+    
+            const enc1 = await buscarPorId();
+            if (!enc1) { this.addStep('Buscar após criar', false, 'Não encontrado.', {rt_query:`empresa_id=${dados.empresa_id}&funcao_id=${funcaoId}`}, null); this.finalizarTeste('Sumiu após criação.'); return; }
+            const d1 = this.compararCompleto(dados, enc1);
+            if (d1.length) { this.addStep('Buscar após criar', false, `${d1.length} divergência(s):\n` + d1.map(x => `• ${x.campo}: enviado "${x.esperado}" → recebido "${x.recebido}"`).join('\n'), {rt_query:`empresa_id=${dados.empresa_id}&funcao_id=${funcaoId}`}, enc1); this.finalizarTeste('Divergência após criação.'); return; }
+            this.addStep('Buscar após criar', true, 'Todos os campos bateram.', {rt_query:`empresa_id=${dados.empresa_id}&funcao_id=${funcaoId}`}, enc1);
+    
+            const dadosAt = this.gerarDadosFuncao('[TESTE-CICLO-EDITADO]');
+            dadosAt.funcao_id = String(funcaoId); dadosAt.empresa_id = dados.empresa_id;
+            const resA = await this.chamar(REQ.atualiza, dadosAt);
+            const rA = this.interpretar(resA);
+            this.addStep('Atualizar registro', rA.ok, rA.ok ? `Status ${rA.status}` : rA.msg, dadosAt, rA.body);
+            if (!rA.ok) { this.finalizarTeste('Falhou na atualização.'); return; }
+    
+            const enc2 = await buscarPorId();
+            if (!enc2) { this.addStep('Buscar após editar', false, 'Não encontrado.', {rt_query:`empresa_id=${dados.empresa_id}&funcao_id=${funcaoId}`}, null); this.finalizarTeste('Sumiu após edição.'); return; }
+            const d2 = this.compararCompleto(dadosAt, enc2);
+            if (d2.length) { this.addStep('Buscar após editar', false, `${d2.length} divergência(s):\n` + d2.map(x => `• ${x.campo}: enviado "${x.esperado}" → recebido "${x.recebido}"`).join('\n'), {rt_query:`empresa_id=${dados.empresa_id}&funcao_id=${funcaoId}`}, enc2); this.finalizarTeste('Divergência após edição.'); return; }
+            this.addStep('Buscar após editar', true, 'Todos os campos bateram.', {rt_query:`empresa_id=${dados.empresa_id}&funcao_id=${funcaoId}`}, enc2);
+    
+            const resE = await this.chamar(REQ.remove, { empresa_id: String(dados.empresa_id), funcao_id: String(funcaoId) });
+            const rE = this.interpretar(resE);
+            this.addStep('Excluir registro', rE.ok, rE.ok ? `Status ${rE.status}` : rE.msg, {empresa_id: dados.empresa_id, funcao_id: funcaoId}, rE.body);
+            if (!rE.ok) { this.finalizarTeste('Falhou na exclusão.'); return; }
+            this.testSessionIds = this.testSessionIds.filter(x => String(x.funcao_id) !== String(funcaoId));
+            this._atualizarBtnLimparMassa();
+    
+            const enc3 = await buscarPorId();
+            if (enc3) { this.addStep('Confirmar exclusão', false, 'Ainda aparece na busca.', {rt_query:`empresa_id=${dados.empresa_id}&funcao_id=${funcaoId}`}, enc3); this.finalizarTeste('Persistiu após exclusão.'); return; }
+            this.addStep('Confirmar exclusão', true, 'Registro não encontrado após exclusão.', {rt_query:`empresa_id=${dados.empresa_id}&funcao_id=${funcaoId}`}, null);
+    
+            this.finalizarTeste(`Ciclo completo: criado (${funcaoId}) → buscado → editado → buscado → excluído → confirmado. Todos os campos bateram.`);
+          } catch (err) {
+            this.addStep('Erro inesperado', false, err.message || String(err), null, null);
+            this.finalizarTeste('Erro inesperado durante o teste.');
+          } finally {
+            this.setLoading(this.els.btnCicloVida, false);
+            this._travarAcoesTeste(false);
+          }
+        }
+        _atualizarBtnLimparMassa() {
+          const btn = this.els.btnLimparMassa;
+          if (!btn) return;
+          const n = this.testSessionIds.length;
+          btn.textContent = n > 0 ? `Limpar ${n} registro${n === 1 ? '' : 's'} desta sessão` : 'Limpar dados desta sessão';
+        }
+        _travarAcoesTeste(travado) {
+          // Garante exclusão mútua: enquanto qualquer uma das 3 ações de teste está
+          // rodando, nenhuma das outras pode ser disparada por cima. A reabilitação
+          // final ainda respeita o estado de autenticação (ver _sincronizarBotoesAcao).
+          this._acoesTravadas = travado;
+          this._sincronizarBotoesAcao();
+        }
+        async criarMassa() {
+          if (!this.autenticado) { this.alert('Sessão não autenticada. Gere um token no card "Perfil de Acesso" antes de continuar.'); return; }
+          const n = Math.max(1, Math.min(200, parseInt(this.els.massaQtd.value || '10', 10)));
+          const prefixo = `[TESTE-MASSA-${Date.now()}]`;
+          this.massando = true;
+          this._travarAcoesTeste(true);
+          if (this.els.spinnerMassa) this.els.spinnerMassa.classList.remove('hidden');
+          try {
+            this.iniciarTeste('Massa', `Criação em massa (${n} solicitados)`);
+            this.els.massaProgresso.innerHTML = '<span class="spinner spinner-dark"></span> Iniciando...';
+            this.els.massaProgresso.classList.add('ativo');
+            let ok = 0, fail = 0;
+            for (let i = 0; i < n; i++) {
+              this.els.massaProgresso.innerHTML = `<span class="spinner spinner-dark"></span> Criando ${i+1} de ${n}... (${ok} ok, ${fail} falha)`;
+              const d = this.gerarDadosFuncao(prefixo);
+              try {
+                const res = await this.chamar(REQ.cria, d);
+                const r = this.interpretar(res);
+                this.addStep(`Criar #${i+1}`, r.ok, r.ok ? `Status ${r.status}` : r.msg, d, r.body);
+                if (r.ok) { const c = Array.isArray(r.body?.retorno) ? r.body.retorno[0] : r.body?.retorno; if (c?.funcao_id) this.testSessionIds.push({funcao_id: c.funcao_id, empresa_id: d.empresa_id}); ok++; this._atualizarBtnLimparMassa(); }
+                else fail++;
+              } catch (err) { fail++; this.addStep(`Criar #${i+1}`, false, err.message || String(err), d, null); }
+              await esperar(200);
+            }
+            this.els.massaProgresso.innerHTML = `Concluído: ${ok} criado(s), ${fail} falha(s).`;
+            this.els.massaProgresso.classList.remove('ativo');
+            this._atualizarBtnLimparMassa();
+            this.finalizarTeste(`${ok} criado(s), ${fail} falha(s) de ${n} solicitado(s). Prefixo: ${prefixo}`);
+          } finally {
+            this.massando = false;
+            if (this.els.spinnerMassa) this.els.spinnerMassa.classList.add('hidden');
+            this._travarAcoesTeste(false);
+          }
+        }
+        async limparMassa() {
+          if (!this.autenticado) { this.alert('Sessão não autenticada. Gere um token no card "Perfil de Acesso" antes de continuar.'); return; }
+          if (this.testSessionIds.length === 0) { this.iniciarTeste('Limpeza', 'Limpar dados de teste'); this.addStep('Verificar', true, 'Nenhum registro rastreado.', null, null); this.finalizarTeste('Nenhum registro rastreado.'); return; }
+          const conf = await this.confirmar(`Excluir ${this.testSessionIds.length} registro(s) de teste? Essa ação não pode ser desfeita.`);
+          if (!conf) return;
+          this.massando = true;
+          this._travarAcoesTeste(true);
+          try {
+            const pendentes = [...this.testSessionIds];
+            this.iniciarTeste('Limpeza', 'Limpar dados de teste');
+            let ok = 0, fail = 0;
+            this.els.massaProgresso.innerHTML = '<span class="spinner spinner-dark"></span> Iniciando limpeza...';
+            this.els.massaProgresso.classList.add('ativo');
+            for (const item of pendentes) {
+              this.els.massaProgresso.innerHTML = `<span class="spinner spinner-dark"></span> Excluindo ${ok+fail+1} de ${pendentes.length}... (${ok} ok, ${fail} falha)`;
+              const req = { empresa_id: item.empresa_id, funcao_id: item.funcao_id };
+              try {
+                const res = await this.chamar(REQ.remove, req);
+                const r = this.interpretar(res);
+                this.addStep(`Excluir ${item.funcao_id}`, r.ok, r.ok ? `Status ${r.status}` : r.msg, req, r.body);
+                if (r.ok) { ok++; this.testSessionIds = this.testSessionIds.filter(x => String(x.funcao_id) !== String(item.funcao_id)); this._atualizarBtnLimparMassa(); }
+                else fail++;
+              } catch (err) { fail++; this.addStep(`Excluir ${item.funcao_id}`, false, err.message || String(err), req, null); }
+              await esperar(150);
+            }
+            this.els.massaProgresso.innerHTML = `Limpeza concluída: ${ok} excluído(s), ${fail} falha(s).`;
+            this.els.massaProgresso.classList.remove('ativo');
+            this._atualizarBtnLimparMassa();
+            this.finalizarTeste(`${ok} excluído(s), ${fail} falha(s).`);
+            this.buscar(false);
+          } finally {
+            this.massando = false;
+            this._travarAcoesTeste(false);
+          }
+        }
+        _formatarRelatorioTeste(t) {
+          const linhas = [];
+          linhas.push(`${t.ok ? 'SUCESSO' : 'FALHA'} — [${t.categoria}] ${t.acao}`);
+          linhas.push(`Data: ${t.ts.toLocaleString('pt-BR')}`);
+          if (t.detalhes) linhas.push(`Resumo: ${t.detalhes}`);
+          linhas.push('');
+          linhas.push('Passos:');
+          t.steps.forEach((s, i) => {
+            const status = s.ok ? 'OK' : (s.skipped ? 'SKIP' : 'FALHA');
+            const hora = s.ts ? s.ts.toLocaleTimeString('pt-BR') : '';
+            linhas.push('');
+            linhas.push(`${i + 1}. [${status}] ${s.acao}${hora ? ` (${hora})` : ''}`);
+            if (s.detalhes) {
+              String(s.detalhes).split('\n').forEach(l => linhas.push(`   ${l}`));
+            }
+            if (s.requestJson) {
+              linhas.push('   Request enviado:');
+              JSON.stringify(s.requestJson, null, 2).split('\n').forEach(l => linhas.push(`   ${l}`));
+            }
+            if (s.responseJson) {
+              linhas.push('   Response recebido:');
+              JSON.stringify(s.responseJson, null, 2).split('\n').forEach(l => linhas.push(`   ${l}`));
+            }
+          });
+          return linhas.join('\n');
+        }
+        async _copiarTexto(texto) {
+          // 1) Clipboard API moderna (pode ser bloqueada dentro do iframe do widget)
+          try {
+            if (navigator.clipboard && window.isSecureContext) {
+              await navigator.clipboard.writeText(texto);
+              this.alert('Relatório copiado para a área de transferência.', 'ok');
+              return;
+            }
+          } catch (e) { /* segue para o fallback */ }
+          // 2) Fallback via execCommand (funciona em mais contextos restritos)
+          try {
+            const temp = document.createElement('textarea');
+            temp.value = texto;
+            temp.style.position = 'fixed';
+            temp.style.opacity = '0';
+            document.body.appendChild(temp);
+            temp.focus();
+            temp.select();
+            const ok = document.execCommand('copy');
+            document.body.removeChild(temp);
+            if (ok) { this.alert('Relatório copiado para a área de transferência.', 'ok'); return; }
+          } catch (e) { /* segue para o último recurso */ }
+          // 3) Último recurso: mostra o texto pronto para o usuário copiar manualmente (Ctrl+C)
+          this._mostrarTextoParaCopiar(texto);
+        }
+        _mostrarTextoParaCopiar(texto) {
+          const overlay = this.els.textoCopiaOverlay;
+          const area = this.els.textoCopiaArea;
+          if (!overlay || !area) { this.alert('Não foi possível copiar automaticamente.'); return; }
+          area.value = texto;
+          overlay.classList.add('active');
+          setTimeout(() => { area.focus(); area.select(); }, 50);
+        }
+        copiarTeste() {
+          if (!this.ultimoTeste) { this.alert('Nenhum teste executado.'); return; }
+          this._copiarTexto(this._formatarRelatorioTeste(this.ultimoTeste));
+        }
+      }
+    
+      // Instância global
+      const app = new FuncoesApp();
+    
+      // Inicialização Bruno — CRÍTICO: atribuir onInit imediatamente no escopo global
+      bru.ctx.onInit = async (bru) => {
+        try {
+          const todas = await bru.ctx.listRequests();
+          todas.forEach(r => { app.mapaRequests[r.name] = r.pathname; });
+          const faltando = Object.values(REQ).filter(n => !app.mapaRequests[n]);
+          app.setStatus(faltando.length ? `Atenção: request(s) não encontrada(s): ${faltando.join(', ')}. Confira se o nome bate exatamente.` : '');
+        } catch (err) {
+          app.setStatus('Erro ao listar requests: ' + (err.message || err));
+        }
+        app.ctxPronto = true;
+        app.els.lblBuscar.textContent = 'Buscar dados';
+        try { app.renderPerfis(); } catch (e) { app.setStatus('Erro ao montar perfis: ' + (e.message || e)); }
+        try {
+          const envToken = bru.getEnvVar('token_app');
+          const perfilEnv = bru.getEnvVar('tipo_perfil');
+          if (envToken) {
+            app.autenticado = true;
+            app.perfilAtual = PERFIS.some(p => p.id === perfilEnv) ? perfilEnv : null;
+          }
+        } catch(e) {}
+        app.renderAuthStatus();
+      };
+    </script>
+    </body>
+    </html>
