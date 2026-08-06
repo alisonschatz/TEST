@@ -32,7 +32,9 @@ code: |2-
       .field label { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
       .field input, .field select { height: 38px; border: 1px solid var(--border); border-radius: 8px; padding: 0 11px; font-size: 13px; background: rgba(56,72,108,.04); width: 100%; transition: .15s; font-family: inherit; }
       .field input:focus, .field select:focus { outline: none; border-color: var(--navy); background: #fff; box-shadow: 0 0 0 3px rgba(145,216,247,.4); }
-      .btn { display: inline-flex; align-items: center; gap: 6px; border: none; border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; transition: .15s; font-family: inherit; }
+      .field select optgroup { font-weight: 700; font-style: normal; color: var(--navy); }
+      .field select option { font-weight: 400; color: var(--text); }
+      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; border-radius: 8px; padding: 9px 16px; height: 38px; font-size: 13px; font-weight: 700; cursor: pointer; transition: .15s; font-family: inherit; white-space: nowrap; }
       .btn-primary { background: var(--navy); color: #fff; }
       .btn-primary:hover { filter: brightness(1.15); }
       .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
@@ -40,9 +42,9 @@ code: |2-
       .btn-outline:hover { background: rgba(56,72,108,.06); }
       .btn-danger { background: var(--red-soft); color: var(--red); border: 1.5px solid var(--red); }
       .btn-danger:hover { filter: brightness(.95); }
-      .btn-sm { padding: 6px 12px; font-size: 12px; }
+      .btn-sm { padding: 6px 12px; font-size: 12px; height: 32px; }
       .toolbar { display: flex; gap: 8px; align-items: center; margin: 14px 0; flex-wrap: wrap; }
-      .search { flex: 1; min-width: 220px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13.5px; font-family: inherit; }
+      .search { flex: 1; min-width: 220px; height: 38px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13.5px; font-family: inherit; }
       .search:focus { outline: none; border-color: var(--navy); }
       .badge { padding: 3px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
       .badge-ok { background: var(--green-soft); color: var(--green); }
@@ -92,6 +94,11 @@ code: |2-
       .progresso { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); margin-top: 10px; min-height: 20px; }
       .progresso.ativo { color: var(--navy); font-weight: 600; }
       .flex { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+      .align-end { align-items: flex-end; }
+      .perfil-chip { display: flex; align-items: center; gap: 9px; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+      .perfil-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+      .perfil-chip.ok { background: var(--green-soft); color: var(--green); border: 1px solid rgba(31,138,95,.3); }
+      .perfil-chip.bad { background: var(--red-soft); color: var(--red); border: 1px solid rgba(193,68,58,.3); }
       .ml-auto { margin-left: auto; }
       .w-full { width: 100%; }
       .hidden { display: none !important; }
@@ -100,13 +107,7 @@ code: |2-
     <body>
     
     <div id="app">
-      <div class="flex" style="justify-content:space-between; margin-bottom:4px;">
-        <h2>Painel de Quadros de Horário</h2>
-        <div class="flex">
-          <button class="btn btn-outline btn-sm" id="btnNovo">+ Novo</button>
-          <button class="btn btn-primary btn-sm" style="background:var(--blue);color:var(--navy);" id="btnRapido">Criação rápida</button>
-        </div>
-      </div>
+      <h2>Painel de Quadros de Horário</h2>
       <div class="subtitle" id="statusText">Inicializando...</div>
     
       <div class="card" style="border-left:3px solid var(--blue);">
@@ -141,6 +142,11 @@ code: |2-
         <button class="tab" data-view="testes">Ferramentas de teste</button>
       </div>
     
+      <div id="perfilAtivoChip" class="perfil-chip bad">
+        <span class="dot"></span>
+        <span id="perfilAtivoTexto">Nenhum perfil autenticado — selecione e gere o token acima antes de continuar.</span>
+      </div>
+    
       <div id="alertBox"></div>
     
       <!-- REGISTROS -->
@@ -161,14 +167,20 @@ code: |2-
             </div>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
-            <button class="btn" style="background:none;padding:0;font-size:12.5px;color:var(--muted);text-decoration:underline;" id="btnLimparFiltros">Limpar filtros</button>
+            <button class="btn" style="background:none;padding:0;height:auto;font-size:12.5px;color:var(--muted);text-decoration:underline;" id="btnLimparFiltros">Limpar filtros</button>
             <span class="badge badge-info">Total <b id="statTotal">–</b></span>
           </div>
         </div>
     
-        <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:8px 0 12px;font-size:12.5px;color:var(--muted);">
-          <label for="fPerPage" style="font-weight:600;">Registros por página</label>
-          <input id="fPerPage" type="number" min="1" max="100" value="15" style="width:60px;height:32px;border:1px solid var(--border);border-radius:6px;padding:0 8px;font-size:13px;text-align:center;background:#fff;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 12px;flex-wrap:wrap;">
+          <div class="flex">
+            <button class="btn btn-outline btn-sm" id="btnNovo" disabled>+ Novo</button>
+            <button class="btn btn-primary btn-sm" style="background:var(--blue);color:var(--navy);" id="btnRapido" disabled>Criação rápida</button>
+          </div>
+          <div class="flex" style="font-size:12.5px;color:var(--muted);">
+            <label for="fPerPage" style="font-weight:600;">Registros por página</label>
+            <input id="fPerPage" type="number" min="1" max="100" value="15" style="width:60px;height:32px;border:1px solid var(--border);border-radius:6px;padding:0 8px;font-size:13px;text-align:center;background:#fff;">
+          </div>
         </div>
     
         <div id="formContainer"></div>
@@ -187,7 +199,7 @@ code: |2-
         <div class="card">
           <h3 class="card-title">Teste de ciclo de vida</h3>
           <p class="hint">Cria um registro aleatório, busca, confere campo a campo, edita, confere de novo, exclui e confirma que sumiu.</p>
-          <button class="btn btn-primary" id="btnCicloVida">
+          <button class="btn btn-primary" id="btnCicloVida" disabled>
             <span id="spinnerCiclo" class="spinner hidden"></span>
             <span id="lblCiclo">Rodar teste de ciclo de vida</span>
           </button>
@@ -196,13 +208,13 @@ code: |2-
         <div class="card">
           <h3 class="card-title">Geração de massa</h3>
           <p class="hint">Cria vários registros de uma vez, marcados com prefixo identificável. Todos ficam rastreados nesta sessão.</p>
-          <div class="flex">
+          <div class="flex align-end">
             <div class="field" style="max-width:110px;"><label>Quantidade</label><input type="number" min="1" max="200" id="massaQtd" value="10"></div>
-            <button class="btn btn-primary" id="btnMassa">
+            <button class="btn btn-primary" id="btnMassa" disabled>
               <span id="spinnerMassa" class="spinner hidden"></span>
               Criar em massa
             </button>
-            <button class="btn btn-danger" id="btnLimparMassa">Limpar dados de teste desta sessão</button>
+            <button class="btn btn-danger" id="btnLimparMassa" disabled>Limpar dados desta sessão</button>
           </div>
           <div id="massaProgresso" class="progresso"></div>
         </div>
@@ -210,7 +222,7 @@ code: |2-
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
             <h3 class="card-title" style="margin:0;">Resultado do último teste</h3>
-            <button class="btn" style="background:none;padding:0;font-size:12.5px;color:var(--muted);text-decoration:underline;" id="btnCopiarTeste">Copiar JSON</button>
+            <button class="btn" style="background:none;padding:0;height:auto;font-size:12.5px;color:var(--muted);text-decoration:underline;" id="btnCopiarTeste">Copiar JSON</button>
           </div>
           <div id="ultimoTesteContainer"><div class="empty">Nenhum teste executado ainda nesta sessão.</div></div>
         </div>
@@ -239,10 +251,10 @@ code: |2-
     // Os "id" abaixo são exatamente os valores aceitos pela variável tipo_perfil,
     // usada pelo script pre-request da requisição gera-token para montar username_app/password_app.
     const PERFIS = [
-      { id: 'unico_admin', nome: 'Único + Único ADM', sistema: 'token_sistema_unico', contexto: 'token_contexto_adm_unico' },
-      { id: 'practice_admin', nome: 'Practice + Practice ADM', sistema: 'token_sistema_practice', contexto: 'token_contexto_adm_practice' },
-      { id: 'parceiro_cliente_unico', nome: 'Parceiro + Único Cliente', sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_unico' },
-      { id: 'parceiro_cliente_practice', nome: 'Parceiro + Practice Cliente', sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_practice' }
+      { id: 'unico_admin', nome: 'Único + Único ADM', grupo: 'sistema', grupoLabel: 'Token de Sistema', grupoCurto: 'Sistema', sistema: 'token_sistema_unico', contexto: 'token_contexto_adm_unico' },
+      { id: 'practice_admin', nome: 'Practice + Practice ADM', grupo: 'sistema', grupoLabel: 'Token de Sistema', grupoCurto: 'Sistema', sistema: 'token_sistema_practice', contexto: 'token_contexto_adm_practice' },
+      { id: 'parceiro_cliente_unico', nome: 'Parceiro + Único Cliente', grupo: 'parceiro', grupoLabel: 'Token de Parceiro', grupoCurto: 'Parceiro', sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_unico' },
+      { id: 'parceiro_cliente_practice', nome: 'Parceiro + Practice Cliente', grupo: 'parceiro', grupoLabel: 'Token de Parceiro', grupoCurto: 'Parceiro', sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_practice' }
     ];
       const DIAS = [['dom','Dom'],['seg','Seg'],['ter','Ter'],['qua','Qua'],['qui','Qui'],['sex','Sex'],['sab','Sab']];
       const SLOTS = ['entrada_1','saida_1','entrada_2','saida_2','entrada_3','saida_3','entrada_4','saida_4'];
@@ -270,9 +282,12 @@ code: |2-
           this.view = 'registros';
           this.autenticado = false;
           this.perfilAtual = null;
+          this._acoesTravadas = false;
           this.els = {};
           this._bindElements();
           this._bindEvents();
+          this._atualizarBtnLimparMassa();
+          this._sincronizarBotoesAcao();
         }
     
         _bindElements() {
@@ -282,7 +297,8 @@ code: |2-
             'confirmOverlay','confirmMsg','confirmCancel','confirmOk','btnNovo','btnRapido','btnLimparFiltros',
             'fEmpresaId','fQuadroId','fVQuadroId','fAlteradoData','fPage','fPerPage',
             'btnExpandir','btnRecolher','btnCopiarTeste',
-            'selPerfil','btnAuth','spinnerAuth','lblAuth','btnRefresh','authStatus','authError'];
+            'selPerfil','btnAuth','spinnerAuth','lblAuth','btnRefresh','authStatus','authError',
+            'perfilAtivoChip','perfilAtivoTexto'];
           ids.forEach(id => this.els[id] = document.getElementById(id));
         }
     
@@ -357,11 +373,17 @@ code: |2-
         renderPerfis() {
           const sel = document.getElementById('selPerfil');
           if (!sel) return;
-          // Sempre lista os 4 perfis fixos. A checagem de credenciais é feita de verdade
-          // na resposta da API ao gerar o token — ler env var aqui, no contexto do widget,
-          // não é confiável e deixava o <select> vazio quando falhava silenciosamente.
-          sel.innerHTML = '<option value="">Selecione...</option>' +
-            PERFIS.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+          // Agrupa visualmente em 2 subgrupos: Token de Sistema (unico/practice + adm)
+          // e Token de Parceiro (parceiro + cliente unico/practice) — usando <optgroup>.
+          const gruposOrdem = ['sistema', 'parceiro'];
+          const optgroupsHtml = gruposOrdem.map(g => {
+            const doGrupo = PERFIS.filter(p => p.grupo === g);
+            if (!doGrupo.length) return '';
+            const label = doGrupo[0].grupoLabel;
+            const opts = doGrupo.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+            return `<optgroup label="${label}">${opts}</optgroup>`;
+          }).join('');
+          sel.innerHTML = '<option value="">Selecione...</option>' + optgroupsHtml;
           try {
             const perfilEnv = bru.getEnvVar('tipo_perfil');
             if (perfilEnv && PERFIS.some(p => p.id === perfilEnv)) sel.value = perfilEnv;
@@ -372,19 +394,39 @@ code: |2-
           const btnAuth = document.getElementById('btnAuth');
           const btnRefresh = document.getElementById('btnRefresh');
           const sel = document.getElementById('selPerfil');
+          const chip = this.els.perfilAtivoChip;
+          const chipTexto = this.els.perfilAtivoTexto;
           if (!badge) return;
+          const perfilInfo = this.perfilAtual ? PERFIS.find(p => p.id === this.perfilAtual) : null;
           if (this.autenticado) {
             badge.className = 'badge badge-ok';
-            const perfilNome = this.perfilAtual ? (PERFIS.find(p=>p.id===this.perfilAtual)?.nome || 'Autenticado') : 'Autenticado';
-            badge.textContent = `Token OK · ${perfilNome}`;
+            const rotulo = perfilInfo ? `${perfilInfo.grupoCurto} · ${perfilInfo.nome}` : 'Autenticado';
+            badge.textContent = `Token ativo · ${rotulo}`;
             if (btnAuth) { btnAuth.disabled = false; document.getElementById('lblAuth').textContent = 'Trocar Perfil'; }
             if (btnRefresh) btnRefresh.disabled = false;
+            if (chip) chip.className = 'perfil-chip ok';
+            if (chipTexto) chipTexto.textContent = perfilInfo ? `Perfil ativo: ${perfilInfo.grupoCurto} · ${perfilInfo.nome}` : 'Perfil ativo: token gerado';
           } else {
             badge.className = 'badge badge-bad';
             badge.textContent = 'Não autenticado';
             if (btnAuth) { btnAuth.disabled = !(sel && sel.value); document.getElementById('lblAuth').textContent = 'Gerar Token'; }
             if (btnRefresh) btnRefresh.disabled = true;
+            if (chip) chip.className = 'perfil-chip bad';
+            if (chipTexto) chipTexto.textContent = 'Nenhum perfil autenticado — selecione e gere o token acima antes de continuar.';
           }
+          this._sincronizarBotoesAcao();
+        }
+        _sincronizarBotoesAcao() {
+          // Fonte única de verdade: enquanto não autenticado, TODAS as ações que chamam
+          // a API ficam bloqueadas — evita disparar requests com um token antigo/desconhecido.
+          const auth = this.autenticado;
+          const travado = !!this._acoesTravadas;
+          if (this.els.btnBuscar) this.els.btnBuscar.disabled = !auth || !this.ctxPronto;
+          if (this.els.btnNovo) this.els.btnNovo.disabled = !auth;
+          if (this.els.btnRapido) this.els.btnRapido.disabled = !auth;
+          if (this.els.btnMassa) this.els.btnMassa.disabled = !auth || travado;
+          if (this.els.btnLimparMassa) this.els.btnLimparMassa.disabled = !auth || travado;
+          if (this.els.btnCicloVida) this.els.btnCicloVida.disabled = !auth || travado;
         }
         async doAuth() {
           const perfilId = document.getElementById('selPerfil').value;
@@ -455,7 +497,7 @@ code: |2-
           this.els.fPerPage.value = '15';
         }
         async buscar(resetPage) {
-          if (!this.ctxPronto || this.carregando) return;
+          if (!this.ctxPronto || !this.autenticado || this.carregando) return;
           if (resetPage) this.els.fPage.value = '1';
           this.alert('');
           this.carregando = true;
@@ -481,6 +523,7 @@ code: |2-
             this.carregando = false;
             this.setLoading(this.els.btnBuscar, false);
             this.els.lblBuscar.textContent = this.dados.length > 0 ? 'Atualizar' : 'Buscar dados';
+            this._sincronizarBotoesAcao();
           }
         }
         irPagina(n) { if (n < 1) return; this.els.fPage.value = n; this.buscar(false); }
@@ -545,6 +588,7 @@ code: |2-
     
         // -------------------- FORM --------------------
         abrirForm(modo, idx) {
+          if (!this.autenticado) { this.alert('Sessão não autenticada. Gere um token no card "Perfil de Acesso" antes de continuar.'); return; }
           this.toggleView('registros');
           this.modoForm = modo;
           this.formEdit = modo === 'editar' ? this.dados[idx] : null;
@@ -578,7 +622,7 @@ code: |2-
                   <span id="spinnerSalvar" class="spinner hidden"></span>
                   <span id="lblSalvar">${modo === 'criar' ? 'Criar' : 'Salvar alterações'}</span>
                 </button>
-                <button class="btn btn-outline btn-sm" onclick="app.fecharForm()">Cancelar</button>
+                <button class="btn btn-outline" onclick="app.fecharForm()">Cancelar</button>
                 ${modo === 'criar' ? '<button class="btn btn-outline btn-sm ml-auto" onclick="app.preencherAleatorio()">Gerar aleatório</button>' : ''}
               </div>
             </div>`;
@@ -592,6 +636,7 @@ code: |2-
           return out;
         }
         async salvar() {
+          if (!this.autenticado) { this.alert('Sessão não autenticada. Gere um token no card "Perfil de Acesso" antes de continuar.'); return; }
           const payload = this.coletarForm();
           const nomeReq = this.modoForm === 'criar' ? REQ.cria : REQ.atualiza;
           const btn = document.getElementById('btnSalvar');
@@ -613,6 +658,7 @@ code: |2-
           }
         }
         async excluir(idx) {
+          if (!this.autenticado) { this.alert('Sessão não autenticada. Gere um token no card "Perfil de Acesso" antes de continuar.'); return; }
           const reg = this.dados[idx];
           const ok = await this.confirmar(`Excluir o quadro "${reg.descricao || reg.quadro_id}"? Essa ação não pode ser desfeita.`);
           if (!ok) return;
@@ -712,7 +758,9 @@ code: |2-
         }
         _esc(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
         async rodarCicloVida() {
+          if (!this.autenticado) { this.alert('Sessão não autenticada. Gere um token no card "Perfil de Acesso" antes de continuar.'); return; }
           this.setLoading(this.els.btnCicloVida, true);
+          this._travarAcoesTeste(true);
           this.iniciarTeste('CRUD', 'Ciclo de vida completo');
           const dados = this.gerarDadosQuadro('[TESTE-CICLO]');
           let quadroId = null;
@@ -732,7 +780,7 @@ code: |2-
             quadroId = criado?.quadro_id;
             if (!quadroId) { this.addStep('Verificar quadro_id', false, 'Resposta sem quadro_id.', null, rC.body); this.finalizarTeste('Criação não retornou quadro_id.'); this.setLoading(this.els.btnCicloVida, false); return; }
             this.addStep('Verificar quadro_id', true, `quadro_id = ${quadroId}`, null, null);
-            if (criado) this.testSessionIds.push({ quadro_id: criado.quadro_id, empresa_id: dados.empresa_id });
+            if (criado) { this.testSessionIds.push({ quadro_id: criado.quadro_id, empresa_id: dados.empresa_id }); this._atualizarBtnLimparMassa(); }
     
             const enc1 = await buscarPorId();
             if (!enc1) { this.addStep('Buscar após criar', false, 'Não encontrado.', {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, null); this.finalizarTeste('Sumiu após criação.'); this.setLoading(this.els.btnCicloVida, false); return; }
@@ -758,6 +806,7 @@ code: |2-
             this.addStep('Excluir registro', rE.ok, rE.ok ? `Status ${rE.status}` : rE.msg, {empresa_id: dados.empresa_id, quadro_id: quadroId}, rE.body);
             if (!rE.ok) { this.finalizarTeste('Falhou na exclusão.'); this.setLoading(this.els.btnCicloVida, false); return; }
             this.testSessionIds = this.testSessionIds.filter(x => String(x.quadro_id) !== String(quadroId));
+            this._atualizarBtnLimparMassa();
     
             const enc3 = await buscarPorId();
             if (enc3) { this.addStep('Confirmar exclusão', false, 'Ainda aparece na busca.', {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, enc3); this.finalizarTeste('Persistiu após exclusão.'); this.setLoading(this.els.btnCicloVida, false); return; }
@@ -769,68 +818,90 @@ code: |2-
             this.finalizarTeste('Erro inesperado durante o teste.');
           } finally {
             this.setLoading(this.els.btnCicloVida, false);
+            this._travarAcoesTeste(false);
           }
         }
+        _atualizarBtnLimparMassa() {
+          const btn = this.els.btnLimparMassa;
+          if (!btn) return;
+          const n = this.testSessionIds.length;
+          btn.textContent = n > 0 ? `Limpar ${n} registro${n === 1 ? '' : 's'} desta sessão` : 'Limpar dados desta sessão';
+        }
+        _travarAcoesTeste(travado) {
+          // Garante exclusão mútua: enquanto qualquer uma das 3 ações de teste está
+          // rodando, nenhuma das outras pode ser disparada por cima. A reabilitação
+          // final ainda respeita o estado de autenticação (ver _sincronizarBotoesAcao).
+          this._acoesTravadas = travado;
+          this._sincronizarBotoesAcao();
+        }
         async criarMassa() {
+          if (!this.autenticado) { this.alert('Sessão não autenticada. Gere um token no card "Perfil de Acesso" antes de continuar.'); return; }
           const n = Math.max(1, Math.min(200, parseInt(this.els.massaQtd.value || '10', 10)));
           const prefixo = `[TESTE-MASSA-${Date.now()}]`;
           this.massando = true;
-          this.els.btnMassa.disabled = true;
-          this.els.btnLimparMassa.disabled = true;
-          this.iniciarTeste('Massa', `Criação em massa (${n} solicitados)`);
-          this.els.massaProgresso.innerHTML = '<span class="spinner spinner-dark"></span> Iniciando...';
-          this.els.massaProgresso.classList.add('ativo');
-          let ok = 0, fail = 0;
-          for (let i = 0; i < n; i++) {
-            this.els.massaProgresso.innerHTML = `<span class="spinner spinner-dark"></span> Criando ${i+1} de ${n}... (${ok} ok, ${fail} falha)`;
-            const d = this.gerarDadosQuadro(prefixo);
-            try {
-              const res = await this.chamar(REQ.cria, d);
-              const r = this.interpretar(res);
-              this.addStep(`Criar #${i+1}`, r.ok, r.ok ? `Status ${r.status}` : r.msg, d, r.body);
-              if (r.ok) { const c = Array.isArray(r.body?.retorno) ? r.body.retorno[0] : r.body?.retorno; if (c?.quadro_id) this.testSessionIds.push({quadro_id: c.quadro_id, empresa_id: d.empresa_id}); ok++; }
-              else fail++;
-            } catch (err) { fail++; this.addStep(`Criar #${i+1}`, false, err.message || String(err), d, null); }
-            await esperar(200);
+          this._travarAcoesTeste(true);
+          if (this.els.spinnerMassa) this.els.spinnerMassa.classList.remove('hidden');
+          try {
+            this.iniciarTeste('Massa', `Criação em massa (${n} solicitados)`);
+            this.els.massaProgresso.innerHTML = '<span class="spinner spinner-dark"></span> Iniciando...';
+            this.els.massaProgresso.classList.add('ativo');
+            let ok = 0, fail = 0;
+            for (let i = 0; i < n; i++) {
+              this.els.massaProgresso.innerHTML = `<span class="spinner spinner-dark"></span> Criando ${i+1} de ${n}... (${ok} ok, ${fail} falha)`;
+              const d = this.gerarDadosQuadro(prefixo);
+              try {
+                const res = await this.chamar(REQ.cria, d);
+                const r = this.interpretar(res);
+                this.addStep(`Criar #${i+1}`, r.ok, r.ok ? `Status ${r.status}` : r.msg, d, r.body);
+                if (r.ok) { const c = Array.isArray(r.body?.retorno) ? r.body.retorno[0] : r.body?.retorno; if (c?.quadro_id) this.testSessionIds.push({quadro_id: c.quadro_id, empresa_id: d.empresa_id}); ok++; this._atualizarBtnLimparMassa(); }
+                else fail++;
+              } catch (err) { fail++; this.addStep(`Criar #${i+1}`, false, err.message || String(err), d, null); }
+              await esperar(200);
+            }
+            this.els.massaProgresso.innerHTML = `Concluído: ${ok} criado(s), ${fail} falha(s).`;
+            this.els.massaProgresso.classList.remove('ativo');
+            this._atualizarBtnLimparMassa();
+            this.finalizarTeste(`${ok} criado(s), ${fail} falha(s) de ${n} solicitado(s). Prefixo: ${prefixo}`);
+          } finally {
+            this.massando = false;
+            if (this.els.spinnerMassa) this.els.spinnerMassa.classList.add('hidden');
+            this._travarAcoesTeste(false);
           }
-          this.els.massaProgresso.innerHTML = `Concluído: ${ok} criado(s), ${fail} falha(s).`;
-          this.els.massaProgresso.classList.remove('ativo');
-          this.finalizarTeste(`${ok} criado(s), ${fail} falha(s) de ${n} solicitado(s). Prefixo: ${prefixo}`);
-          this.massando = false;
-          this.els.btnMassa.disabled = false;
-          this.els.btnLimparMassa.disabled = false;
         }
         async limparMassa() {
+          if (!this.autenticado) { this.alert('Sessão não autenticada. Gere um token no card "Perfil de Acesso" antes de continuar.'); return; }
           if (this.testSessionIds.length === 0) { this.iniciarTeste('Limpeza', 'Limpar dados de teste'); this.addStep('Verificar', true, 'Nenhum registro rastreado.', null, null); this.finalizarTeste('Nenhum registro rastreado.'); return; }
           const conf = await this.confirmar(`Excluir ${this.testSessionIds.length} registro(s) de teste? Essa ação não pode ser desfeita.`);
           if (!conf) return;
           this.massando = true;
-          this.els.btnMassa.disabled = true;
-          this.els.btnLimparMassa.disabled = true;
-          const pendentes = [...this.testSessionIds];
-          this.iniciarTeste('Limpeza', 'Limpar dados de teste');
-          let ok = 0, fail = 0;
-          this.els.massaProgresso.innerHTML = '<span class="spinner spinner-dark"></span> Iniciando limpeza...';
-          this.els.massaProgresso.classList.add('ativo');
-          for (const item of pendentes) {
-            this.els.massaProgresso.innerHTML = `<span class="spinner spinner-dark"></span> Excluindo ${ok+fail+1} de ${pendentes.length}...`;
-            const req = { empresa_id: item.empresa_id, quadro_id: item.quadro_id };
-            try {
-              const res = await this.chamar(REQ.remove, req);
-              const r = this.interpretar(res);
-              this.addStep(`Excluir ${item.quadro_id}`, r.ok, r.ok ? `Status ${r.status}` : r.msg, req, r.body);
-              if (r.ok) { ok++; this.testSessionIds = this.testSessionIds.filter(x => String(x.quadro_id) !== String(item.quadro_id)); }
-              else fail++;
-            } catch (err) { fail++; this.addStep(`Excluir ${item.quadro_id}`, false, err.message || String(err), req, null); }
-            await esperar(150);
+          this._travarAcoesTeste(true);
+          try {
+            const pendentes = [...this.testSessionIds];
+            this.iniciarTeste('Limpeza', 'Limpar dados de teste');
+            let ok = 0, fail = 0;
+            this.els.massaProgresso.innerHTML = '<span class="spinner spinner-dark"></span> Iniciando limpeza...';
+            this.els.massaProgresso.classList.add('ativo');
+            for (const item of pendentes) {
+              this.els.massaProgresso.innerHTML = `<span class="spinner spinner-dark"></span> Excluindo ${ok+fail+1} de ${pendentes.length}... (${ok} ok, ${fail} falha)`;
+              const req = { empresa_id: item.empresa_id, quadro_id: item.quadro_id };
+              try {
+                const res = await this.chamar(REQ.remove, req);
+                const r = this.interpretar(res);
+                this.addStep(`Excluir ${item.quadro_id}`, r.ok, r.ok ? `Status ${r.status}` : r.msg, req, r.body);
+                if (r.ok) { ok++; this.testSessionIds = this.testSessionIds.filter(x => String(x.quadro_id) !== String(item.quadro_id)); this._atualizarBtnLimparMassa(); }
+                else fail++;
+              } catch (err) { fail++; this.addStep(`Excluir ${item.quadro_id}`, false, err.message || String(err), req, null); }
+              await esperar(150);
+            }
+            this.els.massaProgresso.innerHTML = `Limpeza concluída: ${ok} excluído(s), ${fail} falha(s).`;
+            this.els.massaProgresso.classList.remove('ativo');
+            this._atualizarBtnLimparMassa();
+            this.finalizarTeste(`${ok} excluído(s), ${fail} falha(s).`);
+            this.buscar(false);
+          } finally {
+            this.massando = false;
+            this._travarAcoesTeste(false);
           }
-          this.els.massaProgresso.innerHTML = `Limpeza concluída: ${ok} excluído(s), ${fail} falha(s).`;
-          this.els.massaProgresso.classList.remove('ativo');
-          this.finalizarTeste(`${ok} excluído(s), ${fail} falha(s).`);
-          this.massando = false;
-          this.els.btnMassa.disabled = false;
-          this.els.btnLimparMassa.disabled = false;
-          this.buscar(false);
         }
         copiarTeste() {
           if (!this.ultimoTeste) { this.alert('Nenhum teste executado.'); return; }
@@ -853,7 +924,6 @@ code: |2-
           app.setStatus('Erro ao listar requests: ' + (err.message || err));
         }
         app.ctxPronto = true;
-        app.els.btnBuscar.disabled = false;
         app.els.lblBuscar.textContent = 'Buscar dados';
         try { app.renderPerfis(); } catch (e) { app.setStatus('Erro ao montar perfis: ' + (e.message || e)); }
         try {
