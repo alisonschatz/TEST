@@ -1,11 +1,11 @@
-  info:
-    name: Quadro de Horário
-    type: app
-    seq: 5
-  code: |
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+# CÓDIGO CORRIGIDO:
+info:
+  name: Quadro de Horario
+  type: app
+  seq: 5
+code: |
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
       #app-quadro-horario {
@@ -135,6 +135,7 @@
       .op-progresso.ativo { color: var(--navy); font-weight: 600; }
       .op-progresso .spinner { border-color: rgba(56,72,108,.3); border-top-color: var(--navy); width: 12px; height: 12px; }
 
+      /* ====== painel de resultado de teste com steps ====== */
       .ultimo-teste { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow); }
       .ultimo-teste-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
       .ultimo-teste-badge { padding: 3px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; }
@@ -143,9 +144,22 @@
       .ultimo-teste-titulo { font-weight: 700; font-size: 14px; color: var(--navy); }
       .ultimo-teste-hora { margin-left: auto; font-size: 11.5px; color: var(--text-muted); }
       .ultimo-teste-detalhes { color: var(--text-muted); font-size: 12.5px; line-height: 1.6; margin-bottom: 14px; white-space: pre-wrap; }
-      .ultimo-teste-section { margin-bottom: 12px; }
-      .ultimo-teste-section-label { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
-      .ultimo-teste-pre { background: #1e2434; padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; color: var(--blue); font-family: "Fira Code", Consolas, Monaco, monospace; font-size: 11.5px; line-height: 1.5; max-height: 200px; overflow-y: auto; }
+
+      .teste-steps { display: flex; flex-direction: column; gap: 10px; }
+      .teste-step { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+      .teste-step-header { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--surface-alt); cursor: pointer; }
+      .teste-step-header:hover { background: rgba(56,72,108,0.10); }
+      .teste-step-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+      .teste-step-badge.ok { background: var(--green-soft); color: var(--green); }
+      .teste-step-badge.fail { background: var(--red-soft); color: var(--red); }
+      .teste-step-badge.skip { background: var(--orange-soft); color: var(--orange); }
+      .teste-step-num { font-size: 11px; color: var(--text-muted); font-weight: 600; min-width: 28px; }
+      .teste-step-nome { font-size: 13px; font-weight: 700; color: var(--navy); flex: 1; }
+      .teste-step-hint { font-size: 11px; color: var(--text-muted); }
+      .teste-step-body { padding: 12px; border-top: 1px solid var(--border); background: var(--surface); }
+      .teste-step-detalhes { font-size: 12.5px; color: var(--text); line-height: 1.6; margin-bottom: 12px; white-space: pre-wrap; }
+      .teste-section-label { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+      .teste-pre { background: #1e2434; padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; color: var(--blue); font-family: "Fira Code", Consolas, Monaco, monospace; font-size: 11.5px; line-height: 1.5; max-height: 220px; overflow-y: auto; }
 
       .config-paginacao { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin: 8px 0 12px; font-size: 12.5px; color: var(--text-muted); }
       .config-paginacao label { font-weight: 600; }
@@ -159,10 +173,10 @@
     <div id="app-quadro-horario">
 
       <div class="ap-header">
-        <h2>Painel de Quadros de Horário</h2>
+        <h2>Painel de Quadros de Horario</h2>
         <div class="ap-header-actions">
           <button class="btn-outline" onclick="abrirForm('criar', null)">+ Novo</button>
-          <button class="btn-refresh btn-rapida" onclick="abrirCriacaoRapida()" title="Abre o formulário já preenchido com dados de teste aleatórios">Criação rápida</button>
+          <button class="btn-refresh btn-rapida" onclick="abrirCriacaoRapida()" title="Abre o formulario ja preenchido com dados de teste aleatorios">Criacao rapida</button>
         </div>
       </div>
       <div class="ap-subtitle" id="apStatus">Inicializando...</div>
@@ -180,9 +194,9 @@
           <div class="pf-filtros-grid">
             <div class="campo"><label>Empresa ID</label><input id="fEmpresaId" type="text" value="900002"></div>
             <div class="campo"><label>Quadro ID</label><input id="fQuadroId" type="text"></div>
-            <div class="campo"><label>V Quadro Horário ID</label><input id="fVQuadroHorarioId" type="text"></div>
+            <div class="campo"><label>V Quadro Horario ID</label><input id="fVQuadroHorarioId" type="text"></div>
             <div class="campo"><label>Alterado a partir de</label><input id="fAlteradoData" type="date"></div>
-            <div class="campo campo-page"><label>Página</label><input id="fPage" type="number" min="1" value="1"></div>
+            <div class="campo campo-page"><label>Pagina</label><input id="fPage" type="number" min="1" value="1"></div>
             <div class="campo campo-busca">
               <label>&nbsp;</label>
               <button class="btn-refresh" id="btnBuscar" onclick="buscar(false)" disabled><span id="btnBuscarLabel">Inicializando...</span></button>
@@ -195,7 +209,7 @@
         </div>
 
         <div class="config-paginacao">
-          <label for="fPerPage">Registros por página</label>
+          <label for="fPerPage">Registros por pagina</label>
           <input id="fPerPage" type="number" min="1" max="100" value="15">
         </div>
 
@@ -203,7 +217,7 @@
         <div id="pfPaginacao" class="pf-paginacao"></div>
 
         <div class="toolbar">
-          <input type="text" class="search-input" id="searchLocal" placeholder="Filtrar dentro da página atual por descrição ou ID..." oninput="filtrarLocal()">
+          <input type="text" class="search-input" id="searchLocal" placeholder="Filtrar dentro da pagina atual por descricao ou ID..." oninput="filtrarLocal()">
           <button class="toolbar-btn" onclick="toggleAll(true)">Expandir tudo</button>
           <button class="toolbar-btn" onclick="toggleAll(false)">Recolher tudo</button>
         </div>
@@ -215,35 +229,35 @@
 
         <div class="pf-filtros">
           <h3>Teste de ciclo de vida</h3>
-          <p class="hint">Cria um registro aleatório, busca de volta e confere campo a campo, edita, confere de novo, exclui e confirma que sumiu.</p>
+          <p class="hint">Cria um registro aleatorio, busca de volta e confere campo a campo, edita, confere de novo, exclui e confirma que sumiu.</p>
           <div class="testes-linha">
             <button class="btn-refresh" id="btnCicloVida" onclick="rodarTesteCicloVida()">Rodar teste de ciclo de vida</button>
           </div>
         </div>
 
         <div class="pf-filtros">
-          <h3>Geração de massa</h3>
-          <p class="hint">Cria vários registros de uma vez, marcados com um prefixo identificável. Todos ficam rastreados nesta sessão pra poderem ser limpos depois.</p>
+          <h3>Geracao de massa</h3>
+          <p class="hint">Cria varios registros de uma vez, marcados com um prefixo identificavel. Todos ficam rastreados nesta sessao pra poderem ser limpos depois.</p>
           <div class="testes-linha">
             <div class="campo" style="max-width:110px;"><label>Quantidade</label><input id="massaQtd" type="number" min="1" max="200" value="10"></div>
             <button class="btn-refresh" id="btnMassa" onclick="criarEmMassa()">Criar em massa</button>
-            <button class="btn-outline btn-outline-danger" id="btnLimparMassa" onclick="limparDadosTeste()">Limpar dados de teste desta sessão</button>
+            <button class="btn-outline btn-outline-danger" id="btnLimparMassa" onclick="limparDadosTeste()">Limpar dados de teste desta sessao</button>
           </div>
           <div id="massaProgresso" class="op-progresso"></div>
         </div>
 
         <div class="pf-filtros">
-          <div class="testes-log-header">
-            <h3 style="margin:0;">Resultado do último teste</h3>
-            <button class="link-btn" onclick="copiarUltimoTeste()">Copiar JSON</button>
+          <div class="testes-log-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 style="margin:0;">Resultado do ultimo teste</h3>
+            <button class="link-btn" onclick="copiarUltimoTeste()">Copiar JSON completo</button>
           </div>
-          <div id="ultimoTesteContainer"><div class="empty-state">Nenhum teste executado ainda nesta sessão.</div></div>
+          <div id="ultimoTesteContainer"><div class="empty-state">Nenhum teste executado ainda nesta sessao.</div></div>
         </div>
 
       </div>
 
       <details class="pf-debug">
-        <summary>Depuração: última chamada via bru.ctx.runRequest()</summary>
+        <summary>Depuracao: ultima chamada via bru.ctx.runRequest()</summary>
         <pre id="pfDebugRaw"><code>—</code></pre>
       </details>
 
@@ -252,7 +266,7 @@
           <div id="pfConfirmMsg" style="margin-bottom:16px;font-size:13.5px;color:var(--text);line-height:1.5;"></div>
           <div style="display:flex;gap:8px;justify-content:flex-end;">
             <button class="toolbar-btn" onclick="pfConfirmResolver(false)">Cancelar</button>
-            <button class="action-btn action-btn-danger" style="padding:8px 14px;" onclick="pfConfirmResolver(true)">Confirmar exclusão</button>
+            <button class="action-btn action-btn-danger" style="padding:8px 14px;" onclick="pfConfirmResolver(true)">Confirmar exclusao</button>
           </div>
         </div>
       </div>
@@ -267,12 +281,12 @@
         remove: 'remove-quadros-horarios',
       };
 
-      const DIAS = [['dom','Dom'],['seg','Seg'],['ter','Ter'],['qua','Qua'],['qui','Qui'],['sex','Sex'],['sab','Sáb']];
+      const DIAS = [['dom','Dom'],['seg','Seg'],['ter','Ter'],['qua','Qua'],['qui','Qui'],['sex','Sex'],['sab','Sab']];
       const SLOTS = ['entrada_1','saida_1','entrada_2','saida_2','entrada_3','saida_3','entrada_4','saida_4'];
       const CAMPOS_TOPO = ['quadro_id', 'empresa_id', 'v_quadro_horario_id', 'descricao', 'horario_flexivel', 'ativo'];
       const SELECTS = { horario_flexivel: ['false', 'true'], ativo: ['true', 'false'] };
 
-      // ---------------- helpers genéricos ----------------
+      // ---------------- helpers genericos ----------------
       const v = (id) => (document.getElementById(id)?.value ?? '');
       const renderVal = (val) => (val === null || val === undefined || val === '') ? '<span style="color:#a1a5b0;font-style:italic;">—</span>' : (typeof val === 'boolean' ? String(val) : String(val));
 
@@ -318,22 +332,18 @@
         if (pfConfirmResolve) pfConfirmResolve(valor);
         pfConfirmResolve = null;
       }
-      window.pfConfirmResolver = pfConfirmResolver;
       function filtrarLocal() {
         const term = (document.getElementById('searchLocal').value || '').trim().toLowerCase();
         document.querySelectorAll('#cardsContainer .func-accordion').forEach(card => {
           card.style.display = card.dataset.search.includes(term) ? '' : 'none';
         });
       }
-      window.toggleAll = toggleAll;
-      window.filtrarLocal = filtrarLocal;
 
       function trocarView(nome) {
         document.getElementById('secao-registros').style.display = nome === 'registros' ? '' : 'none';
         document.getElementById('secao-testes').style.display = nome === 'testes' ? '' : 'none';
         document.querySelectorAll('.ap-view-tab').forEach(b => b.classList.toggle('is-active', b.dataset.view === nome));
       }
-      window.trocarView = trocarView;
 
       // ---------------- tabela semanal ----------------
       function tabelaSemanaLeitura(registro) {
@@ -344,7 +354,7 @@
         }).join('');
         return `
           <table class="semana-table">
-            <thead><tr><th>Dia</th><th>Ent.1</th><th>Saí.1</th><th>Ent.2</th><th>Saí.2</th><th>Ent.3</th><th>Saí.3</th><th>Ent.4</th><th>Saí.4</th></tr></thead>
+            <thead><tr><th>Dia</th><th>Ent.1</th><th>Sai.1</th><th>Ent.2</th><th>Sai.2</th><th>Ent.3</th><th>Sai.3</th><th>Ent.4</th><th>Sai.4</th></tr></thead>
             <tbody>${linhas}</tbody>
           </table>`;
       }
@@ -360,7 +370,7 @@
         }).join('');
         return `
           <table class="semana-table">
-            <thead><tr><th>Dia</th><th>Ent.1</th><th>Saí.1</th><th>Ent.2</th><th>Saí.2</th><th>Ent.3</th><th>Saí.3</th><th>Ent.4</th><th>Saí.4</th></tr></thead>
+            <thead><tr><th>Dia</th><th>Ent.1</th><th>Sai.1</th><th>Ent.2</th><th>Sai.2</th><th>Ent.3</th><th>Sai.3</th><th>Ent.4</th><th>Sai.4</th></tr></thead>
             <tbody>${linhas}</tbody>
           </table>`;
       }
@@ -373,8 +383,8 @@
         return out;
       }
 
-      // ---------------- geração de dados aleatórios ----------------
-      const DESCRICOES_ALEATORIAS = ['Comercial', 'Administrativo', 'Escala Manhã', 'Escala Tarde', 'Turno Único', 'Operacional', 'Atendimento', 'Backoffice'];
+      // ---------------- geracao de dados aleatorios ----------------
+      const DESCRICOES_ALEATORIAS = ['Comercial', 'Administrativo', 'Escala Manha', 'Escala Tarde', 'Turno Unico', 'Operacional', 'Atendimento', 'Backoffice'];
 
       function gerarHorarioAleatorioDia(chanceFolga) {
         if (Math.random() < chanceFolga) {
@@ -418,14 +428,12 @@
           setVal(`qf__${campo}`, dados[campo]);
         });
       }
-      window.preencherAleatorio = preencherAleatorio;
 
       function abrirCriacaoRapida() {
         trocarView('registros');
         abrirForm('criar', null);
         preencherAleatorio();
       }
-      window.abrirCriacaoRapida = abrirCriacaoRapida;
 
       // ---------------- campos do topo (form) ----------------
       function campoTopoHtml(nome, valor) {
@@ -445,7 +453,7 @@
         return out;
       }
 
-      // ---------------- estado + orquestração ----------------
+      // ---------------- estado + orquestracao ----------------
       let mapaRequests = {};
       let ctxPronto = false;
       let carregando = false;
@@ -454,7 +462,7 @@
 
       async function chamar(nomeRequest, runtimeVariables) {
         const pathname = mapaRequests[nomeRequest];
-        if (!pathname) throw new Error(`Request "${nomeRequest}" não encontrada na coleção.`);
+        if (!pathname) throw new Error(`Request "${nomeRequest}" nao encontrada na colecao.`);
         const res = await bru.ctx.runRequest(pathname, { runtimeVariables });
         mostrarDebug({ request: nomeRequest, enviado: runtimeVariables, resposta: res });
         return res;
@@ -474,7 +482,6 @@
         document.getElementById('fPage').value = '1';
         document.getElementById('fPerPage').value = '15';
       }
-      window.limparFiltros = limparFiltros;
 
       async function buscar(resetarPagina) {
         if (!ctxPronto || carregando) return;
@@ -503,22 +510,20 @@
           atualizarBotao();
         }
       }
-      window.buscar = buscar;
 
       function irParaPagina(n) {
         if (n < 1) return;
         document.getElementById('fPage').value = n;
         buscar(false);
       }
-      window.irParaPagina = irParaPagina;
 
       function renderPaginacao(p) {
         const box = document.getElementById('pfPaginacao');
         if (!p) { box.innerHTML = ''; return; }
         box.innerHTML = `
-          <button class="toolbar-btn" ${p.pagina_atual <= 1 ? 'disabled' : ''} onclick="irParaPagina(${p.pagina_atual - 1})">← Anterior</button>
-          <span>Página ${p.pagina_atual} de ${p.ultima_pagina} · ${p.total} registros (mostrando ${p.inicio}–${p.fim})</span>
-          <button class="toolbar-btn" ${p.pagina_atual >= p.ultima_pagina ? 'disabled' : ''} onclick="irParaPagina(${p.pagina_atual + 1})">Próxima →</button>
+          <button class="toolbar-btn" ${p.pagina_atual <= 1 ? 'disabled' : ''} onclick="irParaPagina(${p.pagina_atual - 1})">&larr; Anterior</button>
+          <span>Pagina ${p.pagina_atual} de ${p.ultima_pagina} · ${p.total} registros (mostrando ${p.inicio}–${p.fim})</span>
+          <button class="toolbar-btn" ${p.pagina_atual >= p.ultima_pagina ? 'disabled' : ''} onclick="irParaPagina(${p.pagina_atual + 1})">Proxima &rarr;</button>
         `;
       }
 
@@ -528,13 +533,13 @@
           <details class="func-accordion ${reg.ativo ? 'is-ativo' : ''}" data-search="${nomeBusca}">
             <summary class="func-summary">
               <div class="func-summary-main">
-                <span class="func-nome">${reg.descricao || 'Sem descrição'}</span>
-                <span class="func-id">Quadro ID ${reg.quadro_id ?? '—'} · V. Quadro Horário ID ${reg.v_quadro_horario_id ?? '—'} · Cliente ${reg.cliente_id ?? '—'}</span>
+                <span class="func-nome">${reg.descricao || 'Sem descricao'}</span>
+                <span class="func-id">Quadro ID ${reg.quadro_id ?? '—'} · V. Quadro Horario ID ${reg.v_quadro_horario_id ?? '—'} · Cliente ${reg.cliente_id ?? '—'}</span>
               </div>
               <div class="func-summary-right">
                 <div>
                   <span class="badge ${reg.ativo ? 'badge-ativo' : 'badge-inativo'}">${reg.ativo ? 'Ativo' : 'Inativo'}</span>
-                  <span class="badge badge-info">${reg.horario_flexivel ? 'Flexível' : 'Fixo'}</span>
+                  <span class="badge badge-info">${reg.horario_flexivel ? 'Flexivel' : 'Fixo'}</span>
                 </div>
                 <div class="func-actions">
                   <button class="action-btn" onclick="event.preventDefault();event.stopPropagation();abrirForm('editar', ${idx})">Editar</button>
@@ -549,7 +554,7 @@
       function renderLista(lista, paginacao) {
         document.getElementById('statTotal').textContent = paginacao ? paginacao.total : lista.length;
         document.getElementById('cardsContainer').innerHTML =
-          lista.map(montarCard).join('') || '<div class="empty-state">Nenhum quadro de horário encontrado com esses filtros.</div>';
+          lista.map(montarCard).join('') || '<div class="empty-state">Nenhum quadro de horario encontrado com esses filtros.</div>';
         renderPaginacao(paginacao);
       }
 
@@ -561,33 +566,31 @@
         const html = `
           <div class="form-panel">
             <div class="form-panel-header">
-              <h3>${modo === 'criar' ? '+ Novo quadro de horário' : `Editar: ${registro.descricao || registro.quadro_id}`}</h3>
+              <h3>${modo === 'criar' ? '+ Novo quadro de horario' : `Editar: ${registro.descricao || registro.quadro_id}`}</h3>
               <button class="toolbar-btn" onclick="fecharForm()">Fechar</button>
             </div>
             <fieldset class="form-fieldset">
-              <legend>Identificação</legend>
+              <legend>Identificacao</legend>
               <div class="form-grid">${CAMPOS_TOPO.map(c => campoTopoHtml(c, valoresTopo[c])).join('')}</div>
             </fieldset>
             <fieldset class="form-fieldset">
-              <legend>Horários da semana</legend>
+              <legend>Horarios da semana</legend>
               ${tabelaSemanaEdicao(modo === 'editar' ? registro : {})}
             </fieldset>
             <div class="form-panel-actions">
-              <button class="btn-refresh" onclick="salvar()">${modo === 'criar' ? 'Criar' : 'Salvar alterações'}</button>
+              <button class="btn-refresh" onclick="salvar()">${modo === 'criar' ? 'Criar' : 'Salvar alteracoes'}</button>
               <button class="toolbar-btn" onclick="fecharForm()">Cancelar</button>
-              ${modo === 'criar' ? '<button class="toolbar-btn" onclick="preencherAleatorio()" style="margin-left:auto;">Gerar outro aleatório</button>' : ''}
+              ${modo === 'criar' ? '<button class="toolbar-btn" onclick="preencherAleatorio()" style="margin-left:auto;">Gerar outro aleatorio</button>' : ''}
             </div>
           </div>`;
         document.getElementById('formContainer').innerHTML = html;
         document.getElementById('formContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-      window.abrirForm = abrirForm;
 
       function fecharForm() {
         modoForm = null;
         document.getElementById('formContainer').innerHTML = '';
       }
-      window.fecharForm = fecharForm;
 
       async function salvar() {
         const dadosForm = { ...coletarTopo(), ...coletarSemana() };
@@ -604,11 +607,10 @@
           mostrarErro(err.message || String(err));
         }
       }
-      window.salvar = salvar;
 
       async function excluir(idx) {
         const reg = dados[idx];
-        const ok = await confirmarAcao(`Excluir o quadro "${reg.descricao || reg.quadro_id}"? Essa ação não pode ser desfeita.`);
+        const ok = await confirmarAcao(`Excluir o quadro "${reg.descricao || reg.quadro_id}"? Essa acao nao pode ser desfeita.`);
         if (!ok) return;
         mostrarErro('');
         try {
@@ -618,16 +620,15 @@
           });
           const r = interpretarResposta(res);
           if (!r.ok) { mostrarErro(r.msg); return; }
-          mostrarErro('Quadro excluído com sucesso.', true);
+          mostrarErro('Quadro excluido com sucesso.', true);
           buscar(false);
         } catch (err) {
           mostrarErro(err.message || String(err));
         }
       }
-      window.excluir = excluir;
 
       // =============================================================
-      // FERRAMENTAS DE TESTE
+      // FERRAMENTAS DE TESTE  (REESCRITAS COM STEPS DETALHADOS)
       // =============================================================
       let testSessionIds = [];
       let ultimoTeste = null;
@@ -660,14 +661,43 @@
         const box = document.getElementById('ultimoTesteContainer');
         if (!box) return;
         if (!ultimoTeste) {
-          box.innerHTML = '<div class="empty-state">Nenhum teste executado ainda nesta sessão.</div>';
+          box.innerHTML = '<div class="empty-state">Nenhum teste executado ainda nesta sessao.</div>';
           return;
         }
         const badgeClass = ultimoTeste.ok ? 'ok' : 'fail';
         const badgeText = ultimoTeste.ok ? 'Sucesso' : 'Falha';
         const detalhesHtml = ultimoTeste.detalhes ? `<div class="ultimo-teste-detalhes">${ultimoTeste.detalhes}</div>` : '';
-        const reqJson = ultimoTeste.requestJson ? `<div class="ultimo-teste-section"><div class="ultimo-teste-section-label">Request enviado</div><pre class="ultimo-teste-pre"><code>${JSON.stringify(ultimoTeste.requestJson, null, 2)}</code></pre></div>` : '';
-        const resJson = ultimoTeste.responseJson ? `<div class="ultimo-teste-section"><div class="ultimo-teste-section-label">Response recebido</div><pre class="ultimo-teste-pre"><code>${JSON.stringify(ultimoTeste.responseJson, null, 2)}</code></pre></div>` : '';
+
+        let stepsHtml = '';
+        if (ultimoTeste.steps && ultimoTeste.steps.length) {
+          stepsHtml = `<div class="teste-steps">` +
+            ultimoTeste.steps.map((step, i) => {
+              const bClass = step.ok ? 'ok' : (step.skipped ? 'skip' : 'fail');
+              const bText = step.ok ? 'OK' : (step.skipped ? 'Skip' : 'Fail');
+              const reqBlock = step.requestJson
+                ? `<div style="margin-bottom:10px;"><div class="teste-section-label">Request enviado</div><pre class="teste-pre"><code>${escapeHtml(JSON.stringify(step.requestJson, null, 2))}</code></pre></div>`
+                : '';
+              const resBlock = step.responseJson
+                ? `<div><div class="teste-section-label">Response recebido</div><pre class="teste-pre"><code>${escapeHtml(JSON.stringify(step.responseJson, null, 2))}</code></pre></div>`
+                : '';
+              return `
+                <details class="teste-step" ${!step.ok ? 'open' : ''}>
+                  <summary class="teste-step-header">
+                    <span class="teste-step-num">#${i+1}</span>
+                    <span class="teste-step-badge ${bClass}">${bText}</span>
+                    <span class="teste-step-nome">${step.acao}</span>
+                    <span class="teste-step-hint">${step.ts ? new Date(step.ts).toLocaleTimeString('pt-BR') : ''}</span>
+                  </summary>
+                  <div class="teste-step-body">
+                    ${step.detalhes ? `<div class="teste-step-detalhes">${step.detalhes}</div>` : ''}
+                    ${reqBlock}
+                    ${resBlock}
+                  </div>
+                </details>`;
+            }).join('') +
+            `</div>`;
+        }
+
         box.innerHTML = `
           <div class="ultimo-teste">
             <div class="ultimo-teste-header">
@@ -676,13 +706,46 @@
               <span class="ultimo-teste-hora">${ultimoTeste.ts.toLocaleString('pt-BR')}</span>
             </div>
             ${detalhesHtml}
-            ${reqJson}
-            ${resJson}
+            ${stepsHtml}
           </div>`;
       }
 
-      function registrarUltimoTeste(categoria, acao, ok, detalhes, requestJson, responseJson) {
-        ultimoTeste = { ts: new Date(), categoria, acao, ok, detalhes: detalhes || '', requestJson, responseJson };
+      function escapeHtml(str) {
+        return str
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+      }
+
+      function iniciarTeste(categoria, acao) {
+        ultimoTeste = {
+          ts: new Date(),
+          categoria,
+          acao,
+          ok: true,
+          detalhes: '',
+          steps: []
+        };
+      }
+
+      function addStep(acao, ok, detalhes, requestJson, responseJson, skipped) {
+        if (!ultimoTeste) return;
+        ultimoTeste.steps.push({
+          ts: new Date(),
+          acao,
+          ok: !!ok,
+          skipped: !!skipped,
+          detalhes: detalhes || '',
+          requestJson: requestJson || null,
+          responseJson: responseJson || null
+        });
+        if (!ok && !skipped) ultimoTeste.ok = false;
+      }
+
+      function finalizarTeste(detalhes) {
+        if (!ultimoTeste) return;
+        if (detalhes) ultimoTeste.detalhes = detalhes;
+        if (!ultimoTeste.steps.length) ultimoTeste.ok = false;
         renderUltimoTeste();
       }
 
@@ -694,18 +757,24 @@
           acao: ultimoTeste.acao,
           ok: ultimoTeste.ok,
           detalhes: ultimoTeste.detalhes,
-          request: ultimoTeste.requestJson,
-          response: ultimoTeste.responseJson,
+          steps: ultimoTeste.steps.map(s => ({
+            timestamp: s.ts ? new Date(s.ts).toISOString() : null,
+            acao: s.acao,
+            ok: s.ok,
+            skipped: s.skipped,
+            detalhes: s.detalhes,
+            request: s.requestJson,
+            response: s.responseJson,
+          }))
         };
-        navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).then(() => mostrarErro('JSON do último teste copiado.', true));
+        navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).then(() => mostrarErro('JSON completo do teste copiado.', true));
       }
-      window.copiarUltimoTeste = copiarUltimoTeste;
 
       function atualizarContadorSessao() {
         const btn = document.getElementById('btnLimparMassa');
         if (btn) {
           const count = testSessionIds.length;
-          btn.textContent = count > 0 ? `Limpar ${count} registro(s) de teste` : 'Limpar dados de teste desta sessão';
+          btn.textContent = count > 0 ? `Limpar ${count} registro(s) de teste` : 'Limpar dados de teste desta sessao';
         }
       }
 
@@ -730,25 +799,28 @@
         const btn = document.getElementById('btnCicloVida');
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner"></span> Executando...';
+
+        iniciarTeste('CRUD', 'Ciclo de vida completo');
         const dados = gerarDadosQuadroAleatorio('[TESTE-CICLO]');
         let quadroId = null;
-        let requestJson = null;
-        let responseJson = null;
+
         try {
+          // 1. Criar
           const resCriar = await chamar(REQ.cria, dados);
           const rCriar = interpretarResposta(resCriar);
-          requestJson = dados;
-          responseJson = rCriar.body;
+          addStep('Criar registro', rCriar.ok, rCriar.ok ? `Criado com status ${rCriar.status}` : rCriar.msg, dados, rCriar.body);
           if (!rCriar.ok) {
-            registrarUltimoTeste('CRUD', 'Criar', false, rCriar.msg, requestJson, responseJson);
+            finalizarTeste('Falhou na criacao do registro.');
             return;
           }
           const criado = rastrearCriado(rCriar.body, dados);
           quadroId = criado?.quadro_id;
           if (!quadroId) {
-            registrarUltimoTeste('CRUD', 'Criar', false, 'A resposta não trouxe quadro_id.', requestJson, responseJson);
+            addStep('Verificar quadro_id', false, 'A resposta nao trouxe quadro_id.', null, rCriar.body);
+            finalizarTeste('Criacao nao retornou quadro_id.');
             return;
           }
+          addStep('Verificar quadro_id', true, `quadro_id = ${quadroId}`, null, null);
 
           const buscarPorId = async () => {
             const res = await chamar(REQ.lista, { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` });
@@ -758,74 +830,83 @@
             return lista.find((x) => String(x.quadro_id) === String(quadroId)) || null;
           };
 
+          // 2. Buscar apos criar
           const encontrado1 = await buscarPorId();
           if (!encontrado1) {
-            registrarUltimoTeste('CRUD', 'Buscar após criar', false, 'Registro não encontrado na listagem logo após a criação.', requestJson, responseJson);
+            addStep('Buscar apos criar', false, 'Registro nao encontrado na listagem logo apos a criacao.', { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, null);
+            finalizarTeste('Registro sumiu apos criacao.');
             return;
           }
           const diffs1 = compararRegistroCompleto(dados, encontrado1);
           if (diffs1.length > 0) {
-            registrarUltimoTeste('CRUD', 'Buscar após criar (integridade)', false,
-              `${diffs1.length} campo(s) divergente(s):\n` + diffs1.map(d => `• ${d.campo}: enviado "${d.esperado}" → recebido "${d.recebido}"`).join('\n'),
-              requestJson, responseJson);
+            addStep('Buscar apos criar (integridade)', false,
+              `${diffs1.length} campo(s) divergente(s):\n` + diffs1.map(d => `• ${d.campo}: enviado "${d.esperado}" -> recebido "${d.recebido}"`).join('\n'),
+              { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, encontrado1);
+            finalizarTeste('Divergencia encontrada apos criacao.');
             return;
           }
+          addStep('Buscar apos criar (integridade)', true, 'Todos os campos bateram.', { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, encontrado1);
 
+          // 3. Atualizar
           const dadosAtualizados = gerarDadosQuadroAleatorio('[TESTE-CICLO-EDITADO]');
           dadosAtualizados.quadro_id = String(quadroId);
           dadosAtualizados.empresa_id = dados.empresa_id;
           const resAtualizar = await chamar(REQ.atualiza, dadosAtualizados);
           const rAtualizar = interpretarResposta(resAtualizar);
-          requestJson = dadosAtualizados;
-          responseJson = rAtualizar.body;
+          addStep('Atualizar registro', rAtualizar.ok, rAtualizar.ok ? `Atualizado com status ${rAtualizar.status}` : rAtualizar.msg, dadosAtualizados, rAtualizar.body);
           if (!rAtualizar.ok) {
-            registrarUltimoTeste('CRUD', 'Atualizar', false, rAtualizar.msg, requestJson, responseJson);
+            finalizarTeste('Falhou na atualizacao do registro.');
             return;
           }
 
+          // 4. Buscar apos editar
           const encontrado2 = await buscarPorId();
           if (!encontrado2) {
-            registrarUltimoTeste('CRUD', 'Buscar após editar', false, 'Registro não encontrado após edição.', requestJson, responseJson);
+            addStep('Buscar apos editar', false, 'Registro nao encontrado apos edicao.', { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, null);
+            finalizarTeste('Registro sumiu apos edicao.');
             return;
           }
           const diffs2 = compararRegistroCompleto(dadosAtualizados, encontrado2);
           if (diffs2.length > 0) {
-            registrarUltimoTeste('CRUD', 'Buscar após editar (integridade)', false,
-              `${diffs2.length} campo(s) divergente(s):\n` + diffs2.map(d => `• ${d.campo}: enviado "${d.esperado}" → recebido "${d.recebido}"`).join('\n'),
-              requestJson, responseJson);
+            addStep('Buscar apos editar (integridade)', false,
+              `${diffs2.length} campo(s) divergente(s):\n` + diffs2.map(d => `• ${d.campo}: enviado "${d.esperado}" -> recebido "${d.recebido}"`).join('\n'),
+              { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, encontrado2);
+            finalizarTeste('Divergencia encontrada apos edicao.');
             return;
           }
+          addStep('Buscar apos editar (integridade)', true, 'Todos os campos bateram.', { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, encontrado2);
 
+          // 5. Excluir
           const resExcluir = await chamar(REQ.remove, { empresa_id: String(dados.empresa_id), quadro_id: String(quadroId) });
           const rExcluir = interpretarResposta(resExcluir);
-          requestJson = { empresa_id: dados.empresa_id, quadro_id: quadroId };
-          responseJson = rExcluir.body;
+          addStep('Excluir registro', rExcluir.ok, rExcluir.ok ? `Excluido com status ${rExcluir.status}` : rExcluir.msg, { empresa_id: dados.empresa_id, quadro_id: quadroId }, rExcluir.body);
           if (!rExcluir.ok) {
-            registrarUltimoTeste('CRUD', 'Excluir', false, rExcluir.msg, requestJson, responseJson);
+            finalizarTeste('Falhou na exclusao do registro.');
             return;
           }
           testSessionIds = testSessionIds.filter((x) => String(x.quadro_id) !== String(quadroId));
           atualizarContadorSessao();
 
+          // 6. Confirmar exclusao
           const encontrado3 = await buscarPorId();
           if (encontrado3) {
-            registrarUltimoTeste('CRUD', 'Confirmar exclusão', false, 'O registro ainda aparece na busca depois de excluído.', requestJson, responseJson);
+            addStep('Confirmar exclusao', false, 'O registro ainda aparece na busca depois de excluido.', { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, encontrado3);
+            finalizarTeste('Registro persistiu apos exclusao.');
             return;
           }
+          addStep('Confirmar exclusao', true, 'Registro nao encontrado apos exclusao.', { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, null);
 
-          registrarUltimoTeste('CRUD', 'Ciclo de vida completo', true,
-            `Criado (quadro_id ${quadroId}) → Buscado → Editado → Buscado → Excluído → Confirmado.\nTodos os campos bateram em todas as etapas.`,
-            dados, rCriar.body);
+          finalizarTeste(`Ciclo completo: criado (quadro_id ${quadroId}) -> buscado -> editado -> buscado -> excluido -> confirmado.\nTodos os campos bateram em todas as etapas.`);
         } catch (err) {
-          registrarUltimoTeste('CRUD', 'Erro inesperado', false, err.message || String(err), requestJson, responseJson);
+          addStep('Erro inesperado', false, err.message || String(err), null, null);
+          finalizarTeste('Erro inesperado durante o teste.');
         } finally {
           btn.disabled = false;
           btn.innerHTML = 'Rodar teste de ciclo de vida';
         }
       }
-      window.rodarTesteCicloVida = rodarTesteCicloVida;
 
-      // ---------------- Geração de massa + limpeza ----------------
+      // ---------------- Geracao de massa + limpeza ----------------
       async function criarEmMassa() {
         const n = Math.max(1, Math.min(200, parseInt(document.getElementById('massaQtd').value || '10', 10)));
         const prefixo = `[TESTE-MASSA-${Date.now()}]`;
@@ -833,58 +914,57 @@
         const btnLimpar = document.getElementById('btnLimparMassa');
         btn.disabled = true;
         if (btnLimpar) btnLimpar.disabled = true;
-        setProgresso('massaProgresso', '<span class="spinner"></span> Iniciando criação em massa...', true);
+
+        iniciarTeste('Massa', `Criacao em massa (${n} solicitados)`);
+        setProgresso('massaProgresso', '<span class="spinner"></span> Iniciando criacao em massa...', true);
         let sucesso = 0, falha = 0;
-        let ultimoRequest = null;
-        let ultimoResponse = null;
+
         for (let i = 0; i < n; i++) {
           setProgresso('massaProgresso', `<span class="spinner"></span> Criando ${i + 1} de ${n}... (${sucesso} ok, ${falha} falha)`, true);
           const dadosItem = gerarDadosQuadroAleatorio(prefixo);
-          ultimoRequest = dadosItem;
           try {
             const res = await chamar(REQ.cria, dadosItem);
             const r = interpretarResposta(res);
-            ultimoResponse = r.body;
+            addStep(`Criar #${i+1}`, r.ok, r.ok ? `Criado com status ${r.status}` : r.msg, dadosItem, r.body);
             if (r.ok) { rastrearCriado(r.body, dadosItem); sucesso++; }
             else falha++;
           } catch (err) {
             falha++;
-            ultimoResponse = { erro: err.message || String(err) };
+            addStep(`Criar #${i+1}`, false, err.message || String(err), dadosItem, null);
           }
           await esperar(200);
         }
-        setProgresso('massaProgresso', `Concluído: ${sucesso} criado(s), ${falha} falha(s).`, false);
-        registrarUltimoTeste('Massa', `Criação em massa (${n} solicitados)`, falha === 0,
-          `${sucesso} criado(s), ${falha} falha(s) de ${n} solicitado(s). Prefixo: ${prefixo}`,
-          ultimoRequest, ultimoResponse);
+        setProgresso('massaProgresso', `Concluido: ${sucesso} criado(s), ${falha} falha(s).`, false);
+        finalizarTeste(`${sucesso} criado(s), ${falha} falha(s) de ${n} solicitado(s). Prefixo: ${prefixo}`);
         btn.disabled = false;
         if (btnLimpar) btnLimpar.disabled = false;
       }
-      window.criarEmMassa = criarEmMassa;
 
       async function limparDadosTeste() {
         if (testSessionIds.length === 0) {
-          registrarUltimoTeste('Limpeza', 'Limpar dados de teste', true, 'Nenhum registro de teste rastreado nesta sessão.', null, null);
+          iniciarTeste('Limpeza', 'Limpar dados de teste');
+          addStep('Verificar registros', true, 'Nenhum registro de teste rastreado nesta sessao.', null, null);
+          finalizarTeste('Nenhum registro de teste rastreado nesta sessao.');
           return;
         }
-        const ok = await confirmarAcao(`Excluir ${testSessionIds.length} registro(s) de teste criados nesta sessão? Essa ação não pode ser desfeita.`);
+        const ok = await confirmarAcao(`Excluir ${testSessionIds.length} registro(s) de teste criados nesta sessao? Essa acao nao pode ser desfeita.`);
         if (!ok) return;
         const pendentes = [...testSessionIds];
         const btn = document.getElementById('btnLimparMassa');
         const btnCriar = document.getElementById('btnMassa');
         btn.disabled = true;
         if (btnCriar) btnCriar.disabled = true;
+
+        iniciarTeste('Limpeza', 'Limpar dados de teste');
         let sucesso = 0, falha = 0;
-        let ultimoRequest = null;
-        let ultimoResponse = null;
         setProgresso('massaProgresso', '<span class="spinner"></span> Iniciando limpeza...', true);
         for (const item of pendentes) {
           setProgresso('massaProgresso', `<span class="spinner"></span> Excluindo ${sucesso + falha + 1} de ${pendentes.length}...`, true);
-          ultimoRequest = { empresa_id: item.empresa_id, quadro_id: item.quadro_id };
+          const req = { empresa_id: item.empresa_id, quadro_id: item.quadro_id };
           try {
-            const res = await chamar(REQ.remove, ultimoRequest);
+            const res = await chamar(REQ.remove, req);
             const r = interpretarResposta(res);
-            ultimoResponse = r.body;
+            addStep(`Excluir quadro_id ${item.quadro_id}`, r.ok, r.ok ? `Excluido com status ${r.status}` : r.msg, req, r.body);
             if (r.ok) {
               sucesso++;
               testSessionIds = testSessionIds.filter((x) => String(x.quadro_id) !== String(item.quadro_id));
@@ -892,27 +972,44 @@
             } else falha++;
           } catch (err) {
             falha++;
-            ultimoResponse = { erro: err.message || String(err) };
+            addStep(`Excluir quadro_id ${item.quadro_id}`, false, err.message || String(err), req, null);
           }
           await esperar(150);
         }
-        setProgresso('massaProgresso', `Limpeza concluída: ${sucesso} excluído(s), ${falha} falha(s).`, false);
-        registrarUltimoTeste('Limpeza', 'Limpar dados de teste', falha === 0,
-          `${sucesso} excluído(s), ${falha} falha(s).`, ultimoRequest, ultimoResponse);
+        setProgresso('massaProgresso', `Limpeza concluida: ${sucesso} excluido(s), ${falha} falha(s).`, false);
+        finalizarTeste(`${sucesso} excluido(s), ${falha} falha(s).`);
         btn.disabled = false;
         if (btnCriar) btnCriar.disabled = false;
         buscar(false);
       }
+
+      // Exposição explícita no escopo global para garantir acesso via HTML onclick/oninput
+      window.pfConfirmResolver = pfConfirmResolver;
+      window.toggleAll = toggleAll;
+      window.filtrarLocal = filtrarLocal;
+      window.trocarView = trocarView;
+      window.preencherAleatorio = preencherAleatorio;
+      window.abrirCriacaoRapida = abrirCriacaoRapida;
+      window.limparFiltros = limparFiltros;
+      window.buscar = buscar;
+      window.irParaPagina = irParaPagina;
+      window.abrirForm = abrirForm;
+      window.fecharForm = fecharForm;
+      window.salvar = salvar;
+      window.excluir = excluir;
+      window.copiarUltimoTeste = copiarUltimoTeste;
+      window.rodarTesteCicloVida = rodarTesteCicloVida;
+      window.criarEmMassa = criarEmMassa;
       window.limparDadosTeste = limparDadosTeste;
 
-      // ---------------- inicialização ----------------
+      // ---------------- inicializacao ----------------
       bru.ctx.onInit = async () => {
         try {
           const todas = await bru.ctx.listRequests();
           todas.forEach(r => { mapaRequests[r.name] = r.pathname; });
           const faltando = Object.values(REQ).filter(nome => !mapaRequests[nome]);
           document.getElementById('apStatus').textContent = faltando.length
-            ? `Atenção: request(s) não encontrada(s) na coleção: ${faltando.join(', ')}. Confira se o nome bate exatamente.`
+            ? `Atencao: request(s) nao encontrada(s) na colecao: ${faltando.join(', ')}. Confira se o nome bate exatamente.`
             : '';
         } catch (err) {
           document.getElementById('apStatus').textContent = 'Erro ao listar requests: ' + (err.message || err);
