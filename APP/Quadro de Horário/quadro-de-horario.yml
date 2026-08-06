@@ -113,7 +113,6 @@ code: |2-
       <div class="card" style="border-left:3px solid var(--blue);">
         <div class="card-header" style="margin-bottom:8px;">
           <h3 class="card-title" style="font-size:13.5px;">🔐 Perfil de Acesso</h3>
-          <span id="authStatus" class="badge badge-bad">Não autenticado</span>
         </div>
         <div class="flex" style="gap:10px;flex-wrap:wrap;">
           <div class="field" style="min-width:260px;flex:1;">
@@ -222,7 +221,7 @@ code: |2-
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
             <h3 class="card-title" style="margin:0;">Resultado do último teste</h3>
-            <button class="btn" style="background:none;padding:0;height:auto;font-size:12.5px;color:var(--muted);text-decoration:underline;" id="btnCopiarTeste">Copiar JSON</button>
+            <button class="btn" style="background:none;padding:0;height:auto;font-size:12.5px;color:var(--muted);text-decoration:underline;" id="btnCopiarTeste">Copiar relatório</button>
           </div>
           <div id="ultimoTesteContainer"><div class="empty">Nenhum teste executado ainda nesta sessão.</div></div>
         </div>
@@ -243,6 +242,17 @@ code: |2-
           </div>
         </div>
       </div>
+    
+      <!-- Modal: copiar manualmente (fallback quando o clipboard automático não funciona) -->
+      <div class="overlay" id="textoCopiaOverlay">
+        <div class="modal" style="max-width:560px;">
+          <div style="margin-bottom:10px;font-size:13.5px;color:var(--text);font-weight:700;">Não foi possível copiar automaticamente. Selecione e copie manualmente (Ctrl+C / Cmd+C):</div>
+          <textarea id="textoCopiaArea" readonly style="width:100%;height:260px;border:1px solid var(--border);border-radius:8px;padding:10px;font-family:'Fira Code',Consolas,monospace;font-size:11.5px;line-height:1.5;resize:vertical;background:rgba(56,72,108,.04);color:var(--text);"></textarea>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
+            <button class="btn btn-outline btn-sm" id="textoCopiaFechar">Fechar</button>
+          </div>
+        </div>
+      </div>
     </div>
     
     <script>
@@ -251,10 +261,10 @@ code: |2-
     // Os "id" abaixo são exatamente os valores aceitos pela variável tipo_perfil,
     // usada pelo script pre-request da requisição gera-token para montar username_app/password_app.
     const PERFIS = [
-      { id: 'unico_admin', nome: 'Único + Único ADM', grupo: 'sistema', grupoLabel: 'Token de Sistema', grupoCurto: 'Sistema', sistema: 'token_sistema_unico', contexto: 'token_contexto_adm_unico' },
-      { id: 'practice_admin', nome: 'Practice + Practice ADM', grupo: 'sistema', grupoLabel: 'Token de Sistema', grupoCurto: 'Sistema', sistema: 'token_sistema_practice', contexto: 'token_contexto_adm_practice' },
-      { id: 'parceiro_cliente_unico', nome: 'Parceiro + Único Cliente', grupo: 'parceiro', grupoLabel: 'Token de Parceiro', grupoCurto: 'Parceiro', sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_unico' },
-      { id: 'parceiro_cliente_practice', nome: 'Parceiro + Practice Cliente', grupo: 'parceiro', grupoLabel: 'Token de Parceiro', grupoCurto: 'Parceiro', sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_practice' }
+      { id: 'unico_admin', nome: 'Sistema Único + Módulo Administrador Único', grupo: 'sistema', grupoLabel: 'Tokens Sistema SCI', grupoCurto: 'Sistema SCI', sistema: 'token_sistema_unico', contexto: 'token_contexto_adm_unico' },
+      { id: 'practice_admin', nome: 'Sistema Practice + Módulo Administrador Practice', grupo: 'sistema', grupoLabel: 'Tokens Sistema SCI', grupoCurto: 'Sistema SCI', sistema: 'token_sistema_practice', contexto: 'token_contexto_adm_practice' },
+      { id: 'parceiro_cliente_unico', nome: 'Sistema Parceiro + Módulo Cliente Único', grupo: 'parceiro', grupoLabel: 'Tokens Sistema Parceiro', grupoCurto: 'Sistema Parceiro', sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_unico' },
+      { id: 'parceiro_cliente_practice', nome: 'Sistema Parceiro + Módulo Cliente Practice', grupo: 'parceiro', grupoLabel: 'Tokens Sistema Parceiro', grupoCurto: 'Sistema Parceiro', sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_practice' }
     ];
       const DIAS = [['dom','Dom'],['seg','Seg'],['ter','Ter'],['qua','Qua'],['qui','Qui'],['sex','Sex'],['sab','Sab']];
       const SLOTS = ['entrada_1','saida_1','entrada_2','saida_2','entrada_3','saida_3','entrada_4','saida_4'];
@@ -295,9 +305,10 @@ code: |2-
             'formContainer','paginacao','cardsContainer','searchLocal','ultimoTesteContainer','debugRaw',
             'btnCicloVida','spinnerCiclo','lblCiclo','btnMassa','spinnerMassa','btnLimparMassa','massaProgresso','massaQtd',
             'confirmOverlay','confirmMsg','confirmCancel','confirmOk','btnNovo','btnRapido','btnLimparFiltros',
+            'textoCopiaOverlay','textoCopiaArea','textoCopiaFechar',
             'fEmpresaId','fQuadroId','fVQuadroId','fAlteradoData','fPage','fPerPage',
             'btnExpandir','btnRecolher','btnCopiarTeste',
-            'selPerfil','btnAuth','spinnerAuth','lblAuth','btnRefresh','authStatus','authError',
+            'selPerfil','btnAuth','spinnerAuth','lblAuth','btnRefresh','authError',
             'perfilAtivoChip','perfilAtivoTexto'];
           ids.forEach(id => this.els[id] = document.getElementById(id));
         }
@@ -315,6 +326,7 @@ code: |2-
           this.els.btnLimparMassa.onclick = () => this.limparMassa();
           this.els.btnCopiarTeste.onclick = () => this.copiarTeste();
           this.els.confirmCancel.onclick = () => this._resolveConfirm(false);
+          this.els.textoCopiaFechar.onclick = () => this.els.textoCopiaOverlay.classList.remove('active');
           this.els.confirmOk.onclick = () => this._resolveConfirm(true);
           document.getElementById('selPerfil').onchange = () => this.renderAuthStatus();
           document.getElementById('btnAuth').onclick = () => this.doAuth();
@@ -390,25 +402,18 @@ code: |2-
           } catch (e) {}
         }
         renderAuthStatus() {
-          const badge = document.getElementById('authStatus');
           const btnAuth = document.getElementById('btnAuth');
           const btnRefresh = document.getElementById('btnRefresh');
           const sel = document.getElementById('selPerfil');
           const chip = this.els.perfilAtivoChip;
           const chipTexto = this.els.perfilAtivoTexto;
-          if (!badge) return;
           const perfilInfo = this.perfilAtual ? PERFIS.find(p => p.id === this.perfilAtual) : null;
           if (this.autenticado) {
-            badge.className = 'badge badge-ok';
-            const rotulo = perfilInfo ? `${perfilInfo.grupoCurto} · ${perfilInfo.nome}` : 'Autenticado';
-            badge.textContent = `Token ativo · ${rotulo}`;
             if (btnAuth) { btnAuth.disabled = false; document.getElementById('lblAuth').textContent = 'Trocar Perfil'; }
             if (btnRefresh) btnRefresh.disabled = false;
             if (chip) chip.className = 'perfil-chip ok';
             if (chipTexto) chipTexto.textContent = perfilInfo ? `Perfil ativo: ${perfilInfo.grupoCurto} · ${perfilInfo.nome}` : 'Perfil ativo: token gerado';
           } else {
-            badge.className = 'badge badge-bad';
-            badge.textContent = 'Não autenticado';
             if (btnAuth) { btnAuth.disabled = !(sel && sel.value); document.getElementById('lblAuth').textContent = 'Gerar Token'; }
             if (btnRefresh) btnRefresh.disabled = true;
             if (chip) chip.className = 'perfil-chip bad';
@@ -785,8 +790,8 @@ code: |2-
             const enc1 = await buscarPorId();
             if (!enc1) { this.addStep('Buscar após criar', false, 'Não encontrado.', {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, null); this.finalizarTeste('Sumiu após criação.'); this.setLoading(this.els.btnCicloVida, false); return; }
             const d1 = this.compararCompleto(dados, enc1);
-            if (d1.length) { this.addStep('Buscar após criar (integridade)', false, `${d1.length} divergência(s):\n` + d1.map(x => `• ${x.campo}: enviado "${x.esperado}" → recebido "${x.recebido}"`).join('\n'), {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, enc1); this.finalizarTeste('Divergência após criação.'); this.setLoading(this.els.btnCicloVida, false); return; }
-            this.addStep('Buscar após criar (integridade)', true, 'Todos os campos bateram.', {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, enc1);
+            if (d1.length) { this.addStep('Buscar após criar', false, `${d1.length} divergência(s):\n` + d1.map(x => `• ${x.campo}: enviado "${x.esperado}" → recebido "${x.recebido}"`).join('\n'), {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, enc1); this.finalizarTeste('Divergência após criação.'); this.setLoading(this.els.btnCicloVida, false); return; }
+            this.addStep('Buscar após criar', true, 'Todos os campos bateram.', {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, enc1);
     
             const dadosAt = this.gerarDadosQuadro('[TESTE-CICLO-EDITADO]');
             dadosAt.quadro_id = String(quadroId); dadosAt.empresa_id = dados.empresa_id;
@@ -798,8 +803,8 @@ code: |2-
             const enc2 = await buscarPorId();
             if (!enc2) { this.addStep('Buscar após editar', false, 'Não encontrado.', {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, null); this.finalizarTeste('Sumiu após edição.'); this.setLoading(this.els.btnCicloVida, false); return; }
             const d2 = this.compararCompleto(dadosAt, enc2);
-            if (d2.length) { this.addStep('Buscar após editar (integridade)', false, `${d2.length} divergência(s):\n` + d2.map(x => `• ${x.campo}: enviado "${x.esperado}" → recebido "${x.recebido}"`).join('\n'), {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, enc2); this.finalizarTeste('Divergência após edição.'); this.setLoading(this.els.btnCicloVida, false); return; }
-            this.addStep('Buscar após editar (integridade)', true, 'Todos os campos bateram.', {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, enc2);
+            if (d2.length) { this.addStep('Buscar após editar', false, `${d2.length} divergência(s):\n` + d2.map(x => `• ${x.campo}: enviado "${x.esperado}" → recebido "${x.recebido}"`).join('\n'), {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, enc2); this.finalizarTeste('Divergência após edição.'); this.setLoading(this.els.btnCicloVida, false); return; }
+            this.addStep('Buscar após editar', true, 'Todos os campos bateram.', {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, enc2);
     
             const resE = await this.chamar(REQ.remove, { empresa_id: String(dados.empresa_id), quadro_id: String(quadroId) });
             const rE = this.interpretar(resE);
@@ -903,10 +908,68 @@ code: |2-
             this._travarAcoesTeste(false);
           }
         }
+        _formatarRelatorioTeste(t) {
+          const linhas = [];
+          linhas.push(`${t.ok ? 'SUCESSO' : 'FALHA'} — [${t.categoria}] ${t.acao}`);
+          linhas.push(`Data: ${t.ts.toLocaleString('pt-BR')}`);
+          if (t.detalhes) linhas.push(`Resumo: ${t.detalhes}`);
+          linhas.push('');
+          linhas.push('Passos:');
+          t.steps.forEach((s, i) => {
+            const status = s.ok ? 'OK' : (s.skipped ? 'SKIP' : 'FALHA');
+            const hora = s.ts ? s.ts.toLocaleTimeString('pt-BR') : '';
+            linhas.push('');
+            linhas.push(`${i + 1}. [${status}] ${s.acao}${hora ? ` (${hora})` : ''}`);
+            if (s.detalhes) {
+              String(s.detalhes).split('\n').forEach(l => linhas.push(`   ${l}`));
+            }
+            if (s.requestJson) {
+              linhas.push('   Request enviado:');
+              JSON.stringify(s.requestJson, null, 2).split('\n').forEach(l => linhas.push(`   ${l}`));
+            }
+            if (s.responseJson) {
+              linhas.push('   Response recebido:');
+              JSON.stringify(s.responseJson, null, 2).split('\n').forEach(l => linhas.push(`   ${l}`));
+            }
+          });
+          return linhas.join('\n');
+        }
+        async _copiarTexto(texto) {
+          // 1) Clipboard API moderna (pode ser bloqueada dentro do iframe do widget)
+          try {
+            if (navigator.clipboard && window.isSecureContext) {
+              await navigator.clipboard.writeText(texto);
+              this.alert('Relatório copiado para a área de transferência.', 'ok');
+              return;
+            }
+          } catch (e) { /* segue para o fallback */ }
+          // 2) Fallback via execCommand (funciona em mais contextos restritos)
+          try {
+            const temp = document.createElement('textarea');
+            temp.value = texto;
+            temp.style.position = 'fixed';
+            temp.style.opacity = '0';
+            document.body.appendChild(temp);
+            temp.focus();
+            temp.select();
+            const ok = document.execCommand('copy');
+            document.body.removeChild(temp);
+            if (ok) { this.alert('Relatório copiado para a área de transferência.', 'ok'); return; }
+          } catch (e) { /* segue para o último recurso */ }
+          // 3) Último recurso: mostra o texto pronto para o usuário copiar manualmente (Ctrl+C)
+          this._mostrarTextoParaCopiar(texto);
+        }
+        _mostrarTextoParaCopiar(texto) {
+          const overlay = this.els.textoCopiaOverlay;
+          const area = this.els.textoCopiaArea;
+          if (!overlay || !area) { this.alert('Não foi possível copiar automaticamente.'); return; }
+          area.value = texto;
+          overlay.classList.add('active');
+          setTimeout(() => { area.focus(); area.select(); }, 50);
+        }
         copiarTeste() {
           if (!this.ultimoTeste) { this.alert('Nenhum teste executado.'); return; }
-          const payload = { timestamp: this.ultimoTeste.ts.toISOString(), categoria: this.ultimoTeste.categoria, acao: this.ultimoTeste.acao, ok: this.ultimoTeste.ok, detalhes: this.ultimoTeste.detalhes, steps: this.ultimoTeste.steps.map(s => ({ timestamp: s.ts?.toISOString(), acao: s.acao, ok: s.ok, skipped: s.skipped, detalhes: s.detalhes, request: s.requestJson, response: s.responseJson })) };
-          navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).then(() => this.alert('JSON copiado.', 'ok'));
+          this._copiarTexto(this._formatarRelatorioTeste(this.ultimoTeste));
         }
       }
     
