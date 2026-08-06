@@ -4,9 +4,6 @@ variables:
     value: https://api-rhnet-hml.sci.com.br
   - name: authUrl
     value: https://api-auth-hml.sci.com.br
-  - name: tipo_perfil
-    value: unico_admin
-    description: "Valores aceitos: unico_admin | practice_admin | parceiro_cliente_unico | parceiro_cliente_practice"
   - name: usarDadosAleatorios
     value: "true"
   - name: token_sistema_unico
@@ -29,3 +26,5 @@ variables:
     name: username_app
   - secret: true
     name: password_app
+  - secret: true
+    name: tipo_perfil
