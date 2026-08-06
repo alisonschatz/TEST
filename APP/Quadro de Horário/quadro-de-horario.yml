@@ -1,1020 +1,729 @@
-# CÓDIGO CORRIGIDO:
 info:
   name: Quadro de Horario
   type: app
   seq: 5
-code: |
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+code: |2-
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-      #app-quadro-horario {
-        --navy: #38486c;
-        --blue: #91d8f7;
-        --white: #ffffff;
-        --bg: #eef1f6;
-        --surface: #ffffff;
-        --surface-alt: rgba(56, 72, 108, 0.06);
-        --text: #263045;
-        --text-muted: rgba(56, 72, 108, 0.70);
-        --border: rgba(56, 72, 108, 0.16);
-        --primary: var(--navy);
-        --primary-soft: rgba(56, 72, 108, 0.08);
-        --accent: var(--blue);
-        --accent-soft: rgba(145, 216, 247, 0.25);
-        --green: #1f8a5f; --green-soft: #e6f6ee;
-        --red: #c1443a; --red-soft: #fbeae8;
-        --orange: #d97706; --orange-soft: #fff7ed;
-        --radius: 10px; --radius-lg: 14px;
-        --shadow: 0 1px 2px rgba(56,72,108,.06), 0 4px 14px rgba(56,72,108,.06);
-
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: var(--bg); color: var(--text); font-size: 14px; padding: 20px; min-height: 100%;
-        letter-spacing: -0.01em;
+      :root {
+        --navy: #38486c; --blue: #91d8f7; --bg: #eef1f6;
+        --surface: #ffffff; --text: #263045; --muted: rgba(56,72,108,.65);
+        --border: rgba(56,72,108,.14); --radius: 10px; --shadow: 0 4px 14px rgba(56,72,108,.06);
+        --green: #1f8a5f; --green-soft: #e6f6ee; --red: #c1443a; --red-soft: #fbeae8; --orange: #d97706; --orange-soft: #fff7ed;
       }
-      #app-quadro-horario * { box-sizing: border-box; }
-      #app-quadro-horario button, #app-quadro-horario input, #app-quadro-horario select { font-family: inherit; letter-spacing: inherit; }
-      #app-quadro-horario :focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
-
-      .ap-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; flex-wrap: wrap; }
-      .ap-header h2 { margin: 0; font-size: 20px; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
-      .ap-header-actions { display: flex; gap: 8px; }
-      .ap-subtitle { font-size: 12.5px; color: var(--text-muted); }
-      .ap-subtitle:not(:empty) { margin-bottom: 10px; }
-
-      .btn-outline { display: inline-flex; align-items: center; gap: 6px; background: var(--white); color: var(--navy); border: 1.5px solid var(--navy); border-radius: 8px; padding: 9px 16px; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: background .15s; }
-      .btn-outline:hover { background: var(--primary-soft); }
-
-      .stat-pill { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 13px; font-size: 12.5px; font-weight: 600; color: var(--text-muted); }
-      .stat-pill b { color: var(--navy); font-weight: 800; }
-
-      .pf-filtros { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; margin: 14px 0 12px; box-shadow: var(--shadow); }
-      .pf-filtros-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px 14px; align-items: end; }
-      .campo-page { max-width: 90px; }
-      .campo-busca { min-width: 130px; }
-      .campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-      .campo label { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
-      .campo input, .campo select { height: 38px; border: 1px solid var(--border); border-radius: 8px; padding: 0 11px; font-size: 13px; color: var(--text); background: var(--surface-alt); width: 100%; transition: border-color .15s, box-shadow .15s, background .15s; }
-      .campo input:focus, .campo select:focus { outline: none; border-color: var(--navy); background: var(--white); box-shadow: 0 0 0 3px rgba(145,216,247,.4); }
-      .campo input:disabled { opacity: .55; }
-      .campo-busca .btn-refresh { height: 38px; width: 100%; justify-content: center; padding: 0 14px; }
-      .pf-filtros-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
-      .link-btn { background: none; border: none; padding: 0; font-size: 12.5px; font-weight: 700; color: var(--text-muted); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
-      .link-btn:hover { color: var(--navy); }
-
-      .btn-refresh { display: inline-flex; align-items: center; gap: 6px; background: var(--navy); color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: filter .15s, transform .1s; }
-      .btn-refresh:hover { filter: brightness(1.15); }
-      .btn-refresh:active { transform: scale(.98); }
-      .btn-refresh:disabled { opacity: .5; cursor: default; }
-      .btn-rapida { background: var(--blue); color: var(--navy); }
-      .btn-rapida:hover { filter: brightness(1.05); }
-      .spinner { width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(255,255,255,.5); border-top-color: #fff; animation: pf-spin .7s linear infinite; display: inline-block; vertical-align: -2px; }
-      @keyframes pf-spin { to { transform: rotate(360deg); } }
-
-      .pf-error { background: var(--red-soft); color: var(--red); border: 1px solid rgba(193,68,58,.3); border-radius: 8px; padding: 11px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; white-space: pre-wrap; }
-      .pf-sucesso { background: var(--green-soft); color: var(--green); border: 1px solid rgba(31,138,95,.3); border-radius: 8px; padding: 11px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
-      .pf-aviso { background: var(--orange-soft); color: var(--orange); border: 1px solid rgba(217,119,6,.3); border-radius: 8px; padding: 11px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
-      .pf-paginacao { display: flex; align-items: center; gap: 10px; justify-content: center; margin: 16px 0; font-size: 12.5px; color: var(--text-muted); }
-
-      .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
-      .search-input { flex: 1; min-width: 220px; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13.5px; }
-      .search-input:focus { outline: none; border-color: var(--navy); }
-      .toolbar-btn { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 8px 13px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: border-color .15s, color .15s; }
-      .toolbar-btn:hover { border-color: var(--navy); color: var(--navy); }
-
-      .func-accordion { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; box-shadow: var(--shadow); transition: border-left-color .15s; }
-      .func-accordion.is-ativo { border-left-color: var(--blue); }
-      .func-summary { padding: 13px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; list-style: none; flex-wrap: wrap; }
-      .func-summary::-webkit-details-marker { display: none; }
-      .func-summary:hover { background: var(--surface-alt); }
-      .func-summary-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-      .func-nome { font-weight: 700; font-size: 14.5px; color: var(--navy); }
-      .func-id { font-size: 11.5px; color: var(--text-muted); }
-      .func-summary-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-left: auto; }
-      .func-actions { display: flex; gap: 6px; }
-      .action-btn { background: var(--primary-soft); color: var(--navy); border: 1px solid transparent; border-radius: 6px; padding: 6px 11px; font-size: 11.5px; font-weight: 700; cursor: pointer; position: relative; z-index: 1; transition: filter .15s; }
-      .action-btn:hover { filter: brightness(.95); }
-      .action-btn-danger { background: var(--red-soft); color: var(--red); }
+      * { box-sizing: border-box; }
+      body { font-family: "Inter", system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; margin: 0; padding: 20px; letter-spacing: -0.01em; }
+      h2 { margin: 0 0 4px; font-size: 20px; font-weight: 800; color: var(--navy); }
+      .subtitle { font-size: 12.5px; color: var(--muted); margin-bottom: 14px; }
+      .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+      .tab { background: none; border: none; padding: 10px 4px; margin-right: 18px; font-size: 13.5px; font-weight: 700; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+      .tab:hover { color: var(--navy); }
+      .tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+      .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; box-shadow: var(--shadow); }
+      .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+      .card-title { font-size: 14.5px; font-weight: 800; color: var(--navy); margin: 0; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 12px; align-items: end; }
+      .field { display: flex; flex-direction: column; gap: 5px; }
+      .field label { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+      .field input, .field select { height: 38px; border: 1px solid var(--border); border-radius: 8px; padding: 0 11px; font-size: 13px; background: rgba(56,72,108,.04); width: 100%; transition: .15s; font-family: inherit; }
+      .field input:focus, .field select:focus { outline: none; border-color: var(--navy); background: #fff; box-shadow: 0 0 0 3px rgba(145,216,247,.4); }
+      .btn { display: inline-flex; align-items: center; gap: 6px; border: none; border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; transition: .15s; font-family: inherit; }
+      .btn-primary { background: var(--navy); color: #fff; }
+      .btn-primary:hover { filter: brightness(1.15); }
+      .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+      .btn-outline { background: #fff; color: var(--navy); border: 1.5px solid var(--navy); }
+      .btn-outline:hover { background: rgba(56,72,108,.06); }
+      .btn-danger { background: var(--red-soft); color: var(--red); border: 1.5px solid var(--red); }
+      .btn-danger:hover { filter: brightness(.95); }
+      .btn-sm { padding: 6px 12px; font-size: 12px; }
+      .toolbar { display: flex; gap: 8px; align-items: center; margin: 14px 0; flex-wrap: wrap; }
+      .search { flex: 1; min-width: 220px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13.5px; font-family: inherit; }
+      .search:focus { outline: none; border-color: var(--navy); }
       .badge { padding: 3px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
-      .badge-ativo { background: var(--green-soft); color: var(--green); }
-      .badge-inativo { background: var(--red-soft); color: var(--red); }
-      .badge-info { background: var(--accent-soft); color: var(--navy); }
-
-      .inner-content { padding: 16px; background: var(--surface-alt); border-top: 1px solid var(--border); }
-      .empty-state { text-align: center; padding: 44px 20px; color: var(--text-muted); font-size: 13.5px; }
-
-      .semana-table { width: 100%; border-collapse: collapse; font-size: 12px; background: var(--white); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-      .semana-table th { background: var(--navy); color: var(--blue); font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: .04em; padding: 7px 4px; }
-      .semana-table td { padding: 6px 4px; text-align: center; border-bottom: 1px solid var(--border); }
-      .semana-table tr:nth-child(even) td { background: var(--surface-alt); }
-      .semana-table tr:last-child td { border-bottom: none; }
-      .semana-table .dia-nome { text-align: left; font-weight: 700; padding-left: 10px; color: var(--navy); }
-      .semana-table input[type="time"] { width: 80px; border: 1px solid var(--border); border-radius: 5px; padding: 3px 4px; font-size: 11.5px; background: var(--white); }
-      .semana-table input[type="time"]:focus { outline: none; border-color: var(--navy); }
-
-      .form-panel { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--navy); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow); }
-      .form-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-      .form-panel-header h3 { margin: 0; font-size: 16px; color: var(--navy); font-weight: 800; }
-      .form-fieldset { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
-      .form-fieldset legend { font-size: 11px; color: var(--navy); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 0 4px; }
+      .badge-ok { background: var(--green-soft); color: var(--green); }
+      .badge-bad { background: var(--red-soft); color: var(--red); }
+      .badge-info { background: rgba(145,216,247,.25); color: var(--navy); }
+      .alert { border-radius: 8px; padding: 11px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+      .alert-err { background: var(--red-soft); color: var(--red); border: 1px solid rgba(193,68,58,.3); }
+      .alert-ok { background: var(--green-soft); color: var(--green); border: 1px solid rgba(31,138,95,.3); }
+      .alert-warn { background: var(--orange-soft); color: var(--orange); border: 1px solid rgba(217,119,6,.3); }
+      .empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13.5px; }
+      .spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; animation: spin .7s linear infinite; display: inline-block; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .spinner-dark { border-color: rgba(56,72,108,.3); border-top-color: var(--navy); }
+      details { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; box-shadow: var(--shadow); }
+      details[open] { border-left-color: var(--blue); }
+      summary { padding: 13px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; list-style: none; flex-wrap: wrap; }
+      summary::-webkit-details-marker { display: none; }
+      summary:hover { background: rgba(56,72,108,.04); }
+      .summary-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+      .summary-name { font-weight: 700; font-size: 14.5px; color: var(--navy); }
+      .summary-id { font-size: 11.5px; color: var(--muted); }
+      .summary-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-left: auto; }
+      .inner { padding: 14px; background: rgba(56,72,108,.04); border-top: 1px solid var(--border); }
+      table { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+      th { background: var(--navy); color: var(--blue); font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: .04em; padding: 7px 4px; }
+      td { padding: 5px 4px; text-align: center; border-bottom: 1px solid var(--border); }
+      tr:nth-child(even) td { background: rgba(56,72,108,.03); }
+      tr:last-child td { border-bottom: none; }
+      .dia-nome { text-align: left; font-weight: 700; padding-left: 10px; color: var(--navy); }
+      input[type="time"] { width: 78px; border: 1px solid var(--border); border-radius: 5px; padding: 3px 4px; font-size: 11.5px; background: #fff; font-family: inherit; }
+      input[type="time"]:focus { outline: none; border-color: var(--navy); }
+      .form-panel { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--navy); border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow); }
       .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 9px 10px; }
-      .form-panel-actions { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
-
-      .ap-view-tabs { display: flex; gap: 4px; margin: 14px 0 0; border-bottom: 1px solid var(--border); }
-      .ap-view-tab { background: none; border: none; padding: 9px 4px; margin-right: 20px; font-size: 13.5px; font-weight: 700; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
-      .ap-view-tab:hover { color: var(--navy); }
-      .ap-view-tab.is-active { color: var(--navy); border-bottom-color: var(--navy); }
-
-      .pf-filtros h3 { margin: 0 0 4px; color: var(--navy); font-size: 14.5px; font-weight: 800; }
-      .pf-filtros p.hint { margin: 0 0 12px; font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
-      .testes-linha { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; }
-      .btn-outline-danger { border-color: var(--red); color: var(--red); }
-      .btn-outline-danger:hover { background: var(--red-soft); }
-
-      .op-progresso { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-muted); margin-top: 10px; min-height: 20px; }
-      .op-progresso.ativo { color: var(--navy); font-weight: 600; }
-      .op-progresso .spinner { border-color: rgba(56,72,108,.3); border-top-color: var(--navy); width: 12px; height: 12px; }
-
-      /* ====== painel de resultado de teste com steps ====== */
-      .ultimo-teste { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow); }
-      .ultimo-teste-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
-      .ultimo-teste-badge { padding: 3px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; }
-      .ultimo-teste-badge.ok { background: var(--green-soft); color: var(--green); }
-      .ultimo-teste-badge.fail { background: var(--red-soft); color: var(--red); }
-      .ultimo-teste-titulo { font-weight: 700; font-size: 14px; color: var(--navy); }
-      .ultimo-teste-hora { margin-left: auto; font-size: 11.5px; color: var(--text-muted); }
-      .ultimo-teste-detalhes { color: var(--text-muted); font-size: 12.5px; line-height: 1.6; margin-bottom: 14px; white-space: pre-wrap; }
-
-      .teste-steps { display: flex; flex-direction: column; gap: 10px; }
-      .teste-step { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-      .teste-step-header { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--surface-alt); cursor: pointer; }
-      .teste-step-header:hover { background: rgba(56,72,108,0.10); }
-      .teste-step-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
-      .teste-step-badge.ok { background: var(--green-soft); color: var(--green); }
-      .teste-step-badge.fail { background: var(--red-soft); color: var(--red); }
-      .teste-step-badge.skip { background: var(--orange-soft); color: var(--orange); }
-      .teste-step-num { font-size: 11px; color: var(--text-muted); font-weight: 600; min-width: 28px; }
-      .teste-step-nome { font-size: 13px; font-weight: 700; color: var(--navy); flex: 1; }
-      .teste-step-hint { font-size: 11px; color: var(--text-muted); }
-      .teste-step-body { padding: 12px; border-top: 1px solid var(--border); background: var(--surface); }
-      .teste-step-detalhes { font-size: 12.5px; color: var(--text); line-height: 1.6; margin-bottom: 12px; white-space: pre-wrap; }
-      .teste-section-label { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
-      .teste-pre { background: #1e2434; padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; color: var(--blue); font-family: "Fira Code", Consolas, Monaco, monospace; font-size: 11.5px; line-height: 1.5; max-height: 220px; overflow-y: auto; }
-
-      .config-paginacao { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin: 8px 0 12px; font-size: 12.5px; color: var(--text-muted); }
-      .config-paginacao label { font-weight: 600; }
-      .config-paginacao input { width: 60px; height: 32px; border: 1px solid var(--border); border-radius: 6px; padding: 0 8px; font-size: 13px; text-align: center; background: var(--surface); }
-
-      .pf-debug { margin-top: 20px; }
-      .pf-debug summary { cursor: pointer; font-size: 12px; color: var(--text-muted); font-weight: 600; }
-      #app-quadro-horario .pf-debug pre { background: #1e2434; padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; color: var(--blue); font-family: "Fira Code", Consolas, Monaco, monospace; font-size: 12px; line-height: 1.5; margin-top: 8px; max-height: 260px; }
+      fieldset { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+      legend { font-size: 11px; color: var(--navy); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 0 4px; }
+      .paginacao { display: flex; align-items: center; gap: 10px; justify-content: center; margin: 16px 0; font-size: 12.5px; color: var(--muted); }
+      .step { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 8px; }
+      .step-h { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(56,72,108,.04); cursor: pointer; }
+      .step-h:hover { background: rgba(56,72,108,.08); }
+      .step-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+      .step-body { padding: 12px; border-top: 1px solid var(--border); background: var(--surface); }
+      .pre { background: #1e2434; padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; color: var(--blue); font-family: "Fira Code", Consolas, monospace; font-size: 11.5px; line-height: 1.5; max-height: 200px; overflow-y: auto; }
+      .overlay { display: none; position: fixed; inset: 0; background: rgba(38,48,69,.45); z-index: 1000; align-items: center; justify-content: center; }
+      .overlay.active { display: flex; }
+      .modal { background: var(--surface); border-radius: 12px; padding: 20px; max-width: 380px; width: 90%; box-shadow: 0 10px 30px rgba(38,48,69,.25); }
+      .hint { margin: 0 0 12px; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+      .progresso { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); margin-top: 10px; min-height: 20px; }
+      .progresso.ativo { color: var(--navy); font-weight: 600; }
+      .flex { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+      .ml-auto { margin-left: auto; }
+      .w-full { width: 100%; }
+      .hidden { display: none !important; }
     </style>
-
-    <div id="app-quadro-horario">
-
-      <div class="ap-header">
-        <h2>Painel de Quadros de Horario</h2>
-        <div class="ap-header-actions">
-          <button class="btn-outline" onclick="abrirForm('criar', null)">+ Novo</button>
-          <button class="btn-refresh btn-rapida" onclick="abrirCriacaoRapida()" title="Abre o formulario ja preenchido com dados de teste aleatorios">Criacao rapida</button>
+    </head>
+    <body>
+    
+    <div id="app">
+      <div class="flex" style="justify-content:space-between; margin-bottom:4px;">
+        <h2>Painel de Quadros de Horário</h2>
+        <div class="flex">
+          <button class="btn btn-outline btn-sm" id="btnNovo">+ Novo</button>
+          <button class="btn btn-primary btn-sm" style="background:var(--blue);color:var(--navy);" id="btnRapido">Criação rápida</button>
         </div>
       </div>
-      <div class="ap-subtitle" id="apStatus">Inicializando...</div>
-
-      <div class="ap-view-tabs">
-        <button class="ap-view-tab is-active" data-view="registros" onclick="trocarView('registros')">Registros</button>
-        <button class="ap-view-tab" data-view="testes" onclick="trocarView('testes')">Ferramentas de teste</button>
+      <div class="subtitle" id="statusText">Inicializando...</div>
+    
+      <div class="tabs">
+        <button class="tab active" data-view="registros">Registros</button>
+        <button class="tab" data-view="testes">Ferramentas de teste</button>
       </div>
-
-      <div id="pfErrorBox" style="margin-top:12px;"></div>
-
-      <div id="secao-registros">
-
-        <div class="pf-filtros">
-          <div class="pf-filtros-grid">
-            <div class="campo"><label>Empresa ID</label><input id="fEmpresaId" type="text" value="900002"></div>
-            <div class="campo"><label>Quadro ID</label><input id="fQuadroId" type="text"></div>
-            <div class="campo"><label>V Quadro Horario ID</label><input id="fVQuadroHorarioId" type="text"></div>
-            <div class="campo"><label>Alterado a partir de</label><input id="fAlteradoData" type="date"></div>
-            <div class="campo campo-page"><label>Pagina</label><input id="fPage" type="number" min="1" value="1"></div>
-            <div class="campo campo-busca">
+    
+      <div id="alertBox"></div>
+    
+      <!-- REGISTROS -->
+      <div id="view-registros">
+        <div class="card">
+          <div class="grid">
+            <div class="field"><label>Empresa ID</label><input type="text" id="fEmpresaId" value="900002"></div>
+            <div class="field"><label>Quadro ID</label><input type="text" id="fQuadroId"></div>
+            <div class="field"><label>V Quadro Horário ID</label><input type="text" id="fVQuadroId"></div>
+            <div class="field"><label>Alterado a partir de</label><input type="date" id="fAlteradoData"></div>
+            <div class="field" style="max-width:90px;"><label>Página</label><input type="number" min="1" id="fPage" value="1"></div>
+            <div class="field" style="min-width:130px;">
               <label>&nbsp;</label>
-              <button class="btn-refresh" id="btnBuscar" onclick="buscar(false)" disabled><span id="btnBuscarLabel">Inicializando...</span></button>
+              <button class="btn btn-primary w-full" id="btnBuscar" disabled>
+                <span id="spinnerBuscar" class="spinner hidden"></span>
+                <span id="lblBuscar">Inicializando...</span>
+              </button>
             </div>
           </div>
-          <div class="pf-filtros-footer">
-            <button class="link-btn" onclick="limparFiltros()">Limpar filtros</button>
-            <span class="stat-pill">Total <b id="statTotal">–</b></span>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+            <button class="btn" style="background:none;padding:0;font-size:12.5px;color:var(--muted);text-decoration:underline;" id="btnLimparFiltros">Limpar filtros</button>
+            <span class="badge badge-info">Total <b id="statTotal">–</b></span>
           </div>
         </div>
-
-        <div class="config-paginacao">
-          <label for="fPerPage">Registros por pagina</label>
-          <input id="fPerPage" type="number" min="1" max="100" value="15">
+    
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:8px 0 12px;font-size:12.5px;color:var(--muted);">
+          <label for="fPerPage" style="font-weight:600;">Registros por página</label>
+          <input id="fPerPage" type="number" min="1" max="100" value="15" style="width:60px;height:32px;border:1px solid var(--border);border-radius:6px;padding:0 8px;font-size:13px;text-align:center;background:#fff;">
         </div>
-
+    
         <div id="formContainer"></div>
-        <div id="pfPaginacao" class="pf-paginacao"></div>
-
+        <div id="paginacao" class="paginacao"></div>
+    
         <div class="toolbar">
-          <input type="text" class="search-input" id="searchLocal" placeholder="Filtrar dentro da pagina atual por descricao ou ID..." oninput="filtrarLocal()">
-          <button class="toolbar-btn" onclick="toggleAll(true)">Expandir tudo</button>
-          <button class="toolbar-btn" onclick="toggleAll(false)">Recolher tudo</button>
+          <input type="text" class="search" id="searchLocal" placeholder="Filtrar por descrição ou ID...">
+          <button class="btn btn-outline btn-sm" id="btnExpandir">Expandir tudo</button>
+          <button class="btn btn-outline btn-sm" id="btnRecolher">Recolher tudo</button>
         </div>
-        <div id="cardsContainer"><div class="empty-state">Ajuste os filtros acima e clique em "Buscar dados".</div></div>
-
+        <div id="cardsContainer"><div class="empty">Ajuste os filtros e clique em "Buscar dados".</div></div>
       </div>
-
-      <div id="secao-testes" style="display:none;">
-
-        <div class="pf-filtros">
-          <h3>Teste de ciclo de vida</h3>
-          <p class="hint">Cria um registro aleatorio, busca de volta e confere campo a campo, edita, confere de novo, exclui e confirma que sumiu.</p>
-          <div class="testes-linha">
-            <button class="btn-refresh" id="btnCicloVida" onclick="rodarTesteCicloVida()">Rodar teste de ciclo de vida</button>
-          </div>
+    
+      <!-- TESTES -->
+      <div id="view-testes" class="hidden">
+        <div class="card">
+          <h3 class="card-title">Teste de ciclo de vida</h3>
+          <p class="hint">Cria um registro aleatório, busca, confere campo a campo, edita, confere de novo, exclui e confirma que sumiu.</p>
+          <button class="btn btn-primary" id="btnCicloVida">
+            <span id="spinnerCiclo" class="spinner hidden"></span>
+            <span id="lblCiclo">Rodar teste de ciclo de vida</span>
+          </button>
         </div>
-
-        <div class="pf-filtros">
-          <h3>Geracao de massa</h3>
-          <p class="hint">Cria varios registros de uma vez, marcados com um prefixo identificavel. Todos ficam rastreados nesta sessao pra poderem ser limpos depois.</p>
-          <div class="testes-linha">
-            <div class="campo" style="max-width:110px;"><label>Quantidade</label><input id="massaQtd" type="number" min="1" max="200" value="10"></div>
-            <button class="btn-refresh" id="btnMassa" onclick="criarEmMassa()">Criar em massa</button>
-            <button class="btn-outline btn-outline-danger" id="btnLimparMassa" onclick="limparDadosTeste()">Limpar dados de teste desta sessao</button>
+    
+        <div class="card">
+          <h3 class="card-title">Geração de massa</h3>
+          <p class="hint">Cria vários registros de uma vez, marcados com prefixo identificável. Todos ficam rastreados nesta sessão.</p>
+          <div class="flex">
+            <div class="field" style="max-width:110px;"><label>Quantidade</label><input type="number" min="1" max="200" id="massaQtd" value="10"></div>
+            <button class="btn btn-primary" id="btnMassa">
+              <span id="spinnerMassa" class="spinner hidden"></span>
+              Criar em massa
+            </button>
+            <button class="btn btn-danger" id="btnLimparMassa">Limpar dados de teste desta sessão</button>
           </div>
-          <div id="massaProgresso" class="op-progresso"></div>
+          <div id="massaProgresso" class="progresso"></div>
         </div>
-
-        <div class="pf-filtros">
-          <div class="testes-log-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <h3 style="margin:0;">Resultado do ultimo teste</h3>
-            <button class="link-btn" onclick="copiarUltimoTeste()">Copiar JSON completo</button>
+    
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 class="card-title" style="margin:0;">Resultado do último teste</h3>
+            <button class="btn" style="background:none;padding:0;font-size:12.5px;color:var(--muted);text-decoration:underline;" id="btnCopiarTeste">Copiar JSON</button>
           </div>
-          <div id="ultimoTesteContainer"><div class="empty-state">Nenhum teste executado ainda nesta sessao.</div></div>
+          <div id="ultimoTesteContainer"><div class="empty">Nenhum teste executado ainda nesta sessão.</div></div>
         </div>
-
       </div>
-
-      <details class="pf-debug">
-        <summary>Depuracao: ultima chamada via bru.ctx.runRequest()</summary>
-        <pre id="pfDebugRaw"><code>—</code></pre>
+    
+      <details style="margin-top:20px;">
+        <summary style="cursor:pointer;font-size:12px;color:var(--muted);font-weight:600;">Depuração: última chamada bru.ctx.runRequest()</summary>
+        <pre class="pre" style="margin-top:8px;max-height:260px;"><code id="debugRaw">—</code></pre>
       </details>
-
-      <div id="pfConfirmOverlay" style="display:none;position:fixed;inset:0;background:rgba(38,48,69,.45);z-index:1000;align-items:center;justify-content:center;">
-        <div style="background:var(--surface);border-radius:var(--radius-lg);padding:20px;max-width:360px;width:90%;box-shadow:0 10px 30px rgba(38,48,69,.3);">
-          <div id="pfConfirmMsg" style="margin-bottom:16px;font-size:13.5px;color:var(--text);line-height:1.5;"></div>
+    
+      <!-- Modal -->
+      <div class="overlay" id="confirmOverlay">
+        <div class="modal">
+          <div style="margin-bottom:16px;font-size:13.5px;color:var(--text);line-height:1.5;" id="confirmMsg"></div>
           <div style="display:flex;gap:8px;justify-content:flex-end;">
-            <button class="toolbar-btn" onclick="pfConfirmResolver(false)">Cancelar</button>
-            <button class="action-btn action-btn-danger" style="padding:8px 14px;" onclick="pfConfirmResolver(true)">Confirmar exclusao</button>
+            <button class="btn btn-outline btn-sm" id="confirmCancel">Cancelar</button>
+            <button class="btn btn-danger btn-sm" id="confirmOk">Confirmar exclusão</button>
           </div>
         </div>
       </div>
-
     </div>
-
+    
     <script>
-      const REQ = {
-        lista: 'lista-quadros-horarios',
-        cria: 'cria-quadros-horarios',
-        atualiza: 'atualiza-quadros-horarios',
-        remove: 'remove-quadros-horarios',
-      };
-
+      // ===================== CONFIGURAÇÃO =====================
+      const REQ = { lista: 'lista-quadros-horarios', cria: 'cria-quadros-horarios', atualiza: 'atualiza-quadros-horarios', remove: 'remove-quadros-horarios' };
       const DIAS = [['dom','Dom'],['seg','Seg'],['ter','Ter'],['qua','Qua'],['qui','Qui'],['sex','Sex'],['sab','Sab']];
       const SLOTS = ['entrada_1','saida_1','entrada_2','saida_2','entrada_3','saida_3','entrada_4','saida_4'];
-      const CAMPOS_TOPO = ['quadro_id', 'empresa_id', 'v_quadro_horario_id', 'descricao', 'horario_flexivel', 'ativo'];
-      const SELECTS = { horario_flexivel: ['false', 'true'], ativo: ['true', 'false'] };
-
-      // ---------------- helpers genericos ----------------
-      const v = (id) => (document.getElementById(id)?.value ?? '');
-      const renderVal = (val) => (val === null || val === undefined || val === '') ? '<span style="color:#a1a5b0;font-style:italic;">—</span>' : (typeof val === 'boolean' ? String(val) : String(val));
-
-      function mostrarErro(msg, ok) {
-        const box = document.getElementById('pfErrorBox');
-        box.innerHTML = msg ? `<div class="${ok ? 'pf-sucesso' : 'pf-error'}">${msg}</div>` : '';
-      }
-      function mostrarAviso(msg) {
-        const box = document.getElementById('pfErrorBox');
-        box.innerHTML = msg ? `<div class="pf-aviso">${msg}</div>` : '';
-      }
-      function mostrarDebug(obj) {
-        try { document.getElementById('pfDebugRaw').innerHTML = '<code>' + JSON.stringify(obj, null, 2) + '</code>'; }
-        catch (e) { document.getElementById('pfDebugRaw').innerHTML = '<code>' + String(obj) + '</code>'; }
-      }
-      function montarQueryString(pares) {
-        return pares.filter(([, val]) => (val ?? '').toString().trim() !== '')
-          .map(([k, val]) => `${k}=${encodeURIComponent(val.toString().trim())}`).join('&');
-      }
-      function extrairBody(res) { return res?.data ?? res?.body ?? null; }
-      function interpretarResposta(res) {
-        const status = res?.status;
-        const body = extrairBody(res);
-        if (status && status >= 400) {
-          const msg = (body && body.mensagem) || `A API retornou status ${status}.`;
-          const detalhes = (body && body.erros) ? '\n' + JSON.stringify(body.erros, null, 2) : '';
-          return { ok: false, status, body, msg: msg + detalhes };
+      const CAMPOS_TOPO = ['quadro_id','empresa_id','v_quadro_horario_id','descricao','horario_flexivel','ativo'];
+      const SELECTS = { horario_flexivel: ['false','true'], ativo: ['true','false'] };
+      const DESCS = ['Comercial','Administrativo','Escala Manhã','Escala Tarde','Turno Único','Operacional','Atendimento','Backoffice'];
+      const esperar = ms => new Promise(r => setTimeout(r, ms));
+    
+      // ===================== APP CORE =====================
+      class QuadroApp {
+        constructor() {
+          this.mapaRequests = {};
+          this.ctxPronto = false;
+          this.carregando = false;
+          this.salvando = false;
+          this.testando = false;
+          this.massando = false;
+          this.dados = [];
+          this.dadosFiltrados = [];
+          this.paginacao = null;
+          this.modoForm = null;
+          this.formEdit = null;
+          this.testSessionIds = [];
+          this.ultimoTeste = null;
+          this.view = 'registros';
+          this.els = {};
+          this._bindElements();
+          this._bindEvents();
         }
-        return { ok: true, status, body, msg: (body && body.mensagem) || '' };
-      }
-      function toggleAll(open) { document.querySelectorAll('#cardsContainer .func-accordion').forEach(el => { el.open = open; }); }
-
-      let pfConfirmResolve = null;
-      function confirmarAcao(msg) {
-        return new Promise((resolve) => {
-          pfConfirmResolve = resolve;
-          document.getElementById('pfConfirmMsg').textContent = msg;
-          document.getElementById('pfConfirmOverlay').style.display = 'flex';
-        });
-      }
-      function pfConfirmResolver(valor) {
-        document.getElementById('pfConfirmOverlay').style.display = 'none';
-        if (pfConfirmResolve) pfConfirmResolve(valor);
-        pfConfirmResolve = null;
-      }
-      function filtrarLocal() {
-        const term = (document.getElementById('searchLocal').value || '').trim().toLowerCase();
-        document.querySelectorAll('#cardsContainer .func-accordion').forEach(card => {
-          card.style.display = card.dataset.search.includes(term) ? '' : 'none';
-        });
-      }
-
-      function trocarView(nome) {
-        document.getElementById('secao-registros').style.display = nome === 'registros' ? '' : 'none';
-        document.getElementById('secao-testes').style.display = nome === 'testes' ? '' : 'none';
-        document.querySelectorAll('.ap-view-tab').forEach(b => b.classList.toggle('is-active', b.dataset.view === nome));
-      }
-
-      // ---------------- tabela semanal ----------------
-      function tabelaSemanaLeitura(registro) {
-        const linhas = DIAS.map(([chave, nome]) => {
-          const dia = registro[chave] || {};
-          const celulas = SLOTS.map(s => `<td>${renderVal(dia[s])}</td>`).join('');
-          return `<tr><td class="dia-nome">${nome}</td>${celulas}</tr>`;
-        }).join('');
-        return `
-          <table class="semana-table">
-            <thead><tr><th>Dia</th><th>Ent.1</th><th>Sai.1</th><th>Ent.2</th><th>Sai.2</th><th>Ent.3</th><th>Sai.3</th><th>Ent.4</th><th>Sai.4</th></tr></thead>
-            <tbody>${linhas}</tbody>
-          </table>`;
-      }
-
-      function tabelaSemanaEdicao(registro) {
-        const linhas = DIAS.map(([chave, nome]) => {
-          const dia = (registro && registro[chave]) || {};
-          const celulas = SLOTS.map(s => {
-            const val = dia[s] || '';
-            return `<td><input type="time" id="qf__${chave}_${s}" value="${val}"></td>`;
-          }).join('');
-          return `<tr><td class="dia-nome">${nome}</td>${celulas}</tr>`;
-        }).join('');
-        return `
-          <table class="semana-table">
-            <thead><tr><th>Dia</th><th>Ent.1</th><th>Sai.1</th><th>Ent.2</th><th>Sai.2</th><th>Ent.3</th><th>Sai.3</th><th>Ent.4</th><th>Sai.4</th></tr></thead>
-            <tbody>${linhas}</tbody>
-          </table>`;
-      }
-
-      function coletarSemana() {
-        const out = {};
-        DIAS.forEach(([chave]) => SLOTS.forEach(s => {
-          out[`${chave}_${s}`] = document.getElementById(`qf__${chave}_${s}`)?.value ?? '';
-        }));
-        return out;
-      }
-
-      // ---------------- geracao de dados aleatorios ----------------
-      const DESCRICOES_ALEATORIAS = ['Comercial', 'Administrativo', 'Escala Manha', 'Escala Tarde', 'Turno Unico', 'Operacional', 'Atendimento', 'Backoffice'];
-
-      function gerarHorarioAleatorioDia(chanceFolga) {
-        if (Math.random() < chanceFolga) {
-          return { entrada_1:'', saida_1:'', entrada_2:'', saida_2:'', entrada_3:'', saida_3:'', entrada_4:'', saida_4:'' };
+    
+        _bindElements() {
+          const ids = ['statusText','alertBox','view-registros','view-testes','btnBuscar','spinnerBuscar','lblBuscar','statTotal',
+            'formContainer','paginacao','cardsContainer','searchLocal','ultimoTesteContainer','debugRaw',
+            'btnCicloVida','spinnerCiclo','lblCiclo','btnMassa','spinnerMassa','btnLimparMassa','massaProgresso','massaQtd',
+            'confirmOverlay','confirmMsg','confirmCancel','confirmOk','btnNovo','btnRapido','btnLimparFiltros',
+            'fEmpresaId','fQuadroId','fVQuadroId','fAlteradoData','fPage','fPerPage',
+            'btnExpandir','btnRecolher','btnCopiarTeste'];
+          ids.forEach(id => this.els[id] = document.getElementById(id));
         }
-        const entradasManha = ['07:00', '08:00', '09:00'];
-        const saidasTarde = ['17:00', '18:00', '19:00'];
-        return {
-          entrada_1: entradasManha[Math.floor(Math.random() * entradasManha.length)],
-          saida_1: '12:00',
-          entrada_2: '13:00',
-          saida_2: saidasTarde[Math.floor(Math.random() * saidasTarde.length)],
-          entrada_3: '', saida_3: '', entrada_4: '', saida_4: '',
-        };
-      }
-
-      function gerarDadosQuadroAleatorio(prefixoDescricao, opts) {
-        opts = opts || {};
-        const desc = (prefixoDescricao ? prefixoDescricao + ' ' : '') +
-          DESCRICOES_ALEATORIAS[Math.floor(Math.random() * DESCRICOES_ALEATORIAS.length)] + ' ' + (Math.floor(Math.random() * 900) + 100);
-        const dados = {
-          empresa_id: v('fEmpresaId') || '900002',
-          v_quadro_horario_id: String(Math.floor(Math.random() * 9000) + 1000),
-          descricao: desc,
-          horario_flexivel: opts.flexivel ? 'true' : (Math.random() < 0.2 ? 'true' : 'false'),
-          ativo: opts.inativo ? 'false' : 'true',
-        };
-        DIAS.forEach(([chave]) => {
-          const chanceFolga = (chave === 'dom' || chave === 'sab') ? 0.6 : 0.08;
-          const horario = gerarHorarioAleatorioDia(chanceFolga);
-          SLOTS.forEach(s => { dados[`${chave}_${s}`] = horario[s]; });
-        });
-        return dados;
-      }
-
-      function preencherAleatorio() {
-        const dados = gerarDadosQuadroAleatorio(null);
-        const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
-        Object.keys(dados).forEach(campo => {
-          if (campo === 'empresa_id') return;
-          setVal(`qf__${campo}`, dados[campo]);
-        });
-      }
-
-      function abrirCriacaoRapida() {
-        trocarView('registros');
-        abrirForm('criar', null);
-        preencherAleatorio();
-      }
-
-      // ---------------- campos do topo (form) ----------------
-      function campoTopoHtml(nome, valor) {
-        const id = `qf__${nome}`;
-        const val = (valor === null || valor === undefined) ? '' : valor;
-        if (SELECTS[nome]) {
-          const opts = SELECTS[nome].map(o => `<option value="${o}" ${String(val) === o ? 'selected' : ''}>${o || 'Selecione'}</option>`).join('');
-          return `<div class="campo"><label>${nome}</label><select id="${id}">${opts}</select></div>`;
-        }
-        const disabled = nome === 'quadro_id' && modoForm === 'criar' ? 'disabled placeholder="gerado automaticamente"' : '';
-        return `<div class="campo"><label>${nome}</label><input id="${id}" type="text" value="${String(val).replace(/"/g,'&quot;')}" ${disabled}></div>`;
-      }
-
-      function coletarTopo() {
-        const out = {};
-        CAMPOS_TOPO.forEach(c => { out[c] = document.getElementById(`qf__${c}`)?.value ?? ''; });
-        return out;
-      }
-
-      // ---------------- estado + orquestracao ----------------
-      let mapaRequests = {};
-      let ctxPronto = false;
-      let carregando = false;
-      let dados = [];
-      let modoForm = null;
-
-      async function chamar(nomeRequest, runtimeVariables) {
-        const pathname = mapaRequests[nomeRequest];
-        if (!pathname) throw new Error(`Request "${nomeRequest}" nao encontrada na colecao.`);
-        const res = await bru.ctx.runRequest(pathname, { runtimeVariables });
-        mostrarDebug({ request: nomeRequest, enviado: runtimeVariables, resposta: res });
-        return res;
-      }
-
-      function atualizarBotao() {
-        const btn = document.getElementById('btnBuscar');
-        const label = document.getElementById('btnBuscarLabel');
-        if (!ctxPronto) { btn.disabled = true; label.textContent = 'Inicializando...'; return; }
-        if (carregando) { btn.disabled = true; label.innerHTML = '<span class="spinner"></span> Buscando...'; return; }
-        btn.disabled = false;
-        label.textContent = dados.length > 0 ? 'Atualizar' : 'Buscar dados';
-      }
-
-      function limparFiltros() {
-        ['fEmpresaId','fQuadroId','fVQuadroHorarioId','fAlteradoData'].forEach(id => document.getElementById(id).value = '');
-        document.getElementById('fPage').value = '1';
-        document.getElementById('fPerPage').value = '15';
-      }
-
-      async function buscar(resetarPagina) {
-        if (!ctxPronto || carregando) return;
-        if (resetarPagina) document.getElementById('fPage').value = '1';
-        mostrarErro('');
-        carregando = true;
-        atualizarBotao();
-        try {
-          const rt_query = montarQueryString([
-            ['empresa_id', v('fEmpresaId')],
-            ['quadro_id', v('fQuadroId')],
-            ['v_quadro_horario_id', v('fVQuadroHorarioId')],
-            ['alterado_data', v('fAlteradoData')],
-            ['page', v('fPage') || '1'],
-            ['per_page', v('fPerPage') || '15'],
-          ]);
-          const res = await chamar(REQ.lista, { rt_query });
-          const r = interpretarResposta(res);
-          if (!r.ok) { mostrarErro(r.msg); dados = []; renderLista([], null); return; }
-          dados = Array.isArray(r.body?.retorno) ? r.body.retorno : [];
-          renderLista(dados, r.body?.paginacao || null);
-        } catch (err) {
-          mostrarErro(err.message || String(err));
-        } finally {
-          carregando = false;
-          atualizarBotao();
-        }
-      }
-
-      function irParaPagina(n) {
-        if (n < 1) return;
-        document.getElementById('fPage').value = n;
-        buscar(false);
-      }
-
-      function renderPaginacao(p) {
-        const box = document.getElementById('pfPaginacao');
-        if (!p) { box.innerHTML = ''; return; }
-        box.innerHTML = `
-          <button class="toolbar-btn" ${p.pagina_atual <= 1 ? 'disabled' : ''} onclick="irParaPagina(${p.pagina_atual - 1})">&larr; Anterior</button>
-          <span>Pagina ${p.pagina_atual} de ${p.ultima_pagina} · ${p.total} registros (mostrando ${p.inicio}–${p.fim})</span>
-          <button class="toolbar-btn" ${p.pagina_atual >= p.ultima_pagina ? 'disabled' : ''} onclick="irParaPagina(${p.pagina_atual + 1})">Proxima &rarr;</button>
-        `;
-      }
-
-      function montarCard(reg, idx) {
-        const nomeBusca = `${reg.descricao || ''} ${reg.quadro_id || ''} ${reg.v_quadro_horario_id || ''}`.toLowerCase();
-        return `
-          <details class="func-accordion ${reg.ativo ? 'is-ativo' : ''}" data-search="${nomeBusca}">
-            <summary class="func-summary">
-              <div class="func-summary-main">
-                <span class="func-nome">${reg.descricao || 'Sem descricao'}</span>
-                <span class="func-id">Quadro ID ${reg.quadro_id ?? '—'} · V. Quadro Horario ID ${reg.v_quadro_horario_id ?? '—'} · Cliente ${reg.cliente_id ?? '—'}</span>
-              </div>
-              <div class="func-summary-right">
-                <div>
-                  <span class="badge ${reg.ativo ? 'badge-ativo' : 'badge-inativo'}">${reg.ativo ? 'Ativo' : 'Inativo'}</span>
-                  <span class="badge badge-info">${reg.horario_flexivel ? 'Flexivel' : 'Fixo'}</span>
-                </div>
-                <div class="func-actions">
-                  <button class="action-btn" onclick="event.preventDefault();event.stopPropagation();abrirForm('editar', ${idx})">Editar</button>
-                  <button class="action-btn action-btn-danger" onclick="event.preventDefault();event.stopPropagation();excluir(${idx})">Excluir</button>
-                </div>
-              </div>
-            </summary>
-            <div class="inner-content">${tabelaSemanaLeitura(reg)}</div>
-          </details>`;
-      }
-
-      function renderLista(lista, paginacao) {
-        document.getElementById('statTotal').textContent = paginacao ? paginacao.total : lista.length;
-        document.getElementById('cardsContainer').innerHTML =
-          lista.map(montarCard).join('') || '<div class="empty-state">Nenhum quadro de horario encontrado com esses filtros.</div>';
-        renderPaginacao(paginacao);
-      }
-
-      function abrirForm(modo, idx) {
-        trocarView('registros');
-        modoForm = modo;
-        const registro = modo === 'editar' ? dados[idx] : {};
-        const valoresTopo = modo === 'editar' ? registro : { empresa_id: v('fEmpresaId') || '900002', ativo: 'true', horario_flexivel: 'false' };
-        const html = `
-          <div class="form-panel">
-            <div class="form-panel-header">
-              <h3>${modo === 'criar' ? '+ Novo quadro de horario' : `Editar: ${registro.descricao || registro.quadro_id}`}</h3>
-              <button class="toolbar-btn" onclick="fecharForm()">Fechar</button>
-            </div>
-            <fieldset class="form-fieldset">
-              <legend>Identificacao</legend>
-              <div class="form-grid">${CAMPOS_TOPO.map(c => campoTopoHtml(c, valoresTopo[c])).join('')}</div>
-            </fieldset>
-            <fieldset class="form-fieldset">
-              <legend>Horarios da semana</legend>
-              ${tabelaSemanaEdicao(modo === 'editar' ? registro : {})}
-            </fieldset>
-            <div class="form-panel-actions">
-              <button class="btn-refresh" onclick="salvar()">${modo === 'criar' ? 'Criar' : 'Salvar alteracoes'}</button>
-              <button class="toolbar-btn" onclick="fecharForm()">Cancelar</button>
-              ${modo === 'criar' ? '<button class="toolbar-btn" onclick="preencherAleatorio()" style="margin-left:auto;">Gerar outro aleatorio</button>' : ''}
-            </div>
-          </div>`;
-        document.getElementById('formContainer').innerHTML = html;
-        document.getElementById('formContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-
-      function fecharForm() {
-        modoForm = null;
-        document.getElementById('formContainer').innerHTML = '';
-      }
-
-      async function salvar() {
-        const dadosForm = { ...coletarTopo(), ...coletarSemana() };
-        const nomeRequest = modoForm === 'criar' ? REQ.cria : REQ.atualiza;
-        mostrarErro('');
-        try {
-          const res = await chamar(nomeRequest, dadosForm);
-          const r = interpretarResposta(res);
-          if (!r.ok) { mostrarErro(r.msg); return; }
-          mostrarErro(modoForm === 'criar' ? 'Quadro criado com sucesso.' : 'Quadro atualizado com sucesso.', true);
-          fecharForm();
-          buscar(false);
-        } catch (err) {
-          mostrarErro(err.message || String(err));
-        }
-      }
-
-      async function excluir(idx) {
-        const reg = dados[idx];
-        const ok = await confirmarAcao(`Excluir o quadro "${reg.descricao || reg.quadro_id}"? Essa acao nao pode ser desfeita.`);
-        if (!ok) return;
-        mostrarErro('');
-        try {
-          const res = await chamar(REQ.remove, {
-            empresa_id: String(reg.empresa_id ?? ''),
-            quadro_id: String(reg.quadro_id ?? ''),
+    
+        _bindEvents() {
+          this.els.btnBuscar.onclick = () => this.buscar(true);
+          this.els.btnLimparFiltros.onclick = () => this.limparFiltros();
+          this.els.searchLocal.oninput = () => this.filtrarLocal();
+          this.els.btnExpandir.onclick = () => this.toggleAll(true);
+          this.els.btnRecolher.onclick = () => this.toggleAll(false);
+          this.els.btnNovo.onclick = () => this.abrirForm('criar');
+          this.els.btnRapido.onclick = () => this.criacaoRapida();
+          this.els.btnCicloVida.onclick = () => this.rodarCicloVida();
+          this.els.btnMassa.onclick = () => this.criarMassa();
+          this.els.btnLimparMassa.onclick = () => this.limparMassa();
+          this.els.btnCopiarTeste.onclick = () => this.copiarTeste();
+          this.els.confirmCancel.onclick = () => this._resolveConfirm(false);
+          this.els.confirmOk.onclick = () => this._resolveConfirm(true);
+          document.querySelectorAll('.tab').forEach(tab => {
+            tab.onclick = () => this.trocarView(tab.dataset.view);
           });
-          const r = interpretarResposta(res);
-          if (!r.ok) { mostrarErro(r.msg); return; }
-          mostrarErro('Quadro excluido com sucesso.', true);
-          buscar(false);
-        } catch (err) {
-          mostrarErro(err.message || String(err));
         }
-      }
-
-      // =============================================================
-      // FERRAMENTAS DE TESTE  (REESCRITAS COM STEPS DETALHADOS)
-      // =============================================================
-      let testSessionIds = [];
-      let ultimoTeste = null;
-
-      const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
-
-      const normalizar = (val) => {
-        if (val === null || val === undefined) return '';
-        if (typeof val === 'boolean') return val ? 'true' : 'false';
-        return String(val);
-      };
-
-      function compararRegistroCompleto(enviado, recebido) {
-        const diffs = [];
-        ['empresa_id', 'v_quadro_horario_id', 'descricao', 'horario_flexivel', 'ativo'].forEach((c) => {
-          const e = normalizar(enviado[c]);
-          const r = normalizar(recebido ? recebido[c] : undefined);
-          if (e !== r) diffs.push({ campo: c, esperado: e, recebido: r });
-        });
-        DIAS.forEach(([dia]) => SLOTS.forEach((slot) => {
-          const campo = `${dia}_${slot}`;
-          const e = normalizar(enviado[campo]);
-          const r = normalizar(recebido && recebido[dia] ? recebido[dia][slot] : undefined);
-          if (e !== r) diffs.push({ campo: `${dia}.${slot}`, esperado: e, recebido: r });
-        }));
-        return diffs;
-      }
-
-      function renderUltimoTeste() {
-        const box = document.getElementById('ultimoTesteContainer');
-        if (!box) return;
-        if (!ultimoTeste) {
-          box.innerHTML = '<div class="empty-state">Nenhum teste executado ainda nesta sessao.</div>';
-          return;
+    
+        // -------------------- UI HELPERS --------------------
+        alert(msg, type='err') {
+          const box = this.els.alertBox;
+          if (!msg) { box.innerHTML = ''; return; }
+          box.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+          setTimeout(() => { if (box.innerHTML.includes(msg)) box.innerHTML = ''; }, 6000);
         }
-        const badgeClass = ultimoTeste.ok ? 'ok' : 'fail';
-        const badgeText = ultimoTeste.ok ? 'Sucesso' : 'Falha';
-        const detalhesHtml = ultimoTeste.detalhes ? `<div class="ultimo-teste-detalhes">${ultimoTeste.detalhes}</div>` : '';
-
-        let stepsHtml = '';
-        if (ultimoTeste.steps && ultimoTeste.steps.length) {
-          stepsHtml = `<div class="teste-steps">` +
-            ultimoTeste.steps.map((step, i) => {
-              const bClass = step.ok ? 'ok' : (step.skipped ? 'skip' : 'fail');
-              const bText = step.ok ? 'OK' : (step.skipped ? 'Skip' : 'Fail');
-              const reqBlock = step.requestJson
-                ? `<div style="margin-bottom:10px;"><div class="teste-section-label">Request enviado</div><pre class="teste-pre"><code>${escapeHtml(JSON.stringify(step.requestJson, null, 2))}</code></pre></div>`
-                : '';
-              const resBlock = step.responseJson
-                ? `<div><div class="teste-section-label">Response recebido</div><pre class="teste-pre"><code>${escapeHtml(JSON.stringify(step.responseJson, null, 2))}</code></pre></div>`
-                : '';
-              return `
-                <details class="teste-step" ${!step.ok ? 'open' : ''}>
-                  <summary class="teste-step-header">
-                    <span class="teste-step-num">#${i+1}</span>
-                    <span class="teste-step-badge ${bClass}">${bText}</span>
-                    <span class="teste-step-nome">${step.acao}</span>
-                    <span class="teste-step-hint">${step.ts ? new Date(step.ts).toLocaleTimeString('pt-BR') : ''}</span>
-                  </summary>
-                  <div class="teste-step-body">
-                    ${step.detalhes ? `<div class="teste-step-detalhes">${step.detalhes}</div>` : ''}
-                    ${reqBlock}
-                    ${resBlock}
+        setStatus(txt) { this.els.statusText.textContent = txt; }
+        setDebug(obj) { this.els.debugRaw.textContent = JSON.stringify(obj, null, 2); }
+        setLoading(el, active) {
+          const spin = el.querySelector('.spinner');
+          if (spin) spin.classList.toggle('hidden', !active);
+          el.disabled = active;
+        }
+        toggleView(name) {
+          this.view = name;
+          this.els['view-registros'].classList.toggle('hidden', name !== 'registros');
+          this.els['view-testes'].classList.toggle('hidden', name !== 'testes');
+          document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === name));
+        }
+        trocarView(name) {
+          if (this.modoForm) this.fecharForm();
+          this.toggleView(name);
+        }
+    
+        // -------------------- API BRUNO --------------------
+        async chamar(nomeRequest, runtimeVars) {
+          const pathname = this.mapaRequests[nomeRequest];
+          if (!pathname) throw new Error(`Request "${nomeRequest}" não encontrada.`);
+          const res = await bru.ctx.runRequest(pathname, { runtimeVariables: runtimeVars });
+          this.setDebug({ request: nomeRequest, enviado: runtimeVars, resposta: res });
+          return res;
+        }
+        interpretar(res) {
+          const status = res?.status ?? null;
+          const body = res?.data ?? null;  // bru.ctx retorna .data, não .body
+          if (status && status >= 400) {
+            const msg = body?.mensagem || `API retornou status ${status}.`;
+            const det = body?.erros ? '\n' + JSON.stringify(body.erros, null, 2) : '';
+            return { ok: false, status, body, msg: msg + det };
+          }
+          return { ok: true, status, body, msg: body?.mensagem || '' };
+        }
+        montarQS(pares) {
+          return pares.filter(([,v]) => (v??'').toString().trim()!=='')
+            .map(([k,v]) => `${k}=${encodeURIComponent(v.toString().trim())}`).join('&');
+        }
+    
+        // -------------------- LISTAGEM --------------------
+        limparFiltros() {
+          this.els.fEmpresaId.value = '900002';
+          ['fQuadroId','fVQuadroId','fAlteradoData'].forEach(id => this.els[id].value = '');
+          this.els.fPage.value = '1';
+          this.els.fPerPage.value = '15';
+        }
+        async buscar(resetPage) {
+          if (!this.ctxPronto || this.carregando) return;
+          if (resetPage) this.els.fPage.value = '1';
+          this.alert('');
+          this.carregando = true;
+          this.setLoading(this.els.btnBuscar, true);
+          try {
+            const qs = this.montarQS([
+              ['empresa_id', this.els.fEmpresaId.value],
+              ['quadro_id', this.els.fQuadroId.value],
+              ['v_quadro_horario_id', this.els.fVQuadroId.value],
+              ['alterado_data', this.els.fAlteradoData.value],
+              ['page', this.els.fPage.value || '1'],
+              ['per_page', this.els.fPerPage.value || '15'],
+            ]);
+            const res = await this.chamar(REQ.lista, { rt_query: qs });
+            const r = this.interpretar(res);
+            if (!r.ok) { this.alert(r.msg); this.dados=[]; this.dadosFiltrados=[]; this.paginacao=null; this.render(); return; }
+            this.dados = Array.isArray(r.body?.retorno) ? r.body.retorno : [];
+            this.paginacao = r.body?.paginacao || null;
+            this.filtrarLocal();
+          } catch (err) {
+            this.alert(err.message || String(err));
+          } finally {
+            this.carregando = false;
+            this.setLoading(this.els.btnBuscar, false);
+            this.els.lblBuscar.textContent = this.dados.length > 0 ? 'Atualizar' : 'Buscar dados';
+          }
+        }
+        irPagina(n) { if (n < 1) return; this.els.fPage.value = n; this.buscar(false); }
+        filtrarLocal() {
+          const term = this.els.searchLocal.value.trim().toLowerCase();
+          if (!term) { this.dadosFiltrados = [...this.dados]; }
+          else { this.dadosFiltrados = this.dados.filter(d => `${d.descricao||''} ${d.quadro_id||''} ${d.v_quadro_horario_id||''}`.toLowerCase().includes(term)); }
+          this.render();
+        }
+        toggleAll(open) {
+          document.querySelectorAll('#cardsContainer details').forEach(el => el.open = open);
+        }
+    
+        // -------------------- RENDER --------------------
+        render() {
+          this.els.statTotal.textContent = this.paginacao ? this.paginacao.total : this.dadosFiltrados.length;
+          this.renderPaginacao();
+          this.renderCards();
+        }
+        renderPaginacao() {
+          const p = this.paginacao;
+          const box = this.els.paginacao;
+          if (!p) { box.innerHTML = ''; return; }
+          box.innerHTML = `
+            <button class="btn btn-outline btn-sm" ${p.pagina_atual <= 1 ? 'disabled' : ''} onclick="app.irPagina(${p.pagina_atual - 1})">← Anterior</button>
+            <span>Página ${p.pagina_atual} de ${p.ultima_pagina} · ${p.total} registros</span>
+            <button class="btn btn-outline btn-sm" ${p.pagina_atual >= p.ultima_pagina ? 'disabled' : ''} onclick="app.irPagina(${p.pagina_atual + 1})">Próxima →</button>`;
+        }
+        renderCards() {
+          const box = this.els.cardsContainer;
+          if (!this.dadosFiltrados.length) { box.innerHTML = '<div class="empty">Nenhum quadro de horário encontrado.</div>'; return; }
+          box.innerHTML = this.dadosFiltrados.map((reg, idx) => {
+            const originalIdx = this.dados.indexOf(reg);
+            const ativoClass = reg.ativo ? 'ativo' : '';
+            const badges = `<span class="badge ${reg.ativo ? 'badge-ok' : 'badge-bad'}">${reg.ativo ? 'Ativo' : 'Inativo'}</span> <span class="badge badge-info">${reg.horario_flexivel ? 'Flexível' : 'Fixo'}</span>`;
+            const semana = DIAS.map(([chave, nome]) => {
+              const dia = reg[chave] || {};
+              const cells = SLOTS.map(s => `<td>${dia[s] || '<span style="color:#a1a5b0;font-style:italic;">—</span>'}</td>`).join('');
+              return `<tr><td class="dia-nome">${nome}</td>${cells}</tr>`;
+            }).join('');
+            return `
+            <details class="${ativoClass}">
+              <summary>
+                <div class="summary-main">
+                  <span class="summary-name">${reg.descricao || 'Sem descrição'}</span>
+                  <span class="summary-id">Quadro ID ${reg.quadro_id ?? '—'} · V. Quadro Horário ID ${reg.v_quadro_horario_id ?? '—'} · Cliente ${reg.cliente_id ?? '—'}</span>
+                </div>
+                <div class="summary-right">
+                  <div>${badges}</div>
+                  <div class="flex">
+                    <button class="btn btn-outline btn-sm" onclick="app.abrirForm('editar', ${originalIdx})">Editar</button>
+                    <button class="btn btn-danger btn-sm" onclick="app.excluir(${originalIdx})">Excluir</button>
                   </div>
-                </details>`;
-            }).join('') +
-            `</div>`;
+                </div>
+              </summary>
+              <div class="inner">
+                <table><thead><tr><th>Dia</th><th>Ent.1</th><th>Sai.1</th><th>Ent.2</th><th>Sai.2</th><th>Ent.3</th><th>Sai.3</th><th>Ent.4</th><th>Sai.4</th></tr></thead><tbody>${semana}</tbody></table>
+              </div>
+            </details>`;
+          }).join('');
         }
-
-        box.innerHTML = `
-          <div class="ultimo-teste">
-            <div class="ultimo-teste-header">
-              <span class="ultimo-teste-badge ${badgeClass}">${badgeText}</span>
-              <span class="ultimo-teste-titulo">[${ultimoTeste.categoria}] ${ultimoTeste.acao}</span>
-              <span class="ultimo-teste-hora">${ultimoTeste.ts.toLocaleString('pt-BR')}</span>
-            </div>
-            ${detalhesHtml}
-            ${stepsHtml}
-          </div>`;
-      }
-
-      function escapeHtml(str) {
-        return str
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;');
-      }
-
-      function iniciarTeste(categoria, acao) {
-        ultimoTeste = {
-          ts: new Date(),
-          categoria,
-          acao,
-          ok: true,
-          detalhes: '',
-          steps: []
-        };
-      }
-
-      function addStep(acao, ok, detalhes, requestJson, responseJson, skipped) {
-        if (!ultimoTeste) return;
-        ultimoTeste.steps.push({
-          ts: new Date(),
-          acao,
-          ok: !!ok,
-          skipped: !!skipped,
-          detalhes: detalhes || '',
-          requestJson: requestJson || null,
-          responseJson: responseJson || null
-        });
-        if (!ok && !skipped) ultimoTeste.ok = false;
-      }
-
-      function finalizarTeste(detalhes) {
-        if (!ultimoTeste) return;
-        if (detalhes) ultimoTeste.detalhes = detalhes;
-        if (!ultimoTeste.steps.length) ultimoTeste.ok = false;
-        renderUltimoTeste();
-      }
-
-      function copiarUltimoTeste() {
-        if (!ultimoTeste) { mostrarErro('Nenhum teste executado ainda.'); return; }
-        const payload = {
-          timestamp: ultimoTeste.ts.toISOString(),
-          categoria: ultimoTeste.categoria,
-          acao: ultimoTeste.acao,
-          ok: ultimoTeste.ok,
-          detalhes: ultimoTeste.detalhes,
-          steps: ultimoTeste.steps.map(s => ({
-            timestamp: s.ts ? new Date(s.ts).toISOString() : null,
-            acao: s.acao,
-            ok: s.ok,
-            skipped: s.skipped,
-            detalhes: s.detalhes,
-            request: s.requestJson,
-            response: s.responseJson,
-          }))
-        };
-        navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).then(() => mostrarErro('JSON completo do teste copiado.', true));
-      }
-
-      function atualizarContadorSessao() {
-        const btn = document.getElementById('btnLimparMassa');
-        if (btn) {
-          const count = testSessionIds.length;
-          btn.textContent = count > 0 ? `Limpar ${count} registro(s) de teste` : 'Limpar dados de teste desta sessao';
+    
+        // -------------------- FORM --------------------
+        abrirForm(modo, idx) {
+          this.toggleView('registros');
+          this.modoForm = modo;
+          this.formEdit = modo === 'editar' ? this.dados[idx] : null;
+          const base = modo === 'editar' ? this.dados[idx] : { empresa_id: this.els.fEmpresaId.value || '900002', ativo: 'true', horario_flexivel: 'false' };
+          const topoHtml = CAMPOS_TOPO.map(c => {
+            const val = (base[c] ?? '').toString().replace(/"/g, '&quot;');
+            if (SELECTS[c]) {
+              const opts = SELECTS[c].map(o => `<option value="${o}" ${val === o ? 'selected' : ''}>${o || 'Selecione'}</option>`).join('');
+              return `<div class="field"><label>${c}</label><select id="qf__${c}">${opts}</select></div>`;
+            }
+            const disabled = c === 'quadro_id' && modo === 'criar' ? 'disabled placeholder="gerado automaticamente"' : '';
+            return `<div class="field"><label>${c}</label><input id="qf__${c}" type="text" value="${val}" ${disabled}></div>`;
+          }).join('');
+          const semanaHtml = DIAS.map(([chave, nome]) => {
+            const dia = (base && base[chave]) || {};
+            const cells = SLOTS.map(s => `<td><input type="time" id="qf__${chave}_${s}" value="${dia[s] || ''}"></td>`).join('');
+            return `<tr><td class="dia-nome">${nome}</td>${cells}</tr>`;
+          }).join('');
+          this.els.formContainer.innerHTML = `
+            <div class="form-panel">
+              <div class="card-header">
+                <h3 class="card-title">${modo === 'criar' ? '+ Novo quadro de horário' : `Editar: ${base.descricao || base.quadro_id}`}</h3>
+                <button class="btn btn-outline btn-sm" onclick="app.fecharForm()">Fechar</button>
+              </div>
+              <fieldset><legend>Identificação</legend><div class="form-grid">${topoHtml}</div></fieldset>
+              <fieldset><legend>Horários da semana</legend>
+                <table><thead><tr><th>Dia</th><th>Ent.1</th><th>Sai.1</th><th>Ent.2</th><th>Sai.2</th><th>Ent.3</th><th>Sai.3</th><th>Ent.4</th><th>Sai.4</th></tr></thead><tbody>${semanaHtml}</tbody></table>
+              </fieldset>
+              <div class="flex" style="margin-top:12px;">
+                <button class="btn btn-primary" onclick="app.salvar()" id="btnSalvar">
+                  <span id="spinnerSalvar" class="spinner hidden"></span>
+                  <span id="lblSalvar">${modo === 'criar' ? 'Criar' : 'Salvar alterações'}</span>
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="app.fecharForm()">Cancelar</button>
+                ${modo === 'criar' ? '<button class="btn btn-outline btn-sm ml-auto" onclick="app.preencherAleatorio()">Gerar aleatório</button>' : ''}
+              </div>
+            </div>`;
+          setTimeout(() => this.els.formContainer.querySelector('.form-panel')?.scrollIntoView({behavior:'smooth',block:'start'}), 50);
         }
-      }
-
-      function rastrearCriado(respostaCriar, dados) {
-        const criado = Array.isArray(respostaCriar?.retorno) ? respostaCriar.retorno[0] : respostaCriar?.retorno;
-        if (criado && criado.quadro_id) {
-          testSessionIds.push({ quadro_id: criado.quadro_id, empresa_id: dados.empresa_id });
-          atualizarContadorSessao();
+        fecharForm() { this.modoForm = null; this.formEdit = null; this.els.formContainer.innerHTML = ''; }
+        coletarForm() {
+          const out = {};
+          CAMPOS_TOPO.forEach(c => { out[c] = document.getElementById(`qf__${c}`)?.value ?? ''; });
+          DIAS.forEach(([chave]) => SLOTS.forEach(s => { out[`${chave}_${s}`] = document.getElementById(`qf__${chave}_${s}`)?.value ?? ''; }));
+          return out;
         }
-        return criado;
-      }
-
-      function setProgresso(elId, html, ativo) {
-        const el = document.getElementById(elId);
-        if (!el) return;
-        el.innerHTML = html;
-        el.classList.toggle('ativo', !!ativo);
-      }
-
-      // ---------------- Teste de ciclo de vida ----------------
-      async function rodarTesteCicloVida() {
-        const btn = document.getElementById('btnCicloVida');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span> Executando...';
-
-        iniciarTeste('CRUD', 'Ciclo de vida completo');
-        const dados = gerarDadosQuadroAleatorio('[TESTE-CICLO]');
-        let quadroId = null;
-
-        try {
-          // 1. Criar
-          const resCriar = await chamar(REQ.cria, dados);
-          const rCriar = interpretarResposta(resCriar);
-          addStep('Criar registro', rCriar.ok, rCriar.ok ? `Criado com status ${rCriar.status}` : rCriar.msg, dados, rCriar.body);
-          if (!rCriar.ok) {
-            finalizarTeste('Falhou na criacao do registro.');
-            return;
+        async salvar() {
+          const payload = this.coletarForm();
+          const nomeReq = this.modoForm === 'criar' ? REQ.cria : REQ.atualiza;
+          const btn = document.getElementById('btnSalvar');
+          this.alert('');
+          this.salvando = true;
+          if (btn) this.setLoading(btn, true);
+          try {
+            const res = await this.chamar(nomeReq, payload);
+            const r = this.interpretar(res);
+            if (!r.ok) { this.alert(r.msg); return; }
+            this.alert(this.modoForm === 'criar' ? 'Quadro criado com sucesso.' : 'Quadro atualizado com sucesso.', 'ok');
+            this.fecharForm();
+            this.buscar(false);
+          } catch (err) {
+            this.alert(err.message || String(err));
+          } finally {
+            this.salvando = false;
+            if (btn) this.setLoading(btn, false);
           }
-          const criado = rastrearCriado(rCriar.body, dados);
-          quadroId = criado?.quadro_id;
-          if (!quadroId) {
-            addStep('Verificar quadro_id', false, 'A resposta nao trouxe quadro_id.', null, rCriar.body);
-            finalizarTeste('Criacao nao retornou quadro_id.');
-            return;
+        }
+        async excluir(idx) {
+          const reg = this.dados[idx];
+          const ok = await this.confirmar(`Excluir o quadro "${reg.descricao || reg.quadro_id}"? Essa ação não pode ser desfeita.`);
+          if (!ok) return;
+          this.alert('');
+          try {
+            const res = await this.chamar(REQ.remove, { empresa_id: String(reg.empresa_id ?? ''), quadro_id: String(reg.quadro_id ?? '') });
+            const r = this.interpretar(res);
+            if (!r.ok) { this.alert(r.msg); return; }
+            this.alert('Quadro excluído com sucesso.', 'ok');
+            this.buscar(false);
+          } catch (err) {
+            this.alert(err.message || String(err));
           }
-          addStep('Verificar quadro_id', true, `quadro_id = ${quadroId}`, null, null);
-
+        }
+        confirmar(msg) {
+          return new Promise(resolve => {
+            this._resolveConfirm = (v) => { this.els.confirmOverlay.classList.remove('active'); resolve(v); };
+            this.els.confirmMsg.textContent = msg;
+            this.els.confirmOverlay.classList.add('active');
+          });
+        }
+    
+        // -------------------- DADOS ALEATÓRIOS --------------------
+        gerarHorarioDia(chanceFolga) {
+          if (Math.random() < chanceFolga) return Object.fromEntries(SLOTS.map(s => [s, '']));
+          const ent = ['07:00','08:00','09:00']; const sai = ['17:00','18:00','19:00'];
+          return { entrada_1: ent[Math.floor(Math.random()*ent.length)], saida_1: '12:00', entrada_2: '13:00', saida_2: sai[Math.floor(Math.random()*sai.length)], entrada_3:'', saida_3:'', entrada_4:'', saida_4:'' };
+        }
+        gerarDadosQuadro(prefixo, opts={}) {
+          const desc = (prefixo ? prefixo + ' ' : '') + DESCS[Math.floor(Math.random()*DESCS.length)] + ' ' + (Math.floor(Math.random()*900)+100);
+          const dados = { empresa_id: this.els.fEmpresaId.value || '900002', v_quadro_horario_id: String(Math.floor(Math.random()*9000)+1000), descricao: desc, horario_flexivel: opts.flexivel ? 'true' : (Math.random()<0.2?'true':'false'), ativo: opts.inativo ? 'false' : 'true' };
+          DIAS.forEach(([chave]) => { const chance = (chave==='dom'||chave==='sab') ? 0.6 : 0.08; const h = this.gerarHorarioDia(chance); SLOTS.forEach(s => dados[`${chave}_${s}`] = h[s]); });
+          return dados;
+        }
+        preencherAleatorio() {
+          const dados = this.gerarDadosQuadro();
+          Object.keys(dados).forEach(k => { if (k !== 'empresa_id') { const el = document.getElementById(`qf__${k}`); if (el) el.value = dados[k]; } });
+        }
+        criacaoRapida() { this.abrirForm('criar'); this.preencherAleatorio(); }
+    
+        // -------------------- TESTES --------------------
+        normalizar(v) { if (v === null || v === undefined) return ''; if (typeof v === 'boolean') return v ? 'true' : 'false'; return String(v); }
+        compararCompleto(enviado, recebido) {
+          const diffs = [];
+          ['empresa_id','v_quadro_horario_id','descricao','horario_flexivel','ativo'].forEach(c => {
+            const e = this.normalizar(enviado[c]), r = this.normalizar(recebido?.[c]);
+            if (e !== r) diffs.push({ campo: c, esperado: e, recebido: r });
+          });
+          DIAS.forEach(([dia]) => SLOTS.forEach(slot => {
+            const c = `${dia}_${slot}`; const e = this.normalizar(enviado[c]); const r = this.normalizar(recebido?.[dia]?.[slot]);
+            if (e !== r) diffs.push({ campo: `${dia}.${slot}`, esperado: e, recebido: r });
+          }));
+          return diffs;
+        }
+        iniciarTeste(cat, acao) { this.ultimoTeste = { ts: new Date(), categoria: cat, acao, ok: true, detalhes: '', steps: [] }; }
+        addStep(acao, ok, detalhes, req, res, skipped) {
+          if (!this.ultimoTeste) return;
+          this.ultimoTeste.steps.push({ ts: new Date(), acao, ok: !!ok, skipped: !!skipped, detalhes: detalhes || '', requestJson: req || null, responseJson: res || null });
+          if (!ok && !skipped) this.ultimoTeste.ok = false;
+        }
+        finalizarTeste(det) { if (!this.ultimoTeste) return; if (det) this.ultimoTeste.detalhes = det; if (!this.ultimoTeste.steps.length) this.ultimoTeste.ok = false; this.renderTeste(); }
+        renderTeste() {
+          const box = this.els.ultimoTesteContainer;
+          const t = this.ultimoTeste;
+          if (!t) { box.innerHTML = '<div class="empty">Nenhum teste executado ainda nesta sessão.</div>'; return; }
+          const badgeClass = t.ok ? 'badge-ok' : 'badge-bad';
+          const badgeText = t.ok ? 'Sucesso' : 'Falha';
+          const stepsHtml = t.steps.map((step, i) => {
+            const bClass = step.ok ? 'badge-ok' : (step.skipped ? 'badge-warn' : 'badge-bad');
+            const bText = step.ok ? 'OK' : (step.skipped ? 'Skip' : 'Fail');
+            const reqBlock = step.requestJson ? `<div style="margin-bottom:10px;"><div style="font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Request enviado</div><pre class="pre"><code>${this._esc(JSON.stringify(step.requestJson, null, 2))}</code></pre></div>` : '';
+            const resBlock = step.responseJson ? `<div><div style="font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Response recebido</div><pre class="pre"><code>${this._esc(JSON.stringify(step.responseJson, null, 2))}</code></pre></div>` : '';
+            return `
+            <details class="step" ${!step.ok ? 'open' : ''}>
+              <summary class="step-h">
+                <span style="font-size:11px;color:var(--muted);font-weight:600;min-width:28px;">#${i+1}</span>
+                <span class="step-badge ${bClass}">${bText}</span>
+                <span style="font-size:13px;font-weight:700;color:var(--navy);flex:1;">${step.acao}</span>
+                <span style="font-size:11px;color:var(--muted);">${step.ts ? step.ts.toLocaleTimeString('pt-BR') : ''}</span>
+              </summary>
+              <div class="step-body">
+                ${step.detalhes ? `<div style="font-size:12.5px;color:var(--text);line-height:1.6;margin-bottom:12px;white-space:pre-wrap;">${this._esc(step.detalhes)}</div>` : ''}
+                ${reqBlock}${resBlock}
+              </div>
+            </details>`;
+          }).join('');
+          box.innerHTML = `
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+                <span class="badge ${badgeClass}">${badgeText}</span>
+                <span style="font-weight:700;font-size:14px;color:var(--navy);">[${t.categoria}] ${t.acao}</span>
+                <span class="ml-auto" style="font-size:11.5px;color:var(--muted);">${t.ts.toLocaleString('pt-BR')}</span>
+              </div>
+              ${t.detalhes ? `<div style="color:var(--muted);font-size:12.5px;line-height:1.6;margin-bottom:14px;white-space:pre-wrap;">${this._esc(t.detalhes)}</div>` : ''}
+              ${stepsHtml}
+            </div>`;
+        }
+        _esc(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+        async rodarCicloVida() {
+          this.setLoading(this.els.btnCicloVida, true);
+          this.iniciarTeste('CRUD', 'Ciclo de vida completo');
+          const dados = this.gerarDadosQuadro('[TESTE-CICLO]');
+          let quadroId = null;
           const buscarPorId = async () => {
-            const res = await chamar(REQ.lista, { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` });
-            const r = interpretarResposta(res);
+            const res = await this.chamar(REQ.lista, { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` });
+            const r = this.interpretar(res);
             if (!r.ok) return null;
             const lista = Array.isArray(r.body?.retorno) ? r.body.retorno : [];
-            return lista.find((x) => String(x.quadro_id) === String(quadroId)) || null;
+            return lista.find(x => String(x.quadro_id) === String(quadroId)) || null;
           };
-
-          // 2. Buscar apos criar
-          const encontrado1 = await buscarPorId();
-          if (!encontrado1) {
-            addStep('Buscar apos criar', false, 'Registro nao encontrado na listagem logo apos a criacao.', { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, null);
-            finalizarTeste('Registro sumiu apos criacao.');
-            return;
-          }
-          const diffs1 = compararRegistroCompleto(dados, encontrado1);
-          if (diffs1.length > 0) {
-            addStep('Buscar apos criar (integridade)', false,
-              `${diffs1.length} campo(s) divergente(s):\n` + diffs1.map(d => `• ${d.campo}: enviado "${d.esperado}" -> recebido "${d.recebido}"`).join('\n'),
-              { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, encontrado1);
-            finalizarTeste('Divergencia encontrada apos criacao.');
-            return;
-          }
-          addStep('Buscar apos criar (integridade)', true, 'Todos os campos bateram.', { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, encontrado1);
-
-          // 3. Atualizar
-          const dadosAtualizados = gerarDadosQuadroAleatorio('[TESTE-CICLO-EDITADO]');
-          dadosAtualizados.quadro_id = String(quadroId);
-          dadosAtualizados.empresa_id = dados.empresa_id;
-          const resAtualizar = await chamar(REQ.atualiza, dadosAtualizados);
-          const rAtualizar = interpretarResposta(resAtualizar);
-          addStep('Atualizar registro', rAtualizar.ok, rAtualizar.ok ? `Atualizado com status ${rAtualizar.status}` : rAtualizar.msg, dadosAtualizados, rAtualizar.body);
-          if (!rAtualizar.ok) {
-            finalizarTeste('Falhou na atualizacao do registro.');
-            return;
-          }
-
-          // 4. Buscar apos editar
-          const encontrado2 = await buscarPorId();
-          if (!encontrado2) {
-            addStep('Buscar apos editar', false, 'Registro nao encontrado apos edicao.', { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, null);
-            finalizarTeste('Registro sumiu apos edicao.');
-            return;
-          }
-          const diffs2 = compararRegistroCompleto(dadosAtualizados, encontrado2);
-          if (diffs2.length > 0) {
-            addStep('Buscar apos editar (integridade)', false,
-              `${diffs2.length} campo(s) divergente(s):\n` + diffs2.map(d => `• ${d.campo}: enviado "${d.esperado}" -> recebido "${d.recebido}"`).join('\n'),
-              { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, encontrado2);
-            finalizarTeste('Divergencia encontrada apos edicao.');
-            return;
-          }
-          addStep('Buscar apos editar (integridade)', true, 'Todos os campos bateram.', { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, encontrado2);
-
-          // 5. Excluir
-          const resExcluir = await chamar(REQ.remove, { empresa_id: String(dados.empresa_id), quadro_id: String(quadroId) });
-          const rExcluir = interpretarResposta(resExcluir);
-          addStep('Excluir registro', rExcluir.ok, rExcluir.ok ? `Excluido com status ${rExcluir.status}` : rExcluir.msg, { empresa_id: dados.empresa_id, quadro_id: quadroId }, rExcluir.body);
-          if (!rExcluir.ok) {
-            finalizarTeste('Falhou na exclusao do registro.');
-            return;
-          }
-          testSessionIds = testSessionIds.filter((x) => String(x.quadro_id) !== String(quadroId));
-          atualizarContadorSessao();
-
-          // 6. Confirmar exclusao
-          const encontrado3 = await buscarPorId();
-          if (encontrado3) {
-            addStep('Confirmar exclusao', false, 'O registro ainda aparece na busca depois de excluido.', { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, encontrado3);
-            finalizarTeste('Registro persistiu apos exclusao.');
-            return;
-          }
-          addStep('Confirmar exclusao', true, 'Registro nao encontrado apos exclusao.', { rt_query: `empresa_id=${dados.empresa_id}&quadro_id=${quadroId}` }, null);
-
-          finalizarTeste(`Ciclo completo: criado (quadro_id ${quadroId}) -> buscado -> editado -> buscado -> excluido -> confirmado.\nTodos os campos bateram em todas as etapas.`);
-        } catch (err) {
-          addStep('Erro inesperado', false, err.message || String(err), null, null);
-          finalizarTeste('Erro inesperado durante o teste.');
-        } finally {
-          btn.disabled = false;
-          btn.innerHTML = 'Rodar teste de ciclo de vida';
-        }
-      }
-
-      // ---------------- Geracao de massa + limpeza ----------------
-      async function criarEmMassa() {
-        const n = Math.max(1, Math.min(200, parseInt(document.getElementById('massaQtd').value || '10', 10)));
-        const prefixo = `[TESTE-MASSA-${Date.now()}]`;
-        const btn = document.getElementById('btnMassa');
-        const btnLimpar = document.getElementById('btnLimparMassa');
-        btn.disabled = true;
-        if (btnLimpar) btnLimpar.disabled = true;
-
-        iniciarTeste('Massa', `Criacao em massa (${n} solicitados)`);
-        setProgresso('massaProgresso', '<span class="spinner"></span> Iniciando criacao em massa...', true);
-        let sucesso = 0, falha = 0;
-
-        for (let i = 0; i < n; i++) {
-          setProgresso('massaProgresso', `<span class="spinner"></span> Criando ${i + 1} de ${n}... (${sucesso} ok, ${falha} falha)`, true);
-          const dadosItem = gerarDadosQuadroAleatorio(prefixo);
           try {
-            const res = await chamar(REQ.cria, dadosItem);
-            const r = interpretarResposta(res);
-            addStep(`Criar #${i+1}`, r.ok, r.ok ? `Criado com status ${r.status}` : r.msg, dadosItem, r.body);
-            if (r.ok) { rastrearCriado(r.body, dadosItem); sucesso++; }
-            else falha++;
+            const resC = await this.chamar(REQ.cria, dados);
+            const rC = this.interpretar(resC);
+            this.addStep('Criar registro', rC.ok, rC.ok ? `Status ${rC.status}` : rC.msg, dados, rC.body);
+            if (!rC.ok) { this.finalizarTeste('Falhou na criação.'); this.setLoading(this.els.btnCicloVida, false); return; }
+            const criado = Array.isArray(rC.body?.retorno) ? rC.body.retorno[0] : rC.body?.retorno;
+            quadroId = criado?.quadro_id;
+            if (!quadroId) { this.addStep('Verificar quadro_id', false, 'Resposta sem quadro_id.', null, rC.body); this.finalizarTeste('Criação não retornou quadro_id.'); this.setLoading(this.els.btnCicloVida, false); return; }
+            this.addStep('Verificar quadro_id', true, `quadro_id = ${quadroId}`, null, null);
+            if (criado) this.testSessionIds.push({ quadro_id: criado.quadro_id, empresa_id: dados.empresa_id });
+    
+            const enc1 = await buscarPorId();
+            if (!enc1) { this.addStep('Buscar após criar', false, 'Não encontrado.', {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, null); this.finalizarTeste('Sumiu após criação.'); this.setLoading(this.els.btnCicloVida, false); return; }
+            const d1 = this.compararCompleto(dados, enc1);
+            if (d1.length) { this.addStep('Buscar após criar (integridade)', false, `${d1.length} divergência(s):\n` + d1.map(x => `• ${x.campo}: enviado "${x.esperado}" → recebido "${x.recebido}"`).join('\n'), {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, enc1); this.finalizarTeste('Divergência após criação.'); this.setLoading(this.els.btnCicloVida, false); return; }
+            this.addStep('Buscar após criar (integridade)', true, 'Todos os campos bateram.', {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, enc1);
+    
+            const dadosAt = this.gerarDadosQuadro('[TESTE-CICLO-EDITADO]');
+            dadosAt.quadro_id = String(quadroId); dadosAt.empresa_id = dados.empresa_id;
+            const resA = await this.chamar(REQ.atualiza, dadosAt);
+            const rA = this.interpretar(resA);
+            this.addStep('Atualizar registro', rA.ok, rA.ok ? `Status ${rA.status}` : rA.msg, dadosAt, rA.body);
+            if (!rA.ok) { this.finalizarTeste('Falhou na atualização.'); this.setLoading(this.els.btnCicloVida, false); return; }
+    
+            const enc2 = await buscarPorId();
+            if (!enc2) { this.addStep('Buscar após editar', false, 'Não encontrado.', {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, null); this.finalizarTeste('Sumiu após edição.'); this.setLoading(this.els.btnCicloVida, false); return; }
+            const d2 = this.compararCompleto(dadosAt, enc2);
+            if (d2.length) { this.addStep('Buscar após editar (integridade)', false, `${d2.length} divergência(s):\n` + d2.map(x => `• ${x.campo}: enviado "${x.esperado}" → recebido "${x.recebido}"`).join('\n'), {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, enc2); this.finalizarTeste('Divergência após edição.'); this.setLoading(this.els.btnCicloVida, false); return; }
+            this.addStep('Buscar após editar (integridade)', true, 'Todos os campos bateram.', {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, enc2);
+    
+            const resE = await this.chamar(REQ.remove, { empresa_id: String(dados.empresa_id), quadro_id: String(quadroId) });
+            const rE = this.interpretar(resE);
+            this.addStep('Excluir registro', rE.ok, rE.ok ? `Status ${rE.status}` : rE.msg, {empresa_id: dados.empresa_id, quadro_id: quadroId}, rE.body);
+            if (!rE.ok) { this.finalizarTeste('Falhou na exclusão.'); this.setLoading(this.els.btnCicloVida, false); return; }
+            this.testSessionIds = this.testSessionIds.filter(x => String(x.quadro_id) !== String(quadroId));
+    
+            const enc3 = await buscarPorId();
+            if (enc3) { this.addStep('Confirmar exclusão', false, 'Ainda aparece na busca.', {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, enc3); this.finalizarTeste('Persistiu após exclusão.'); this.setLoading(this.els.btnCicloVida, false); return; }
+            this.addStep('Confirmar exclusão', true, 'Registro não encontrado após exclusão.', {rt_query:`empresa_id=${dados.empresa_id}&quadro_id=${quadroId}`}, null);
+    
+            this.finalizarTeste(`Ciclo completo: criado (${quadroId}) → buscado → editado → buscado → excluído → confirmado. Todos os campos bateram.`);
           } catch (err) {
-            falha++;
-            addStep(`Criar #${i+1}`, false, err.message || String(err), dadosItem, null);
+            this.addStep('Erro inesperado', false, err.message || String(err), null, null);
+            this.finalizarTeste('Erro inesperado durante o teste.');
+          } finally {
+            this.setLoading(this.els.btnCicloVida, false);
           }
-          await esperar(200);
         }
-        setProgresso('massaProgresso', `Concluido: ${sucesso} criado(s), ${falha} falha(s).`, false);
-        finalizarTeste(`${sucesso} criado(s), ${falha} falha(s) de ${n} solicitado(s). Prefixo: ${prefixo}`);
-        btn.disabled = false;
-        if (btnLimpar) btnLimpar.disabled = false;
-      }
-
-      async function limparDadosTeste() {
-        if (testSessionIds.length === 0) {
-          iniciarTeste('Limpeza', 'Limpar dados de teste');
-          addStep('Verificar registros', true, 'Nenhum registro de teste rastreado nesta sessao.', null, null);
-          finalizarTeste('Nenhum registro de teste rastreado nesta sessao.');
-          return;
-        }
-        const ok = await confirmarAcao(`Excluir ${testSessionIds.length} registro(s) de teste criados nesta sessao? Essa acao nao pode ser desfeita.`);
-        if (!ok) return;
-        const pendentes = [...testSessionIds];
-        const btn = document.getElementById('btnLimparMassa');
-        const btnCriar = document.getElementById('btnMassa');
-        btn.disabled = true;
-        if (btnCriar) btnCriar.disabled = true;
-
-        iniciarTeste('Limpeza', 'Limpar dados de teste');
-        let sucesso = 0, falha = 0;
-        setProgresso('massaProgresso', '<span class="spinner"></span> Iniciando limpeza...', true);
-        for (const item of pendentes) {
-          setProgresso('massaProgresso', `<span class="spinner"></span> Excluindo ${sucesso + falha + 1} de ${pendentes.length}...`, true);
-          const req = { empresa_id: item.empresa_id, quadro_id: item.quadro_id };
-          try {
-            const res = await chamar(REQ.remove, req);
-            const r = interpretarResposta(res);
-            addStep(`Excluir quadro_id ${item.quadro_id}`, r.ok, r.ok ? `Excluido com status ${r.status}` : r.msg, req, r.body);
-            if (r.ok) {
-              sucesso++;
-              testSessionIds = testSessionIds.filter((x) => String(x.quadro_id) !== String(item.quadro_id));
-              atualizarContadorSessao();
-            } else falha++;
-          } catch (err) {
-            falha++;
-            addStep(`Excluir quadro_id ${item.quadro_id}`, false, err.message || String(err), req, null);
+        async criarMassa() {
+          const n = Math.max(1, Math.min(200, parseInt(this.els.massaQtd.value || '10', 10)));
+          const prefixo = `[TESTE-MASSA-${Date.now()}]`;
+          this.massando = true;
+          this.els.btnMassa.disabled = true;
+          this.els.btnLimparMassa.disabled = true;
+          this.iniciarTeste('Massa', `Criação em massa (${n} solicitados)`);
+          this.els.massaProgresso.innerHTML = '<span class="spinner spinner-dark"></span> Iniciando...';
+          this.els.massaProgresso.classList.add('ativo');
+          let ok = 0, fail = 0;
+          for (let i = 0; i < n; i++) {
+            this.els.massaProgresso.innerHTML = `<span class="spinner spinner-dark"></span> Criando ${i+1} de ${n}... (${ok} ok, ${fail} falha)`;
+            const d = this.gerarDadosQuadro(prefixo);
+            try {
+              const res = await this.chamar(REQ.cria, d);
+              const r = this.interpretar(res);
+              this.addStep(`Criar #${i+1}`, r.ok, r.ok ? `Status ${r.status}` : r.msg, d, r.body);
+              if (r.ok) { const c = Array.isArray(r.body?.retorno) ? r.body.retorno[0] : r.body?.retorno; if (c?.quadro_id) this.testSessionIds.push({quadro_id: c.quadro_id, empresa_id: d.empresa_id}); ok++; }
+              else fail++;
+            } catch (err) { fail++; this.addStep(`Criar #${i+1}`, false, err.message || String(err), d, null); }
+            await esperar(200);
           }
-          await esperar(150);
+          this.els.massaProgresso.innerHTML = `Concluído: ${ok} criado(s), ${fail} falha(s).`;
+          this.els.massaProgresso.classList.remove('ativo');
+          this.finalizarTeste(`${ok} criado(s), ${fail} falha(s) de ${n} solicitado(s). Prefixo: ${prefixo}`);
+          this.massando = false;
+          this.els.btnMassa.disabled = false;
+          this.els.btnLimparMassa.disabled = false;
         }
-        setProgresso('massaProgresso', `Limpeza concluida: ${sucesso} excluido(s), ${falha} falha(s).`, false);
-        finalizarTeste(`${sucesso} excluido(s), ${falha} falha(s).`);
-        btn.disabled = false;
-        if (btnCriar) btnCriar.disabled = false;
-        buscar(false);
+        async limparMassa() {
+          if (this.testSessionIds.length === 0) { this.iniciarTeste('Limpeza', 'Limpar dados de teste'); this.addStep('Verificar', true, 'Nenhum registro rastreado.', null, null); this.finalizarTeste('Nenhum registro rastreado.'); return; }
+          const conf = await this.confirmar(`Excluir ${this.testSessionIds.length} registro(s) de teste? Essa ação não pode ser desfeita.`);
+          if (!conf) return;
+          this.massando = true;
+          this.els.btnMassa.disabled = true;
+          this.els.btnLimparMassa.disabled = true;
+          const pendentes = [...this.testSessionIds];
+          this.iniciarTeste('Limpeza', 'Limpar dados de teste');
+          let ok = 0, fail = 0;
+          this.els.massaProgresso.innerHTML = '<span class="spinner spinner-dark"></span> Iniciando limpeza...';
+          this.els.massaProgresso.classList.add('ativo');
+          for (const item of pendentes) {
+            this.els.massaProgresso.innerHTML = `<span class="spinner spinner-dark"></span> Excluindo ${ok+fail+1} de ${pendentes.length}...`;
+            const req = { empresa_id: item.empresa_id, quadro_id: item.quadro_id };
+            try {
+              const res = await this.chamar(REQ.remove, req);
+              const r = this.interpretar(res);
+              this.addStep(`Excluir ${item.quadro_id}`, r.ok, r.ok ? `Status ${r.status}` : r.msg, req, r.body);
+              if (r.ok) { ok++; this.testSessionIds = this.testSessionIds.filter(x => String(x.quadro_id) !== String(item.quadro_id)); }
+              else fail++;
+            } catch (err) { fail++; this.addStep(`Excluir ${item.quadro_id}`, false, err.message || String(err), req, null); }
+            await esperar(150);
+          }
+          this.els.massaProgresso.innerHTML = `Limpeza concluída: ${ok} excluído(s), ${fail} falha(s).`;
+          this.els.massaProgresso.classList.remove('ativo');
+          this.finalizarTeste(`${ok} excluído(s), ${fail} falha(s).`);
+          this.massando = false;
+          this.els.btnMassa.disabled = false;
+          this.els.btnLimparMassa.disabled = false;
+          this.buscar(false);
+        }
+        copiarTeste() {
+          if (!this.ultimoTeste) { this.alert('Nenhum teste executado.'); return; }
+          const payload = { timestamp: this.ultimoTeste.ts.toISOString(), categoria: this.ultimoTeste.categoria, acao: this.ultimoTeste.acao, ok: this.ultimoTeste.ok, detalhes: this.ultimoTeste.detalhes, steps: this.ultimoTeste.steps.map(s => ({ timestamp: s.ts?.toISOString(), acao: s.acao, ok: s.ok, skipped: s.skipped, detalhes: s.detalhes, request: s.requestJson, response: s.responseJson })) };
+          navigator.clipboard.writeText(JSON.stringify(payload, null, 2)).then(() => this.alert('JSON copiado.', 'ok'));
+        }
       }
-
-      // Exposição explícita no escopo global para garantir acesso via HTML onclick/oninput
-      window.pfConfirmResolver = pfConfirmResolver;
-      window.toggleAll = toggleAll;
-      window.filtrarLocal = filtrarLocal;
-      window.trocarView = trocarView;
-      window.preencherAleatorio = preencherAleatorio;
-      window.abrirCriacaoRapida = abrirCriacaoRapida;
-      window.limparFiltros = limparFiltros;
-      window.buscar = buscar;
-      window.irParaPagina = irParaPagina;
-      window.abrirForm = abrirForm;
-      window.fecharForm = fecharForm;
-      window.salvar = salvar;
-      window.excluir = excluir;
-      window.copiarUltimoTeste = copiarUltimoTeste;
-      window.rodarTesteCicloVida = rodarTesteCicloVida;
-      window.criarEmMassa = criarEmMassa;
-      window.limparDadosTeste = limparDadosTeste;
-
-      // ---------------- inicializacao ----------------
-      bru.ctx.onInit = async () => {
+    
+      // Instância global
+      const app = new QuadroApp();
+    
+      // Inicialização Bruno — CRÍTICO: atribuir onInit imediatamente no escopo global
+      bru.ctx.onInit = async (bru) => {
         try {
           const todas = await bru.ctx.listRequests();
-          todas.forEach(r => { mapaRequests[r.name] = r.pathname; });
-          const faltando = Object.values(REQ).filter(nome => !mapaRequests[nome]);
-          document.getElementById('apStatus').textContent = faltando.length
-            ? `Atencao: request(s) nao encontrada(s) na colecao: ${faltando.join(', ')}. Confira se o nome bate exatamente.`
-            : '';
+          todas.forEach(r => { app.mapaRequests[r.name] = r.pathname; });
+          const faltando = Object.values(REQ).filter(n => !app.mapaRequests[n]);
+          app.setStatus(faltando.length ? `Atenção: request(s) não encontrada(s): ${faltando.join(', ')}. Confira se o nome bate exatamente.` : '');
         } catch (err) {
-          document.getElementById('apStatus').textContent = 'Erro ao listar requests: ' + (err.message || err);
+          app.setStatus('Erro ao listar requests: ' + (err.message || err));
         }
-        ctxPronto = true;
-        atualizarBotao();
+        app.ctxPronto = true;
+        app.els.btnBuscar.disabled = false;
+        app.els.lblBuscar.textContent = 'Buscar dados';
       };
     </script>
+    </body>
+    </html>

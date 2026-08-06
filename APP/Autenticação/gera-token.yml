@@ -1,0 +1,62 @@
+info:
+  name: Gera o token de acesso com base nos tokens externos informados
+  type: http
+  seq: 1
+  tags:
+    - Autenticação
+
+http:
+  method: POST
+  url: "{{authUrl}}/api/v1/auth/credencial/login"
+  auth:
+    type: basic
+    username: "{{username}}"
+    password: "{{password}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 201 Response
+    description: Token gerado com sucesso
+    request:
+      url: "{{baseUrl}}/api/v1/auth/credencial/login"
+      method: POST
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "mensagem": "",
+            "token": "",
+            "validade": 0,
+            "payload": {}
+          }
+  - name: 401 Response
+    description: Token do parceiro e/ou cliente inválidos.
+    request:
+      url: "{{baseUrl}}/api/v1/auth/credencial/login"
+      method: POST
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "mensagem": "",
+            "payload": {}
+          }
+
+docs: Endpoint responsável por realizar o login com base nos tokens externos informados e retornar um token JWT de acesso para permitir o uso de outras API's desenvolvidas. O JWT gerado atualmente possui uma validade de 1 hora (3600 segundos).
