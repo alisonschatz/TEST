@@ -20,8 +20,14 @@ variables:
     value: 1552|TjRplq3iEgSSYZc20d9cRN0luBQMRGE4MiTL3Brt
   - name: token_contexto_adm_practice
     value: 1553|Oy6O94f3ew4v5Pt6zoM8lVbWzJOkdA9MqiBVxmfS
+  - name: perfil_ativo
+    value: Personalizado (sistema parceiro)
+  - name: modo_acesso
+    value: personalizado
   - secret: true
     name: token_app
+  - secret: true
+    name: token_app_expira_em
   - secret: true
     name: username_app
   - secret: true

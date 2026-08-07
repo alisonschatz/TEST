@@ -1,7 +1,7 @@
 info:
   name: gera-token
   type: http
-  seq: 1
+  seq: 2
   tags:
     - Autenticação
 
@@ -17,39 +17,78 @@ runtime:
   scripts:
     - type: before-request
       code: |-
-        // Mapeia o perfil selecionado (tipo_perfil) para o par de tokens externos
-        // que o endpoint de login espera como username/password.
+        // Mapeia o perfil selecionado (tipo_perfil) para o par sistema+contexto que o
+        // endpoint de login espera como username/password, e classifica em qual slot
+        // o resultado deve ir (sci = acesso total, parceiro = tipicamente só leitura,
+        // mas isso é validado na prática pelo teste de permissão, não assumido aqui).
         const perfis = {
-          unico_admin: { sistema: 'token_sistema_unico', contexto: 'token_contexto_adm_unico' },
-          practice_admin: { sistema: 'token_sistema_practice', contexto: 'token_contexto_adm_practice' },
-          parceiro_cliente_unico: { sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_unico' },
-          parceiro_cliente_practice: { sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_practice' }
+          unico_admin: { sistema: 'token_sistema_unico', contexto: 'token_contexto_adm_unico', slot: 'sci' },
+          practice_admin: { sistema: 'token_sistema_practice', contexto: 'token_contexto_adm_practice', slot: 'sci' },
+          parceiro_cliente_unico: { sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_unico', slot: 'parceiro' },
+          parceiro_cliente_practice: { sistema: 'token_sistema_parceiro', contexto: 'token_contexto_cliente_practice', slot: 'parceiro' }
         };
+        // Os 3 tokens de SISTEMA nunca mudam — só identificam qual "família" (Único,
+        // Practice ou Parceiro). O que varia de cliente para cliente é o de CONTEXTO.
+        // Por isso o slot "Personalizado" só pede pra colar o contexto: o sistema é
+        // escolhido por nome (sistema_escolhido), lido direto do ambiente.
+        const sistemasFixos = { unico: 'token_sistema_unico', practice: 'token_sistema_practice', parceiro: 'token_sistema_parceiro' };
 
-        const tipoPerfil = bru.getVar('tipo_perfil') || bru.getEnvVar('tipo_perfil');
-        const perfil = perfis[tipoPerfil];
+        const sistemaEscolhido = bru.getVar('sistema_escolhido');
 
-        if (!perfil) {
-          throw new Error(`tipo_perfil "${tipoPerfil}" inválido. Valores aceitos: ${Object.keys(perfis).join(', ')}`);
+        if (sistemaEscolhido) {
+          const sistemaVar = sistemasFixos[sistemaEscolhido];
+          if (!sistemaVar) {
+            throw new Error(`sistema_escolhido "${sistemaEscolhido}" inválido. Valores aceitos: ${Object.keys(sistemasFixos).join(', ')}`);
+          }
+          const tokenSistema = bru.getEnvVar(sistemaVar);
+          const contextoManual = bru.getVar('contexto_manual');
+          if (!tokenSistema) throw new Error(`Variável ${sistemaVar} está vazia no ambiente.`);
+          if (!contextoManual) throw new Error('Cole o token de contexto antes de gerar.');
+
+          bru.setEnvVar('username_app', tokenSistema, { persist: true });
+          bru.setEnvVar('password_app', contextoManual, { persist: true });
+          bru.setVar('_slot_login', 'personalizado');
+          bru.setVar('_perfil_login', `Personalizado (sistema ${sistemaEscolhido})`);
+        } else {
+          const tipoPerfil = bru.getVar('tipo_perfil') || bru.getEnvVar('tipo_perfil');
+          const perfil = perfis[tipoPerfil];
+
+          if (!perfil) {
+            throw new Error(`tipo_perfil "${tipoPerfil}" inválido. Valores aceitos: ${Object.keys(perfis).join(', ')}`);
+          }
+
+          const tokenSistema = bru.getEnvVar(perfil.sistema);
+          const tokenContexto = bru.getEnvVar(perfil.contexto);
+
+          if (!tokenSistema || !tokenContexto) {
+            throw new Error(`Credenciais ausentes para o perfil "${tipoPerfil}" (variáveis ${perfil.sistema} / ${perfil.contexto}).`);
+          }
+
+          // username = token de sistema | password = token de contexto
+          bru.setEnvVar('username_app', tokenSistema, { persist: true });
+          bru.setEnvVar('password_app', tokenContexto, { persist: true });
+
+          bru.setVar('_slot_login', perfil.slot);
+          bru.setVar('_perfil_login', tipoPerfil);
         }
-
-        const tokenSistema = bru.getEnvVar(perfil.sistema);
-        const tokenContexto = bru.getEnvVar(perfil.contexto);
-
-        if (!tokenSistema || !tokenContexto) {
-          throw new Error(`Credenciais ausentes para o perfil "${tipoPerfil}" (variáveis ${perfil.sistema} / ${perfil.contexto}).`);
-        }
-
-        // username = token de sistema | password = token de contexto
-        bru.setEnvVar('username_app', tokenSistema);
-        bru.setEnvVar('password_app', tokenContexto);
     - type: after-response
       code: |-
-        // Salva o JWT gerado em token_app, usado pelo restante do app (auth: inherit / bearer).
+        // Registro "best-effort" no ambiente de verdade — útil só se este request for
+        // disparado fora do app Autenticação (ex.: via CLI/automação). O app em si NÃO
+        // depende disso: ele grava o resultado direto via bru.ctx.variables.runtime,
+        // que é a única forma de compartilhar estado entre apps de forma confiável.
         if (res.getStatus() === 201) {
           const token = res.getBody()?.token;
+          const validade = res.getBody()?.validade;
           if (token) {
-            bru.setEnvVar('token_app', token);
+            const slot = bru.getVar('_slot_login') || 'desconhecido';
+            const perfil = bru.getVar('_perfil_login') || null;
+            const expiraEm = validade ? new Date(Date.now() + validade * 1000).toISOString() : '';
+
+            bru.setEnvVar('token_app', token, { persist: true });
+            bru.setEnvVar('perfil_ativo', perfil || '', { persist: true });
+            bru.setEnvVar('modo_acesso', slot, { persist: true });
+            bru.setEnvVar('token_app_expira_em', expiraEm, { persist: true });
           }
         }
 
@@ -99,4 +138,18 @@ examples:
             "payload": {}
           }
 
-docs: Endpoint responsável por realizar o login com base nos tokens externos informados e retornar um token JWT de acesso para permitir o uso de outras API's desenvolvidas. O JWT gerado atualmente possui uma validade de 1 hora (3600 segundos).
+docs: |-
+  Endpoint responsável por realizar o login com base nos tokens externos informados e retornar um
+  token JWT de acesso para permitir o uso de outras API's desenvolvidas. O JWT gerado atualmente
+  possui uma validade de 1 hora (3600 segundos).
+
+  Uso recomendado: não chame este request diretamente aqui — use o app **Autenticação**, que gera
+  e mantém até 3 tokens simultâneos (slots "Sistema SCI", "Sistema Parceiro" e "Personalizado").
+  Este request é o "motor" por trás dos três; também pode ser disparado manualmente definindo
+  `tipo_perfil` (perfis pré-cadastrados) ou `sistema_escolhido` + `contexto_manual` (personalizado)
+  no ambiente, útil para automações fora do app.
+
+  Os 3 tokens de **sistema** (`token_sistema_unico`, `token_sistema_practice`, `token_sistema_parceiro`)
+  são fixos — só identificam qual "família" de acesso. O que varia por cliente é o token de
+  **contexto**; por isso o slot Personalizado só pede para colar o contexto, escolhendo o sistema
+  por nome.

@@ -1,0 +1,531 @@
+info:
+  name: Autenticação
+  type: app
+  seq: 1
+
+code: |-
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+    <style>
+          :root {
+            --navy: #38486c; --blue: #91d8f7; --bg: #eef1f6;
+            --surface: #ffffff; --text: #263045; --muted: rgba(56,72,108,.65);
+            --border: rgba(56,72,108,.14); --radius: 10px; --shadow: 0 4px 14px rgba(56,72,108,.06);
+            --green: #1f8a5f; --green-soft: #e6f6ee; --red: #c1443a; --red-soft: #fbeae8; --orange: #d97706; --orange-soft: #fff7ed;
+          }
+          * { box-sizing: border-box; }
+          body { font-family: "Inter", system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; margin: 0; padding: 20px; letter-spacing: -0.01em; }
+          h2 { margin: 0 0 4px; font-size: 20px; font-weight: 800; color: var(--navy); }
+          .subtitle { font-size: 12.5px; color: var(--muted); margin-bottom: 14px; }
+          .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+          .tab { background: none; border: none; padding: 10px 4px; margin-right: 18px; font-size: 13.5px; font-weight: 700; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+          .tab:hover { color: var(--navy); }
+          .tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+          .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; box-shadow: var(--shadow); }
+          .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+          .card-title { font-size: 14.5px; font-weight: 800; color: var(--navy); margin: 0; }
+          .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 12px; align-items: end; }
+          .field { display: flex; flex-direction: column; gap: 5px; }
+          .field label { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+          .field input, .field select { height: 38px; border: 1px solid var(--border); border-radius: 8px; padding: 0 11px; font-size: 13px; background: rgba(56,72,108,.04); width: 100%; transition: .15s; font-family: inherit; }
+          .field input:focus, .field select:focus { outline: none; border-color: var(--navy); background: #fff; box-shadow: 0 0 0 3px rgba(145,216,247,.4); }
+          .field select optgroup { font-weight: 700; font-style: normal; color: var(--navy); }
+          .field select option { font-weight: 400; color: var(--text); }
+          .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; border-radius: 8px; padding: 9px 16px; height: 38px; font-size: 13px; font-weight: 700; cursor: pointer; transition: .15s; font-family: inherit; white-space: nowrap; }
+          .btn-primary { background: var(--navy); color: #fff; }
+          .btn-primary:hover:not(:disabled) { filter: brightness(1.15); }
+          .btn:disabled { opacity: .45; cursor: not-allowed; }
+          .btn-outline { background: #fff; color: var(--navy); border: 1.5px solid var(--navy); }
+          .btn-outline:hover:not(:disabled) { background: rgba(56,72,108,.06); }
+          .btn-danger { background: var(--red-soft); color: var(--red); border: 1.5px solid var(--red); }
+          .btn-danger:hover { filter: brightness(.95); }
+          .btn-sm { padding: 6px 12px; font-size: 12px; height: 32px; }
+          .toolbar { display: flex; gap: 8px; align-items: center; margin: 14px 0; flex-wrap: wrap; }
+          .search { flex: 1; min-width: 220px; height: 38px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13.5px; font-family: inherit; }
+          .search:focus { outline: none; border-color: var(--navy); }
+          .badge { padding: 3px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+          .badge-ok { background: var(--green-soft); color: var(--green); }
+          .badge-bad { background: var(--red-soft); color: var(--red); }
+          .badge-info { background: rgba(145,216,247,.25); color: var(--navy); }
+          .alert { border-radius: 8px; padding: 11px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+          .alert-err { background: var(--red-soft); color: var(--red); border: 1px solid rgba(193,68,58,.3); }
+          .alert-ok { background: var(--green-soft); color: var(--green); border: 1px solid rgba(31,138,95,.3); }
+          .alert-warn { background: var(--orange-soft); color: var(--orange); border: 1px solid rgba(217,119,6,.3); }
+          .empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13.5px; }
+          .spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; animation: spin .7s linear infinite; display: inline-block; }
+          @keyframes spin { to { transform: rotate(360deg); } }
+          .spinner-dark { border-color: rgba(56,72,108,.3); border-top-color: var(--navy); }
+          details { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; box-shadow: var(--shadow); }
+          details[open] { border-left-color: var(--blue); }
+          summary { padding: 13px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; list-style: none; flex-wrap: wrap; }
+          summary::-webkit-details-marker { display: none; }
+          summary:hover { background: rgba(56,72,108,.04); }
+          .summary-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+          .summary-name { font-weight: 700; font-size: 14.5px; color: var(--navy); }
+          .summary-id { font-size: 11.5px; color: var(--muted); }
+          .summary-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-left: auto; }
+          .inner { padding: 14px; background: rgba(56,72,108,.04); border-top: 1px solid var(--border); }
+          table { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+          th { background: var(--navy); color: var(--blue); font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: .04em; padding: 7px 4px; }
+          td { padding: 5px 4px; text-align: center; border-bottom: 1px solid var(--border); }
+          tr:nth-child(even) td { background: rgba(56,72,108,.03); }
+          tr:last-child td { border-bottom: none; }
+          .dia-nome { text-align: left; font-weight: 700; padding-left: 10px; color: var(--navy); }
+          input[type="time"] { width: 78px; border: 1px solid var(--border); border-radius: 5px; padding: 3px 4px; font-size: 11.5px; background: #fff; font-family: inherit; }
+          input[type="time"]:focus { outline: none; border-color: var(--navy); }
+          .form-panel { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--navy); border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow); }
+          .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 9px 10px; }
+          fieldset { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+          legend { font-size: 11px; color: var(--navy); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 0 4px; }
+          .paginacao { display: flex; align-items: center; gap: 10px; justify-content: center; margin: 16px 0; font-size: 12.5px; color: var(--muted); }
+          .step { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 8px; }
+          .step-h { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(56,72,108,.04); cursor: pointer; }
+          .step-h:hover { background: rgba(56,72,108,.08); }
+          .step-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+          .step-body { padding: 12px; border-top: 1px solid var(--border); background: var(--surface); }
+          .pre { background: #1e2434; padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; color: var(--blue); font-family: "Fira Code", Consolas, monospace; font-size: 11.5px; line-height: 1.5; max-height: 200px; overflow-y: auto; }
+          .overlay { display: none; position: fixed; inset: 0; background: rgba(38,48,69,.45); z-index: 1000; align-items: center; justify-content: center; }
+          .overlay.active { display: flex; }
+          .modal { background: var(--surface); border-radius: 12px; padding: 20px; max-width: 380px; width: 90%; box-shadow: 0 10px 30px rgba(38,48,69,.25); }
+          .hint { margin: 0 0 12px; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+          .progresso { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); margin-top: 10px; min-height: 20px; }
+          .progresso.ativo { color: var(--navy); font-weight: 600; }
+          .flex { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+          .align-end { align-items: flex-end; }
+          .perfil-chip { display: flex; align-items: center; gap: 9px; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+          .perfil-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+          .perfil-chip.ok { background: var(--green-soft); color: var(--green); border: 1px solid rgba(31,138,95,.3); }
+          .perfil-chip.bad { background: var(--red-soft); color: var(--red); border: 1px solid rgba(193,68,58,.3); }
+          .ml-auto { margin-left: auto; }
+          .w-full { width: 100%; }
+          .hidden { display: none !important; }
+
+          .slots-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+          @media (max-width: 900px) { .slots-grid { grid-template-columns: 1fr; } }
+          .slot-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+          .slot-actions { margin-top: auto; padding-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+          .slot-actions .flex { gap: 6px; }
+          .slot-status-badge { font-size: 10px; padding: 2px 8px; }
+          .slot-card.slot-sci { border-top: 3px solid var(--navy); }
+          .slot-card.slot-parceiro { border-top: 3px solid var(--orange); }
+          .slot-card.slot-personalizado { border-top: 3px solid var(--green); }
+          .slot-title { font-size: 13px; font-weight: 800; color: var(--navy); margin: 0 0 4px; }
+          .slot-sub { font-size: 11px; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
+          .radio-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+          .radio-row label { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; color: var(--text); cursor: pointer; }
+          .radio-row input { width: 14px; height: 14px; }
+          .slot-linha { font-size: 12.5px; color: var(--text); margin-bottom: 4px; }
+          .slot-linha b { color: var(--navy); }
+          .slot-muted { color: var(--muted); }
+          .toggle-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 13px; font-weight: 600; color: var(--text); }
+          .toggle-row input { width: 16px; height: 16px; }
+          .modo-chip { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-radius: 10px; font-size: 14px; font-weight: 800; margin-bottom: 14px; }
+          .modo-chip .dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+          .modo-chip.ok { background: var(--green-soft); color: var(--green); border: 1px solid rgba(31,138,95,.3); }
+          .modo-chip.bad { background: var(--red-soft); color: var(--red); border: 1px solid rgba(193,68,58,.3); }
+          .usado-por { font-size: 11.5px; font-weight: 600; color: var(--muted); margin-top: 2px; }
+          [x-cloak] { display: none !important; }
+        </style>
+    </head>
+    <body>
+
+        <div id="app" x-data="new AuthApp()" x-init="init()">
+          <h2>Autenticação</h2>
+          <div class="subtitle" x-text="statusText">Inicializando...</div>
+          <p class="hint" style="margin:0 0 16px;">
+            Gera e mantém até <b>3 tokens simultâneos</b>, independentes entre si. Cada app escolhe seu próprio token.
+          </p>
+
+          <div x-show="alertMsg" x-cloak>
+            <div class="alert" :class="'alert-' + alertType" x-text="alertMsg"></div>
+          </div>
+
+          <div class="slots-grid">
+            <!-- ================= SCI ================= -->
+            <div class="slot-card slot-sci">
+              <h4 class="slot-title">Sistema SCI</h4>
+              <p class="slot-sub">Acesso completo — GET · POST · PUT · DELETE</p>
+
+              <div class="radio-row">
+                <label><input type="radio" value="unico_admin" x-model="sciEscolha"> Sistema Único + Módulo Administrador Único</label>
+                <label><input type="radio" value="practice_admin" x-model="sciEscolha"> Sistema Practice + Módulo Administrador Practice</label>
+              </div>
+
+              <div class="slot-linha">
+                <b>Status:</b>
+                <span class="badge slot-status-badge" :class="statusBadgeClass('sci')" x-text="statusBadgeTexto('sci')"></span>
+                <span x-show="slots.sci.token" x-html="formatarExpira(slots.sci.expiraEm)"></span>
+              </div>
+              <div class="slot-linha" x-show="slots.sci.token"><b>Gerado com:</b> <span x-text="rotuloPerfil(slots.sci.perfil)"></span></div>
+              <div class="slot-linha" x-show="slots.sci.token && !atualizarDisponivel('sci')" style="color:var(--orange);">Seleção diferente do token salvo — clique em "Trocar" para gerar com ela.</div>
+
+              <div class="slot-actions">
+                <div class="flex">
+                  <button class="btn btn-primary btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.sci" @click="gerarSlot('sci')">
+                    <span class="spinner" x-show="carregando.sci" x-cloak></span>
+                    <span x-text="slots.sci.token ? 'Trocar' : 'Gerar'"></span>
+                  </button>
+                </div>
+                <div class="flex">
+                  <button class="btn btn-outline btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.sci || !atualizarDisponivel('sci')" :title="!atualizarDisponivel('sci') && slots.sci.token ? 'A seleção acima não é a do token salvo — clique em Trocar para gerar com esta combinação, ou volte para a combinação já gerada para atualizar.' : ''" @click="atualizarSlot('sci')">Atualizar</button>
+                  <button class="btn btn-outline btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.sci || !slots.sci.token" @click="limparSlot('sci')">Limpar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- ================= PARCEIRO ================= -->
+            <div class="slot-card slot-parceiro">
+              <h4 class="slot-title">Sistema Parceiro</h4>
+              <p class="slot-sub">Acesso restrito</p>
+
+              <div class="radio-row">
+                <label><input type="radio" value="parceiro_cliente_unico" x-model="parceiroEscolha"> Módulo Cliente Único</label>
+                <label><input type="radio" value="parceiro_cliente_practice" x-model="parceiroEscolha"> Módulo Cliente Practice</label>
+              </div>
+
+              <div class="slot-linha">
+                <b>Status:</b>
+                <span class="badge slot-status-badge" :class="statusBadgeClass('parceiro')" x-text="statusBadgeTexto('parceiro')"></span>
+                <span x-show="slots.parceiro.token" x-html="formatarExpira(slots.parceiro.expiraEm)"></span>
+              </div>
+              <div class="slot-linha" x-show="slots.parceiro.token"><b>Gerado com:</b> <span x-text="rotuloPerfil(slots.parceiro.perfil)"></span></div>
+              <div class="slot-linha" x-show="slots.parceiro.token && !atualizarDisponivel('parceiro')" style="color:var(--orange);">Seleção diferente do token salvo — clique em "Trocar" para gerar com ela.</div>
+
+              <div class="slot-actions">
+                <div class="flex">
+                  <button class="btn btn-primary btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.parceiro" @click="gerarSlot('parceiro')">
+                    <span class="spinner" x-show="carregando.parceiro" x-cloak></span>
+                    <span x-text="slots.parceiro.token ? 'Trocar' : 'Gerar'"></span>
+                  </button>
+                </div>
+                <div class="flex">
+                  <button class="btn btn-outline btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.parceiro || !atualizarDisponivel('parceiro')" :title="!atualizarDisponivel('parceiro') && slots.parceiro.token ? 'A seleção acima não é a do token salvo — clique em Trocar para gerar com esta combinação, ou volte para a combinação já gerada para atualizar.' : ''" @click="atualizarSlot('parceiro')">Atualizar</button>
+                  <button class="btn btn-outline btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.parceiro || !slots.parceiro.token" @click="limparSlot('parceiro')">Limpar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- ================= PERSONALIZADO ================= -->
+            <div class="slot-card slot-personalizado">
+              <h4 class="slot-title">Personalizado</h4>
+              <p class="slot-sub">Para testar um cliente/escopo fora dos pré-cadastrados</p>
+
+              <div class="field" style="margin-bottom:8px;">
+                <label>Sistema (fixo, só escolha qual)</label>
+                <select x-model="personalizadoSistema">
+                  <option value="unico">Sistema Único</option>
+                  <option value="practice">Sistema Practice</option>
+                  <option value="parceiro">Sistema Parceiro</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Token de contexto (cole aqui)</label>
+                <input type="text" x-model="personalizadoContexto" placeholder="Ex.: 1575|HItQ...">
+              </div>
+
+              <div class="slot-linha" style="margin-top:10px;">
+                <b>Status:</b>
+                <span class="badge slot-status-badge" :class="statusBadgeClass('personalizado')" x-text="statusBadgeTexto('personalizado')"></span>
+                <span x-show="slots.personalizado.token" x-html="formatarExpira(slots.personalizado.expiraEm)"></span>
+              </div>
+              <div class="slot-linha" x-show="slots.personalizado.token"><b>Gerado com:</b> <span x-text="rotuloPerfil(slots.personalizado.perfil)"></span></div>
+              <div class="slot-linha" x-show="slots.personalizado.token && !atualizarDisponivel('personalizado')" style="color:var(--orange);">Sistema diferente do token salvo — clique em "Trocar" para gerar com ele.</div>
+
+              <div class="slot-actions">
+                <div class="flex">
+                  <button class="btn btn-primary btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.personalizado || !personalizadoContexto.trim()" @click="gerarSlot('personalizado')">
+                    <span class="spinner" x-show="carregando.personalizado" x-cloak></span>
+                    <span x-text="slots.personalizado.token ? 'Trocar' : 'Gerar'"></span>
+                  </button>
+                </div>
+                <div class="flex">
+                  <button class="btn btn-outline btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.personalizado || !atualizarDisponivel('personalizado')" :title="!atualizarDisponivel('personalizado') && slots.personalizado.token ? 'O sistema selecionado não é o do token salvo — clique em Trocar para gerar com este sistema, ou volte para o sistema já gerado para atualizar.' : ''" @click="atualizarSlot('personalizado')">Atualizar</button>
+                  <button class="btn btn-outline btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.personalizado || !slots.personalizado.token" @click="limparSlot('personalizado')">Limpar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <details style="margin-top:20px;">
+            <summary style="cursor:pointer;font-size:12px;color:var(--muted);font-weight:600;">Depuração: última chamada bru.ctx.runRequest()</summary>
+            <pre class="pre" style="margin-top:8px;max-height:260px;"><code x-text="debugRaw">—</code></pre>
+          </details>
+        </div>
+
+
+    <script>
+          // ===================== CONFIGURAÇÃO =====================
+          const REQ = { authGera: 'gera-token', authRefresh: 'atualiza-token' };
+          // Rótulos legíveis para os perfis pré-cadastrados (usado só para exibição —
+          // a lógica de login em si mora no script pre-request de gera-token). Mantidos
+          // exatamente iguais ao texto dos rádios correspondentes no card, pra "Gerado
+          // com" nunca dizer algo diferente do que a pessoa marcou.
+          const ROTULOS_PERFIL = {
+            unico_admin: 'Sistema Único + Módulo Administrador Único',
+            practice_admin: 'Sistema Practice + Módulo Administrador Practice',
+            parceiro_cliente_unico: 'Sistema Parceiro + Módulo Cliente Único',
+            parceiro_cliente_practice: 'Sistema Parceiro + Módulo Cliente Practice',
+          };
+          const NOME_SLOT = { sci: 'Sistema SCI', parceiro: 'Sistema Parceiro', personalizado: 'Personalizado' };
+          // Nomes de exibição dos 3 sistemas fixos — usado só pra montar o rótulo do
+          // slot Personalizado (ex.: "Sistema Parceiro + (Personalizado)").
+          const NOME_SISTEMA = { unico: 'Sistema Único', practice: 'Sistema Practice', parceiro: 'Sistema Parceiro' };
+
+          // Instância reativa: Alpine chama "new AuthApp()" ao processar x-data e
+          // transforma o resultado num Proxy reativo. Guardamos a referência a ESSE
+          // proxy (não ao objeto cru) em `authApp`, dentro de init() — é o que garante
+          // que bru.ctx.onInit, chamado fora de qualquer diretiva Alpine, edite
+          // exatamente o mesmo estado que a tela está observando.
+          let authApp = null;
+
+          class AuthApp {
+            constructor() {
+              this.mapaRequests = {};
+              this.ctxPronto = false;
+              this.statusText = 'Inicializando...';
+              this.debugRaw = '—';
+
+              // Três slots independentes — sem conceito de "qual é o padrão". Cada app
+              // consumidor (Quadro de Horário, Função) escolhe por conta própria qual usar.
+              this.slots = {
+                sci: { token: '', perfil: '', expiraEm: '', escolha: '' },
+                parceiro: { token: '', perfil: '', expiraEm: '', escolha: '' },
+                personalizado: { token: '', perfil: '', expiraEm: '', escolha: '' },
+              };
+              this.carregando = { sci: false, parceiro: false, personalizado: false };
+
+              this.sciEscolha = 'unico_admin';
+              this.parceiroEscolha = 'parceiro_cliente_unico';
+              this.personalizadoSistema = 'unico';
+              this.personalizadoContexto = '';
+
+              this.alertMsg = '';
+              this.alertType = 'err';
+            }
+
+            // Chamado por Alpine (x-init="init()") assim que o elemento é processado —
+            // já com `this` apontando para o proxy reativo.
+            init() {
+              authApp = this;
+              this._restaurarUI();
+              bru.ctx.onInit = async () => {
+                try {
+                  const todas = await bru.ctx.listRequests();
+                  todas.forEach(r => { authApp.mapaRequests[r.name] = r.pathname; });
+                  const faltando = Object.values(REQ).filter(n => !authApp.mapaRequests[n]);
+                  authApp.statusText = faltando.length ? `Atenção: request(s) não encontrada(s): ${faltando.join(', ')}.` : '';
+                } catch (err) {
+                  authApp.statusText = 'Erro ao listar requests: ' + (err.message || err);
+                }
+                authApp.ctxPronto = true;
+                authApp.atualizarEstadoDe(bru.ctx.variables.resolved);
+              };
+              // Reage a mudanças nas variáveis mescladas. Uma única ação (gerar/atualizar um
+              // slot) grava várias runtime vars em sequência — cada gravação pode disparar
+              // este callback isoladamente, com um instantâneo ainda incompleto. O debounce
+              // garante que só aplicamos depois que a rajada termina, sempre lendo o estado
+              // mais recente no momento em que dispara.
+              let debounce = null;
+              bru.ctx.onVariablesChange = () => {
+                clearTimeout(debounce);
+                debounce = setTimeout(() => authApp.atualizarEstadoDe(bru.ctx.variables.resolved), 350);
+              };
+            }
+
+            // -------------------- UI HELPERS --------------------
+            alert(msg, type='err') {
+              this.alertType = type;
+              this.alertMsg = msg;
+              if (msg) setTimeout(() => { if (this.alertMsg === msg) this.alertMsg = ''; }, 6000);
+            }
+            rotuloPerfil(perfil) { return ROTULOS_PERFIL[perfil] || perfil || '—'; }
+            // Badge de status: visualmente claro se o slot tem token ativo, expirado ou
+            // vazio — não precisa ler o texto de expiração pra saber o estado geral.
+            statusBadgeClass(slot) {
+              const s = this.slots[slot];
+              if (!s.token) return 'badge-bad';
+              return this.expirado(s.expiraEm) ? 'badge-bad' : 'badge-ok';
+            }
+            statusBadgeTexto(slot) {
+              const s = this.slots[slot];
+              if (!s.token) return 'Inativo';
+              return this.expirado(s.expiraEm) ? 'Expirado' : 'Ativo';
+            }
+            expirado(iso) { if (!iso) return true; return new Date(iso).getTime() <= Date.now(); }
+            formatarExpira(iso) {
+              if (!iso) return '<span class="slot-muted">nenhum token gerado ainda</span>';
+              const d = new Date(iso);
+              const diffMin = Math.round((d.getTime() - Date.now()) / 60000);
+              if (diffMin <= 0) return `<span style="color:var(--red);font-weight:700;">expirado às ${d.toLocaleTimeString('pt-BR')}</span>`;
+              return `expira às ${d.toLocaleTimeString('pt-BR')} <span class="slot-muted">(~${diffMin} min)</span>`;
+            }
+
+            // -------------------- RESILIÊNCIA A RECARGA DA ABA --------------------
+            // Mesmo padrão dos outros 2 apps: o Bruno pode descartar e remontar a webview
+            // de uma aba inativa ao navegar. O estado dos 3 tokens já sobrevive a isso
+            // (mora em runtime vars, lidas do zero no init()). O que só existe na tela —
+            // qual combinação está marcada nos rádios, o que foi digitado no personalizado
+            // — persistimos aqui também, pelo mesmo mecanismo.
+            persistirUI() {
+              try {
+                bru.ctx.variables.runtime.set('_auth_ui', JSON.stringify({
+                  sciEscolha: this.sciEscolha,
+                  parceiroEscolha: this.parceiroEscolha,
+                  personalizadoSistema: this.personalizadoSistema,
+                }));
+              } catch (e) { console.error('Falha ao salvar estado da UI', e); }
+            }
+            _restaurarUI() {
+              try {
+                const raw = bru.ctx.variables?.resolved?.['_auth_ui'];
+                if (raw) {
+                  const ui = JSON.parse(raw);
+                  if (ui.sciEscolha) this.sciEscolha = ui.sciEscolha;
+                  if (ui.parceiroEscolha) this.parceiroEscolha = ui.parceiroEscolha;
+                  if (ui.personalizadoSistema) this.personalizadoSistema = ui.personalizadoSistema;
+                }
+              } catch (e) { console.error('Falha ao restaurar estado da UI', e); }
+            }
+
+            // -------------------- API BRUNO --------------------
+            async chamar(nomeRequest, runtimeVars) {
+              const pathname = this.mapaRequests[nomeRequest];
+              if (!pathname) throw new Error(`Request "${nomeRequest}" não encontrada.`);
+              const vars = { ...runtimeVars };
+              const res = await bru.ctx.runRequest(pathname, { runtimeVariables: vars });
+              this.debugRaw = JSON.stringify({ request: nomeRequest, enviado: vars, resposta: res }, null, 2);
+              return res;
+            }
+            interpretar(res) {
+              const status = res?.status ?? null;
+              const body = res?.data ?? null;
+              if (status && status >= 400) {
+                const msg = body?.mensagem || `API retornou status ${status}.`;
+                return { ok: false, status, body, msg };
+              }
+              return { ok: true, status, body, msg: body?.mensagem || '' };
+            }
+
+            // -------------------- GERAR / ATUALIZAR (por slot) --------------------
+            async gerarSlot(slot) {
+              this.carregando[slot] = true;
+              this.alert('');
+              try {
+                let res, perfilLabel, escolhaAtual;
+                if (slot === 'sci') {
+                  escolhaAtual = this.sciEscolha;
+                  res = await this.chamar(REQ.authGera, { tipo_perfil: escolhaAtual });
+                  perfilLabel = escolhaAtual;
+                } else if (slot === 'parceiro') {
+                  escolhaAtual = this.parceiroEscolha;
+                  res = await this.chamar(REQ.authGera, { tipo_perfil: escolhaAtual });
+                  perfilLabel = escolhaAtual;
+                } else {
+                  escolhaAtual = this.personalizadoSistema;
+                  const ctx = this.personalizadoContexto.trim();
+                  if (!ctx) throw new Error('Cole o token de contexto.');
+                  res = await this.chamar(REQ.authGera, { sistema_escolhido: escolhaAtual, contexto_manual: ctx });
+                  perfilLabel = `${NOME_SISTEMA[escolhaAtual]} + (Personalizado)`;
+                }
+                const r = this.interpretar(res);
+                if (!r.ok) throw new Error(r.msg);
+                if (!r.body?.token) throw new Error('Token não retornado pela API de autenticação.');
+                this._salvarSlot(slot, r.body.token, r.body.validade, perfilLabel, escolhaAtual);
+                this.persistirUI();
+                this.alert(`Token ${NOME_SLOT[slot]} gerado com sucesso.`, 'ok');
+              } catch (err) {
+                this.alert(err.message || String(err));
+              } finally {
+                this.carregando[slot] = false;
+              }
+            }
+            async atualizarSlot(slot) {
+              const atual = this.slots[slot];
+              if (!atual.token) { this.alert('Nenhum token neste slot para atualizar.'); return; }
+              this.carregando[slot] = true;
+              this.alert('');
+              try {
+                // Passa o token DESTE slot como override só desta chamada — o refresh usa
+                // exatamente o token que está sendo renovado, não importa o que os outros
+                // slots (ou outro app) tenham.
+                const res = await this.chamar(REQ.authRefresh, { token_app: atual.token });
+                const r = this.interpretar(res);
+                if (!r.ok) throw new Error(r.msg);
+                if (!r.body?.token) throw new Error('Token não retornado no refresh.');
+                this._salvarSlot(slot, r.body.token, r.body.validade, atual.perfil, atual.escolha);
+                this.alert(`Token ${NOME_SLOT[slot]} atualizado.`, 'ok');
+              } catch (err) {
+                this.alert(err.message || String(err));
+              } finally {
+                this.carregando[slot] = false;
+              }
+            }
+            // Grava uma variável de RUNTIME na coleção (bru.ctx.variables.runtime.set) —
+            // é o único mecanismo de apps que realmente compartilha estado entre
+            // Autenticação, Quadro de Horário e Função na mesma sessão do Bruno.
+            // bru.getEnvVar/setEnvVar (sem ".ctx") NÃO existem dentro de um app — só em
+            // scripts de request — por isso não são usados aqui.
+            _gravar(nome, valor) {
+              try { bru.ctx.variables.runtime.set(nome, valor); } catch (e) { console.error('Falha ao gravar', nome, e); }
+            }
+            // "escolha" é o valor do seletor (rádio/dropdown) que gerou ESTE token —
+            // guardado à parte de "perfil" (que é só o rótulo de exibição) pra dar pra
+            // comparar depois contra o que está marcado agora e decidir se "Atualizar"
+            // faz sentido (ver atualizarDisponivel).
+            _salvarSlot(slot, token, validade, perfil, escolha) {
+              const expiraEm = validade ? new Date(Date.now() + validade * 1000).toISOString() : '';
+              this.slots[slot] = { token, perfil, expiraEm, escolha: escolha || '' };
+              this._gravar(`slot_${slot}_token`, token);
+              this._gravar(`slot_${slot}_perfil`, perfil || '');
+              this._gravar(`slot_${slot}_expira_em`, expiraEm);
+              this._gravar(`slot_${slot}_escolha`, escolha || '');
+            }
+            // Limpa um slot — útil pra testar "e se esse token não existisse mais" ou só
+            // pra arrumar a casa. Reflete na hora em quem estiver usando esse slot em
+            // Quadro de Horário/Função (o token some, o botão de ação lá é bloqueado).
+            limparSlot(slot) {
+              this.slots[slot] = { token: '', perfil: '', expiraEm: '', escolha: '' };
+              this._gravar(`slot_${slot}_token`, '');
+              this._gravar(`slot_${slot}_perfil`, '');
+              this._gravar(`slot_${slot}_expira_em`, '');
+              this._gravar(`slot_${slot}_escolha`, '');
+              this.alert(`Token ${NOME_SLOT[slot]} removido.`, 'ok');
+            }
+            // "Atualizar" (refresh) só faz sentido pro token que REALMENTE está salvo no
+            // slot — não pra combinação que porventura esteja marcada agora no rádio/
+            // dropdown, mas ainda não foi gerada. Sem isso, dava pra achar que "Atualizar"
+            // renovaria a seleção atual, quando na prática ele sempre renova o token que
+            // já existe.
+            atualizarDisponivel(slot) {
+              const s = this.slots[slot];
+              if (!s.token) return false;
+              const escolhaAtual = slot === 'sci' ? this.sciEscolha : slot === 'parceiro' ? this.parceiroEscolha : this.personalizadoSistema;
+              return escolhaAtual === s.escolha;
+            }
+
+            // -------------------- ESTADO --------------------
+            // Lê bru.ctx.variables.resolved — o snapshot somente-leitura das variáveis
+            // mescladas. Chamado no mount (onInit) e de novo sempre que
+            // bru.ctx.onVariablesChange dispara.
+            atualizarEstadoDe(vars) {
+              const v = vars || {};
+              ['sci', 'parceiro', 'personalizado'].forEach(slot => {
+                this.slots[slot] = {
+                  token: v[`slot_${slot}_token`] || '',
+                  perfil: v[`slot_${slot}_perfil`] || '',
+                  expiraEm: v[`slot_${slot}_expira_em`] || '',
+                  escolha: v[`slot_${slot}_escolha`] || '',
+                };
+              });
+            }
+          }
+
+
+    </script>
+    </body>
+    </html>

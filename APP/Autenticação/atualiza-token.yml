@@ -1,7 +1,7 @@
 info:
   name: atualiza-token
   type: http
-  seq: 2
+  seq: 3
   tags:
     - Autenticação
 
@@ -16,11 +16,16 @@ runtime:
   scripts:
     - type: after-response
       code: |-
-        // Substitui token_app pelo JWT renovado.
+        // Registro "best-effort" no ambiente de verdade (útil fora do app). O app
+        // Autenticação grava o resultado do refresh direto no slot correspondente via
+        // bru.ctx.variables.runtime — não depende deste script para isso.
         if (res.getStatus() === 201) {
           const token = res.getBody()?.token;
+          const validade = res.getBody()?.validade;
           if (token) {
-            bru.setEnvVar('token_app', token);
+            const expiraEm = validade ? new Date(Date.now() + validade * 1000).toISOString() : '';
+            bru.setEnvVar('token_app', token, { persist: true });
+            bru.setEnvVar('token_app_expira_em', expiraEm, { persist: true });
           }
         }
 
@@ -87,4 +92,10 @@ examples:
             "mensagem": ""
           }
 
-docs: Endpoint responsável por fazer a renovação de um JWT já existente.
+docs: |-
+  Endpoint responsável por fazer a renovação de um JWT já existente.
+
+  Uso recomendado: acionado pelo botão "Atualizar" de cada slot no app **Autenticação**, que passa
+  o token daquele slot especificamente (via override de `token_app` só para esta chamada) — não há
+  mais um único "token ativo" global, cada um dos até 3 slots (SCI, Parceiro, Personalizado) é
+  renovado independentemente.
