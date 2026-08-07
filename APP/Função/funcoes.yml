@@ -122,7 +122,7 @@ code: |2-
             <option value="personalizado" :disabled="!slots.personalizado.token" x-text="opcaoLabel('personalizado')"></option>
           </select>
         </div>
-        <p class="hint" style="margin:8px 0 0;">Gerado no app <b>Autenticação</b> — escolha aqui qual dos tokens esta tela deve usar. A lista atualiza sozinha assim que você gera/troca algo por lá.</p>
+        <p class="hint" style="margin:8px 0 0;">Gerado no app <b>Autenticação</b> — escolha aqui qual dos tokens esta tela deve usar.</p>
       </div>
     
       <div class="tabs">
@@ -211,8 +211,7 @@ code: |2-
           <h3 class="card-title">Teste de permissão (token Parceiro)</h3>
           <p class="hint">
             Usa, só para esta chamada, o token do slot <b>Sistema Parceiro</b> (gerado ao menos uma vez no app
-            <b>Autenticação</b>) para tentar criar, atualizar e excluir — sem trocar o token selecionado acima.
-            Não assumimos de antemão o que Parceiro pode ou não fazer — é exatamente isso que este teste verifica.
+            <b>Autenticação</b>) para tentar criar, atualizar e excluir registros.
           </p>
           <button class="btn btn-danger" id="btnTestePermissao" @click="rodarTestePermissao()" disabled>
             <span id="spinnerPermissao" class="spinner hidden"></span>
