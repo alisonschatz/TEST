@@ -18,14 +18,22 @@ variables:
     value: 1552|TjRplq3iEgSSYZc20d9cRN0luBQMRGE4MiTL3Brt
   - name: token_contexto_adm_practice
     value: 1553|Oy6O94f3ew4v5Pt6zoM8lVbWzJOkdA9MqiBVxmfS
-  - name: perfil_ativo
-    value: parceiro_cliente_unico
-  - name: modo_acesso
-    value: parceiro
   - secret: true
-    name: token_app
+    name: slot_sci_token
   - secret: true
-    name: token_app_expira_em
+    name: slot_sci_perfil
+  - secret: true
+    name: slot_sci_expira_em
+  - secret: true
+    name: slot_sci_escolha
+  - secret: true
+    name: slot_parceiro_token
+  - secret: true
+    name: slot_parceiro_perfil
+  - secret: true
+    name: slot_parceiro_expira_em
+  - secret: true
+    name: slot_parceiro_escolha
   - secret: true
     name: username_app
   - secret: true

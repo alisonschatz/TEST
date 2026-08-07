@@ -106,6 +106,7 @@ code: |-
           .hidden { display: none !important; }
 
           .slots-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+          .slots-grid-2 { grid-template-columns: repeat(2, 1fr); }
           @media (max-width: 900px) { .slots-grid { grid-template-columns: 1fr; } }
           .slot-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; }
           .slot-actions { margin-top: auto; padding-top: 12px; display: flex; flex-direction: column; gap: 6px; }
@@ -137,24 +138,46 @@ code: |-
         <div id="app" x-data="new AuthApp()" x-init="init()">
           <h2>Autenticação</h2>
           <div class="subtitle" x-text="statusText">Inicializando...</div>
-          <p class="hint" style="margin:0 0 16px;">
-            Gera e mantém até <b>3 tokens simultâneos</b>, independentes entre si. Cada app escolhe seu próprio token.
-          </p>
+
+          <div class="card" style="margin-bottom:16px;background:var(--bg);box-shadow:none;">
+            <p class="hint" style="margin:0 0 8px;">
+              O token de <b>sistema</b> (Único, Practice ou Parceiro) é fixo do ambiente. O que muda é o token de <b>contexto</b>, e só existem 4 válidos, cada um
+              preso a um sistema específico:
+            </p>
+            <ul style="margin:0 0 8px 18px;padding:0;font-size:12.5px;color:var(--muted);line-height:1.7;">
+              <li><b>Módulo Administrador</b> (Único ou Practice) — só combina com o sistema correspondente. Acesso a <b>todas</b> as empresas vinculadas.</li>
+              <li><b>Módulo Cliente</b> (Único ou Practice) — só combina com <b>Sistema Parceiro</b>. Acesso <b>só</b> à empresa daquele token.</li>
+            </ul>
+            <p class="hint" style="margin:0;">
+              Pra comparar de verdade o mesmo cliente sob os dois níveis de acesso, use um contexto de <b>Cliente</b> cuja empresa esteja dentro do escopo do
+              contexto de <b>Administrador</b>.
+            </p>
+          </div>
 
           <div x-show="alertMsg" x-cloak>
             <div class="alert" :class="'alert-' + alertType" x-text="alertMsg"></div>
           </div>
 
-          <div class="slots-grid">
-            <!-- ================= SCI ================= -->
+          <div class="slots-grid slots-grid-2">
+            <!-- ================= SCI (contexto Administrador) ================= -->
             <div class="slot-card slot-sci">
               <h4 class="slot-title">Sistema SCI</h4>
-              <p class="slot-sub">Acesso completo — GET · POST · PUT · DELETE</p>
+              <p class="slot-sub">Contexto Administrador — acesso completo às empresas do grupo</p>
 
               <div class="radio-row">
-                <label><input type="radio" value="unico_admin" x-model="sciEscolha"> Sistema Único + Módulo Administrador Único</label>
-                <label><input type="radio" value="practice_admin" x-model="sciEscolha"> Sistema Practice + Módulo Administrador Practice</label>
+                <label><input type="radio" value="unico" x-model="sciSistema" @change="persistirUI()"> Sistema Único</label>
+                <label><input type="radio" value="practice" x-model="sciSistema" @change="persistirUI()"> Sistema Practice</label>
               </div>
+
+              <div class="toggle-row" style="margin-bottom:8px;">
+                <input type="checkbox" id="chkSciPersonalizado" x-model="sciPersonalizado" @change="persistirUI()">
+                <label for="chkSciPersonalizado">Usar contexto de Administrador personalizado</label>
+              </div>
+              <div class="field" x-show="sciPersonalizado" x-cloak style="margin-bottom:10px;">
+                <label>Token de contexto (Módulo Administrador)</label>
+                <input type="text" x-model="sciContexto" placeholder="Ex.: 1576|KBmi...">
+              </div>
+              <p class="hint" x-show="!sciPersonalizado" style="margin:0 0 10px;">Usa o contexto Administrador pré-cadastrado do sistema escolhido acima.</p>
 
               <div class="slot-linha">
                 <b>Status:</b>
@@ -166,7 +189,7 @@ code: |-
 
               <div class="slot-actions">
                 <div class="flex">
-                  <button class="btn btn-primary btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.sci" @click="gerarSlot('sci')">
+                  <button class="btn btn-primary btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.sci || (sciPersonalizado && !sciContexto.trim())" @click="gerarSlot('sci')">
                     <span class="spinner" x-show="carregando.sci" x-cloak></span>
                     <span x-text="slots.sci.token ? 'Trocar' : 'Gerar'"></span>
                   </button>
@@ -178,15 +201,26 @@ code: |-
               </div>
             </div>
 
-            <!-- ================= PARCEIRO ================= -->
+            <!-- ================= PARCEIRO (contexto Cliente) ================= -->
             <div class="slot-card slot-parceiro">
               <h4 class="slot-title">Sistema Parceiro</h4>
-              <p class="slot-sub">Acesso restrito</p>
+              <p class="slot-sub">Contexto Cliente — acesso só à empresa vinculada ao token</p>
 
-              <div class="radio-row">
-                <label><input type="radio" value="parceiro_cliente_unico" x-model="parceiroEscolha"> Módulo Cliente Único</label>
-                <label><input type="radio" value="parceiro_cliente_practice" x-model="parceiroEscolha"> Módulo Cliente Practice</label>
+              <div class="radio-row" x-show="!parceiroPersonalizado">
+                <label><input type="radio" value="parceiro_cliente_unico" x-model="parceiroEscolha" @change="persistirUI()"> Cliente do Único</label>
+                <label><input type="radio" value="parceiro_cliente_practice" x-model="parceiroEscolha" @change="persistirUI()"> Cliente do Practice</label>
               </div>
+
+              <div class="toggle-row" style="margin-bottom:8px;">
+                <input type="checkbox" id="chkParceiroPersonalizado" x-model="parceiroPersonalizado" @change="persistirUI()">
+                <label for="chkParceiroPersonalizado">Usar contexto de Cliente personalizado</label>
+              </div>
+              <div class="field" x-show="parceiroPersonalizado" x-cloak style="margin-bottom:10px;">
+                <label>Token de contexto (Módulo Cliente)</label>
+                <input type="text" x-model="parceiroContexto" placeholder="Ex.: 1575|HItQ...">
+                <p class="hint" style="margin:4px 0 0;">Use uma empresa dentro do escopo do contexto Administrador do SCI, pra o teste de permissão comparar o mesmo cliente.</p>
+              </div>
+              <p class="hint" x-show="!parceiroPersonalizado" style="margin:0 0 10px;">Sistema sempre Parceiro — usa o contexto Cliente pré-cadastrado escolhido acima.</p>
 
               <div class="slot-linha">
                 <b>Status:</b>
@@ -198,7 +232,7 @@ code: |-
 
               <div class="slot-actions">
                 <div class="flex">
-                  <button class="btn btn-primary btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.parceiro" @click="gerarSlot('parceiro')">
+                  <button class="btn btn-primary btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.parceiro || (parceiroPersonalizado && !parceiroContexto.trim())" @click="gerarSlot('parceiro')">
                     <span class="spinner" x-show="carregando.parceiro" x-cloak></span>
                     <span x-text="slots.parceiro.token ? 'Trocar' : 'Gerar'"></span>
                   </button>
@@ -206,46 +240,6 @@ code: |-
                 <div class="flex">
                   <button class="btn btn-outline btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.parceiro || !atualizarDisponivel('parceiro')" :title="!atualizarDisponivel('parceiro') && slots.parceiro.token ? 'A seleção acima não é a do token salvo — clique em Trocar para gerar com esta combinação, ou volte para a combinação já gerada para atualizar.' : ''" @click="atualizarSlot('parceiro')">Atualizar</button>
                   <button class="btn btn-outline btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.parceiro || !slots.parceiro.token" @click="limparSlot('parceiro')">Limpar</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- ================= PERSONALIZADO ================= -->
-            <div class="slot-card slot-personalizado">
-              <h4 class="slot-title">Personalizado</h4>
-              <p class="slot-sub">Para testar um cliente/escopo fora dos pré-cadastrados</p>
-
-              <div class="field" style="margin-bottom:8px;">
-                <label>Sistema (fixo, só escolha qual)</label>
-                <select x-model="personalizadoSistema">
-                  <option value="unico">Sistema Único</option>
-                  <option value="practice">Sistema Practice</option>
-                  <option value="parceiro">Sistema Parceiro</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Token de contexto (cole aqui)</label>
-                <input type="text" x-model="personalizadoContexto" placeholder="Ex.: 1575|HItQ...">
-              </div>
-
-              <div class="slot-linha" style="margin-top:10px;">
-                <b>Status:</b>
-                <span class="badge slot-status-badge" :class="statusBadgeClass('personalizado')" x-text="statusBadgeTexto('personalizado')"></span>
-                <span x-show="slots.personalizado.token" x-html="formatarExpira(slots.personalizado.expiraEm)"></span>
-              </div>
-              <div class="slot-linha" x-show="slots.personalizado.token"><b>Gerado com:</b> <span x-text="rotuloPerfil(slots.personalizado.perfil)"></span></div>
-              <div class="slot-linha" x-show="slots.personalizado.token && !atualizarDisponivel('personalizado')" style="color:var(--orange);">Sistema diferente do token salvo — clique em "Trocar" para gerar com ele.</div>
-
-              <div class="slot-actions">
-                <div class="flex">
-                  <button class="btn btn-primary btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.personalizado || !personalizadoContexto.trim()" @click="gerarSlot('personalizado')">
-                    <span class="spinner" x-show="carregando.personalizado" x-cloak></span>
-                    <span x-text="slots.personalizado.token ? 'Trocar' : 'Gerar'"></span>
-                  </button>
-                </div>
-                <div class="flex">
-                  <button class="btn btn-outline btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.personalizado || !atualizarDisponivel('personalizado')" :title="!atualizarDisponivel('personalizado') && slots.personalizado.token ? 'O sistema selecionado não é o do token salvo — clique em Trocar para gerar com este sistema, ou volte para o sistema já gerado para atualizar.' : ''" @click="atualizarSlot('personalizado')">Atualizar</button>
-                  <button class="btn btn-outline btn-sm" style="flex:1;" :disabled="!ctxPronto || carregando.personalizado || !slots.personalizado.token" @click="limparSlot('personalizado')">Limpar</button>
                 </div>
               </div>
             </div>
@@ -260,21 +254,17 @@ code: |-
 
     <script>
           // ===================== CONFIGURAÇÃO =====================
-          const REQ = { authGera: 'gera-token', authRefresh: 'atualiza-token' };
+          const REQ = { authGera: 'gera-token', authRefresh: 'atualiza-token', authLimpar: 'limpar-token' };
           // Rótulos legíveis para os perfis pré-cadastrados (usado só para exibição —
-          // a lógica de login em si mora no script pre-request de gera-token). Mantidos
-          // exatamente iguais ao texto dos rádios correspondentes no card, pra "Gerado
-          // com" nunca dizer algo diferente do que a pessoa marcou.
+          // a lógica de login em si mora no script pre-request de gera-token).
           const ROTULOS_PERFIL = {
             unico_admin: 'Sistema Único + Módulo Administrador Único',
             practice_admin: 'Sistema Practice + Módulo Administrador Practice',
             parceiro_cliente_unico: 'Sistema Parceiro + Módulo Cliente Único',
             parceiro_cliente_practice: 'Sistema Parceiro + Módulo Cliente Practice',
           };
-          const NOME_SLOT = { sci: 'Sistema SCI', parceiro: 'Sistema Parceiro', personalizado: 'Personalizado' };
-          // Nomes de exibição dos 3 sistemas fixos — usado só pra montar o rótulo do
-          // slot Personalizado (ex.: "Sistema Parceiro + (Personalizado)").
-          const NOME_SISTEMA = { unico: 'Sistema Único', practice: 'Sistema Practice', parceiro: 'Sistema Parceiro' };
+          const NOME_SLOT = { sci: 'Sistema SCI', parceiro: 'Sistema Parceiro' };
+          const NOME_SISTEMA = { unico: 'Sistema Único', practice: 'Sistema Practice' };
 
           // Instância reativa: Alpine chama "new AuthApp()" ao processar x-data e
           // transforma o resultado num Proxy reativo. Guardamos a referência a ESSE
@@ -290,19 +280,25 @@ code: |-
               this.statusText = 'Inicializando...';
               this.debugRaw = '—';
 
-              // Três slots independentes — sem conceito de "qual é o padrão". Cada app
-              // consumidor (Quadro de Horário, Função) escolhe por conta própria qual usar.
+              // Dois slots — sem conceito de "qual é o padrão". Cada app consumidor
+              // (Quadro de Horário, Função) escolhe por conta própria qual usar.
               this.slots = {
                 sci: { token: '', perfil: '', expiraEm: '', escolha: '' },
                 parceiro: { token: '', perfil: '', expiraEm: '', escolha: '' },
-                personalizado: { token: '', perfil: '', expiraEm: '', escolha: '' },
               };
-              this.carregando = { sci: false, parceiro: false, personalizado: false };
+              this.carregando = { sci: false, parceiro: false };
 
-              this.sciEscolha = 'unico_admin';
+              // SCI usa contexto de Administrador — pré-cadastrado (pareado com o
+              // sistema escolhido) ou personalizado (token colado à parte).
+              this.sciSistema = 'unico';
+              this.sciPersonalizado = false;
+              this.sciContexto = '';
+
+              // Parceiro usa contexto de Cliente — o sistema é sempre Parceiro, fixo;
+              // só o contexto muda (pré-cadastrado ou personalizado).
               this.parceiroEscolha = 'parceiro_cliente_unico';
-              this.personalizadoSistema = 'unico';
-              this.personalizadoContexto = '';
+              this.parceiroPersonalizado = false;
+              this.parceiroContexto = '';
 
               this.alertMsg = '';
               this.alertType = 'err';
@@ -344,8 +340,6 @@ code: |-
               if (msg) setTimeout(() => { if (this.alertMsg === msg) this.alertMsg = ''; }, 6000);
             }
             rotuloPerfil(perfil) { return ROTULOS_PERFIL[perfil] || perfil || '—'; }
-            // Badge de status: visualmente claro se o slot tem token ativo, expirado ou
-            // vazio — não precisa ler o texto de expiração pra saber o estado geral.
             statusBadgeClass(slot) {
               const s = this.slots[slot];
               if (!s.token) return 'badge-bad';
@@ -367,16 +361,18 @@ code: |-
 
             // -------------------- RESILIÊNCIA A RECARGA DA ABA --------------------
             // Mesmo padrão dos outros 2 apps: o Bruno pode descartar e remontar a webview
-            // de uma aba inativa ao navegar. O estado dos 3 tokens já sobrevive a isso
+            // de uma aba inativa ao navegar. O estado dos 2 tokens já sobrevive a isso
             // (mora em runtime vars, lidas do zero no init()). O que só existe na tela —
-            // qual combinação está marcada nos rádios, o que foi digitado no personalizado
-            // — persistimos aqui também, pelo mesmo mecanismo.
+            // rádios marcados, checkboxes de personalizado — persistimos aqui também,
+            // pelo mesmo mecanismo. Os contextos digitados NÃO são persistidos (mesma
+            // lógica de não guardar segredo digitado que não foi confirmado/gerado ainda).
             persistirUI() {
               try {
                 bru.ctx.variables.runtime.set('_auth_ui', JSON.stringify({
-                  sciEscolha: this.sciEscolha,
+                  sciSistema: this.sciSistema,
+                  sciPersonalizado: this.sciPersonalizado,
                   parceiroEscolha: this.parceiroEscolha,
-                  personalizadoSistema: this.personalizadoSistema,
+                  parceiroPersonalizado: this.parceiroPersonalizado,
                 }));
               } catch (e) { console.error('Falha ao salvar estado da UI', e); }
             }
@@ -385,9 +381,10 @@ code: |-
                 const raw = bru.ctx.variables?.resolved?.['_auth_ui'];
                 if (raw) {
                   const ui = JSON.parse(raw);
-                  if (ui.sciEscolha) this.sciEscolha = ui.sciEscolha;
+                  if (ui.sciSistema) this.sciSistema = ui.sciSistema;
+                  if (typeof ui.sciPersonalizado === 'boolean') this.sciPersonalizado = ui.sciPersonalizado;
                   if (ui.parceiroEscolha) this.parceiroEscolha = ui.parceiroEscolha;
-                  if (ui.personalizadoSistema) this.personalizadoSistema = ui.personalizadoSistema;
+                  if (typeof ui.parceiroPersonalizado === 'boolean') this.parceiroPersonalizado = ui.parceiroPersonalizado;
                 }
               } catch (e) { console.error('Falha ao restaurar estado da UI', e); }
             }
@@ -412,25 +409,45 @@ code: |-
             }
 
             // -------------------- GERAR / ATUALIZAR (por slot) --------------------
+            // A "escolha" que identifica CADA token gerado — usada tanto pra montar a
+            // chamada quanto pra decidir depois se "Atualizar" ainda faz sentido (ver
+            // atualizarDisponivel). Prefixada por modo ('padrao'/'personalizado') pra que
+            // trocar de modo sem gerar de novo também desabilite "Atualizar".
+            _escolhaAtualPara(slot) {
+              if (slot === 'sci') {
+                if (this.sciPersonalizado) return `personalizado:${this.sciSistema}`;
+                return `padrao:${this.sciSistema === 'unico' ? 'unico_admin' : 'practice_admin'}`;
+              }
+              if (this.parceiroPersonalizado) return 'personalizado:parceiro';
+              return `padrao:${this.parceiroEscolha}`;
+            }
             async gerarSlot(slot) {
               this.carregando[slot] = true;
               this.alert('');
               try {
-                let res, perfilLabel, escolhaAtual;
+                let res, perfilLabel;
+                const escolhaAtual = this._escolhaAtualPara(slot);
                 if (slot === 'sci') {
-                  escolhaAtual = this.sciEscolha;
-                  res = await this.chamar(REQ.authGera, { tipo_perfil: escolhaAtual });
-                  perfilLabel = escolhaAtual;
-                } else if (slot === 'parceiro') {
-                  escolhaAtual = this.parceiroEscolha;
-                  res = await this.chamar(REQ.authGera, { tipo_perfil: escolhaAtual });
-                  perfilLabel = escolhaAtual;
+                  if (this.sciPersonalizado) {
+                    const ctx = this.sciContexto.trim();
+                    if (!ctx) throw new Error('Preencha o token de contexto do Módulo Administrador.');
+                    res = await this.chamar(REQ.authGera, { sistema_escolhido: this.sciSistema, contexto_manual: ctx });
+                    perfilLabel = `${NOME_SISTEMA[this.sciSistema]} + Módulo Administrador (Personalizado)`;
+                  } else {
+                    const tipoPerfil = this.sciSistema === 'unico' ? 'unico_admin' : 'practice_admin';
+                    res = await this.chamar(REQ.authGera, { tipo_perfil: tipoPerfil });
+                    perfilLabel = tipoPerfil;
+                  }
                 } else {
-                  escolhaAtual = this.personalizadoSistema;
-                  const ctx = this.personalizadoContexto.trim();
-                  if (!ctx) throw new Error('Cole o token de contexto.');
-                  res = await this.chamar(REQ.authGera, { sistema_escolhido: escolhaAtual, contexto_manual: ctx });
-                  perfilLabel = `${NOME_SISTEMA[escolhaAtual]} + (Personalizado)`;
+                  if (this.parceiroPersonalizado) {
+                    const ctx = this.parceiroContexto.trim();
+                    if (!ctx) throw new Error('Preencha o token de contexto do Módulo Cliente.');
+                    res = await this.chamar(REQ.authGera, { sistema_escolhido: 'parceiro', contexto_manual: ctx });
+                    perfilLabel = `Sistema Parceiro + Módulo Cliente (Personalizado)`;
+                  } else {
+                    res = await this.chamar(REQ.authGera, { tipo_perfil: this.parceiroEscolha });
+                    perfilLabel = this.parceiroEscolha;
+                  }
                 }
                 const r = this.interpretar(res);
                 if (!r.ok) throw new Error(r.msg);
@@ -450,10 +467,11 @@ code: |-
               this.carregando[slot] = true;
               this.alert('');
               try {
-                // Passa o token DESTE slot como override só desta chamada — o refresh usa
-                // exatamente o token que está sendo renovado, não importa o que os outros
-                // slots (ou outro app) tenham.
-                const res = await this.chamar(REQ.authRefresh, { token_app: atual.token });
+                // Passa o token DESTE slot como override só desta chamada (o refresh usa
+                // exatamente o token que está sendo renovado) e "_slot_alvo" pra o script
+                // after-response saber em qual gaveta (slot_sci_* ou slot_parceiro_*)
+                // gravar o resultado — ver atualiza-token.yml.
+                const res = await this.chamar(REQ.authRefresh, { token_app: atual.token, _slot_alvo: slot });
                 const r = this.interpretar(res);
                 if (!r.ok) throw new Error(r.msg);
                 if (!r.body?.token) throw new Error('Token não retornado no refresh.');
@@ -465,47 +483,37 @@ code: |-
                 this.carregando[slot] = false;
               }
             }
-            // Grava uma variável de RUNTIME na coleção (bru.ctx.variables.runtime.set) —
-            // é o único mecanismo de apps que realmente compartilha estado entre
-            // Autenticação, Quadro de Horário e Função na mesma sessão do Bruno.
-            // bru.getEnvVar/setEnvVar (sem ".ctx") NÃO existem dentro de um app — só em
-            // scripts de request — por isso não são usados aqui.
-            _gravar(nome, valor) {
-              try { bru.ctx.variables.runtime.set(nome, valor); } catch (e) { console.error('Falha ao gravar', nome, e); }
-            }
-            // "escolha" é o valor do seletor (rádio/dropdown) que gerou ESTE token —
-            // guardado à parte de "perfil" (que é só o rótulo de exibição) pra dar pra
-            // comparar depois contra o que está marcado agora e decidir se "Atualizar"
-            // faz sentido (ver atualizarDisponivel).
+            // Atualiza o estado local (reativo, feedback instantâneo) com o que a API
+            // acabou de responder. Quem persiste de verdade — a única gaveta que existe
+            // para cada slot — é o script after-response de gera-token/atualiza-token,
+            // porque bru.setEnvVar só existe em script de request, nunca dentro do código
+            // de um app. Este método NÃO grava nada; só reflete na tela.
             _salvarSlot(slot, token, validade, perfil, escolha) {
               const expiraEm = validade ? new Date(Date.now() + validade * 1000).toISOString() : '';
               this.slots[slot] = { token, perfil, expiraEm, escolha: escolha || '' };
-              this._gravar(`slot_${slot}_token`, token);
-              this._gravar(`slot_${slot}_perfil`, perfil || '');
-              this._gravar(`slot_${slot}_expira_em`, expiraEm);
-              this._gravar(`slot_${slot}_escolha`, escolha || '');
             }
-            // Limpa um slot — útil pra testar "e se esse token não existisse mais" ou só
-            // pra arrumar a casa. Reflete na hora em quem estiver usando esse slot em
-            // Quadro de Horário/Função (o token some, o botão de ação lá é bloqueado).
-            limparSlot(slot) {
+            // Limpa um slot — dispara o request utilitário limpar-token, cujo script é o
+            // único jeito de apagar de verdade as 4 variáveis de ambiente daquele slot
+            // (secret: true, persistidas em disco). Reflete na hora em quem estiver
+            // usando esse slot em Quadro de Horário/Função (o token some, ações bloqueadas).
+            async limparSlot(slot) {
+              this.carregando[slot] = true;
+              try {
+                await this.chamar(REQ.authLimpar, { _slot_alvo: slot });
+              } catch (e) {
+                console.error('Falha ao chamar limpar-token (o script pode ter rodado mesmo assim):', e);
+              }
               this.slots[slot] = { token: '', perfil: '', expiraEm: '', escolha: '' };
-              this._gravar(`slot_${slot}_token`, '');
-              this._gravar(`slot_${slot}_perfil`, '');
-              this._gravar(`slot_${slot}_expira_em`, '');
-              this._gravar(`slot_${slot}_escolha`, '');
               this.alert(`Token ${NOME_SLOT[slot]} removido.`, 'ok');
+              this.carregando[slot] = false;
             }
             // "Atualizar" (refresh) só faz sentido pro token que REALMENTE está salvo no
-            // slot — não pra combinação que porventura esteja marcada agora no rádio/
-            // dropdown, mas ainda não foi gerada. Sem isso, dava pra achar que "Atualizar"
-            // renovaria a seleção atual, quando na prática ele sempre renova o token que
-            // já existe.
+            // slot — não pra combinação que porventura esteja marcada agora, mas ainda
+            // não foi gerada.
             atualizarDisponivel(slot) {
               const s = this.slots[slot];
               if (!s.token) return false;
-              const escolhaAtual = slot === 'sci' ? this.sciEscolha : slot === 'parceiro' ? this.parceiroEscolha : this.personalizadoSistema;
-              return escolhaAtual === s.escolha;
+              return this._escolhaAtualPara(slot) === s.escolha;
             }
 
             // -------------------- ESTADO --------------------
@@ -514,7 +522,7 @@ code: |-
             // bru.ctx.onVariablesChange dispara.
             atualizarEstadoDe(vars) {
               const v = vars || {};
-              ['sci', 'parceiro', 'personalizado'].forEach(slot => {
+              ['sci', 'parceiro'].forEach(slot => {
                 this.slots[slot] = {
                   token: v[`slot_${slot}_token`] || '',
                   perfil: v[`slot_${slot}_perfil`] || '',
@@ -524,7 +532,6 @@ code: |-
               });
             }
           }
-
 
     </script>
     </body>

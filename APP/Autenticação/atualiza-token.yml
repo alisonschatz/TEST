@@ -16,16 +16,18 @@ runtime:
   scripts:
     - type: after-response
       code: |-
-        // Registro "best-effort" no ambiente de verdade (útil fora do app). O app
-        // Autenticação grava o resultado do refresh direto no slot correspondente via
-        // bru.ctx.variables.runtime — não depende deste script para isso.
+        // Persiste de volta na variável do MESMO slot que foi renovado — quem chama
+        // (o app Autenticação, via atualizarSlot) passa qual é o slot através da
+        // runtime var "_slot_alvo". Sem isso não teríamos como saber em qual das duas
+        // gavetas (SCI ou Parceiro) gravar o token renovado.
         if (res.getStatus() === 201) {
           const token = res.getBody()?.token;
           const validade = res.getBody()?.validade;
-          if (token) {
+          const slot = bru.getVar('_slot_alvo'); // 'sci' | 'parceiro'
+          if (token && (slot === 'sci' || slot === 'parceiro')) {
             const expiraEm = validade ? new Date(Date.now() + validade * 1000).toISOString() : '';
-            bru.setEnvVar('token_app', token, { persist: true });
-            bru.setEnvVar('token_app_expira_em', expiraEm, { persist: true });
+            bru.setEnvVar(`slot_${slot}_token`, token, { persist: true });
+            bru.setEnvVar(`slot_${slot}_expira_em`, expiraEm, { persist: true });
           }
         }
 
@@ -96,6 +98,7 @@ docs: |-
   Endpoint responsável por fazer a renovação de um JWT já existente.
 
   Uso recomendado: acionado pelo botão "Atualizar" de cada slot no app **Autenticação**, que passa
-  o token daquele slot especificamente (via override de `token_app` só para esta chamada) — não há
-  mais um único "token ativo" global, cada um dos até 3 slots (SCI, Parceiro, Personalizado) é
-  renovado independentemente.
+  o token daquele slot (via override de `token_app` só para esta chamada) e o nome do slot (via
+  `_slot_alvo`) — o script `after-response` usa `_slot_alvo` para gravar o token renovado de volta
+  em `slot_<slot>_token` / `slot_<slot>_expira_em`, as mesmas variáveis `secret: true` onde o token
+  já estava. Cada um dos 2 slots (SCI, Parceiro) é renovado de forma independente.

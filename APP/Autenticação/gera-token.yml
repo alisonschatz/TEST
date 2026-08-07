@@ -47,8 +47,11 @@ runtime:
 
           bru.setEnvVar('username_app', tokenSistema, { persist: true });
           bru.setEnvVar('password_app', contextoManual, { persist: true });
-          bru.setVar('_slot_login', 'personalizado');
-          bru.setVar('_perfil_login', `Personalizado (sistema ${sistemaEscolhido})`);
+          // O slot é o próprio sistema escolhido: parceiro sempre vai pro slot
+          // Parceiro; único/practice sempre vão pro slot SCI.
+          bru.setVar('_slot_login', sistemaEscolhido === 'parceiro' ? 'parceiro' : 'sci');
+          bru.setVar('_perfil_login', `${sistemaEscolhido === 'parceiro' ? 'Sistema Parceiro' : (sistemaEscolhido === 'unico' ? 'Sistema Único' : 'Sistema Practice')} + Módulo ${sistemaEscolhido === 'parceiro' ? 'Cliente' : 'Administrador'} (Personalizado)`);
+          bru.setVar('_escolha_login', `personalizado:${sistemaEscolhido}`);
         } else {
           const tipoPerfil = bru.getVar('tipo_perfil') || bru.getEnvVar('tipo_perfil');
           const perfil = perfis[tipoPerfil];
@@ -70,25 +73,30 @@ runtime:
 
           bru.setVar('_slot_login', perfil.slot);
           bru.setVar('_perfil_login', tipoPerfil);
+          bru.setVar('_escolha_login', `padrao:${tipoPerfil}`);
         }
     - type: after-response
       code: |-
-        // Registro "best-effort" no ambiente de verdade — útil só se este request for
-        // disparado fora do app Autenticação (ex.: via CLI/automação). O app em si NÃO
-        // depende disso: ele grava o resultado direto via bru.ctx.variables.runtime,
-        // que é a única forma de compartilhar estado entre apps de forma confiável.
+        // AQUI é onde o token de cada slot é persistido de verdade — cada um na sua
+        // própria variável de ambiente (secret: true), sobrevivendo a reiniciar o
+        // Bruno. O app Autenticação não grava nada sozinho (não tem como: bru.setEnvVar
+        // só existe em script de request, não dentro de um app) — ele só dispara este
+        // request e depois relê o resultado via bru.ctx.variables.resolved.
         if (res.getStatus() === 201) {
           const token = res.getBody()?.token;
           const validade = res.getBody()?.validade;
           if (token) {
-            const slot = bru.getVar('_slot_login') || 'desconhecido';
-            const perfil = bru.getVar('_perfil_login') || null;
+            const slot = bru.getVar('_slot_login'); // 'sci' | 'parceiro'
+            const perfil = bru.getVar('_perfil_login') || '';
+            const escolha = bru.getVar('_escolha_login') || '';
             const expiraEm = validade ? new Date(Date.now() + validade * 1000).toISOString() : '';
 
-            bru.setEnvVar('token_app', token, { persist: true });
-            bru.setEnvVar('perfil_ativo', perfil || '', { persist: true });
-            bru.setEnvVar('modo_acesso', slot, { persist: true });
-            bru.setEnvVar('token_app_expira_em', expiraEm, { persist: true });
+            if (slot === 'sci' || slot === 'parceiro') {
+              bru.setEnvVar(`slot_${slot}_token`, token, { persist: true });
+              bru.setEnvVar(`slot_${slot}_perfil`, perfil, { persist: true });
+              bru.setEnvVar(`slot_${slot}_expira_em`, expiraEm, { persist: true });
+              bru.setEnvVar(`slot_${slot}_escolha`, escolha, { persist: true });
+            }
           }
         }
 
@@ -144,12 +152,18 @@ docs: |-
   possui uma validade de 1 hora (3600 segundos).
 
   Uso recomendado: não chame este request diretamente aqui — use o app **Autenticação**, que gera
-  e mantém até 3 tokens simultâneos (slots "Sistema SCI", "Sistema Parceiro" e "Personalizado").
-  Este request é o "motor" por trás dos três; também pode ser disparado manualmente definindo
-  `tipo_perfil` (perfis pré-cadastrados) ou `sistema_escolhido` + `contexto_manual` (personalizado)
-  no ambiente, útil para automações fora do app.
+  e mantém 2 tokens simultâneos (slots "Sistema SCI" e "Sistema Parceiro"). Este request é o
+  "motor" por trás dos dois; também pode ser disparado manualmente definindo `tipo_perfil` (perfis
+  pré-cadastrados) ou `sistema_escolhido` + `contexto_manual` (contexto personalizado) no ambiente,
+  útil para automações fora do app.
+
+  **Onde cada token fica salvo:** o script `after-response` acima grava, para o slot resolvido
+  (`sci` ou `parceiro`), as variáveis `slot_<slot>_token`, `slot_<slot>_perfil`,
+  `slot_<slot>_expira_em` e `slot_<slot>_escolha` — todas `secret: true` no ambiente, persistidas em
+  disco (sobrevivem a fechar o Bruno). Não existe mais um "token_app" genérico: cada slot tem sua
+  própria gaveta, sempre.
 
   Os 3 tokens de **sistema** (`token_sistema_unico`, `token_sistema_practice`, `token_sistema_parceiro`)
   são fixos — só identificam qual "família" de acesso. O que varia por cliente é o token de
-  **contexto**; por isso o slot Personalizado só pede para colar o contexto, escolhendo o sistema
+  **contexto**; por isso o modo personalizado só pede para colar o contexto, escolhendo o sistema
   por nome.

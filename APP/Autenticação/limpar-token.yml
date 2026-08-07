@@ -1,0 +1,42 @@
+info:
+  name: limpar-token
+  type: http
+  seq: 4
+  tags:
+    - Autenticação
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/funcoes?empresa_id=900002&page=1&per_page=1"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // Request "carona": o resultado da chamada em si não importa (pode até vir
+                // 401 se não houver token válido no momento — sem problema). Ele existe só
+                // para poder rodar este script, que é o único jeito de apagar de verdade uma
+                // variável de ambiente (bru.setEnvVar só existe em script de request, nunca
+                // dentro do código de um app). Acionado pelo botão "Limpar" no app
+                // Autenticação, que passa qual slot limpar via "_slot_alvo".
+                const slot = bru.getVar('_slot_alvo'); // 'sci' | 'parceiro'
+                if (slot === 'sci' || slot === 'parceiro') {
+                  bru.setEnvVar(`slot_${slot}_token`, '', { persist: true });
+                  bru.setEnvVar(`slot_${slot}_perfil`, '', { persist: true });
+                  bru.setEnvVar(`slot_${slot}_expira_em`, '', { persist: true });
+                  bru.setEnvVar(`slot_${slot}_escolha`, '', { persist: true });
+                }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Request utilitário sem efeito colateral relevante (GET simples, mesmo endpoint só-leitura usado
+  em outros lugares) — existe só para poder rodar, via `bru.ctx.runRequest`, o script que apaga as
+  4 variáveis de ambiente (`slot_<slot>_token/_perfil/_expira_em/_escolha`) de um slot. Acionado
+  pelo botão "Limpar" de cada card no app Autenticação. A resposta da chamada em si é ignorada —
+  o que importa é o script `post-response`, que roda independente do status retornado.

@@ -121,10 +121,9 @@ code: |2-
             <option value="">Nenhum selecionado</option>
             <option value="sci" :disabled="!slots.sci.token" x-text="opcaoLabel('sci')"></option>
             <option value="parceiro" :disabled="!slots.parceiro.token" x-text="opcaoLabel('parceiro')"></option>
-            <option value="personalizado" :disabled="!slots.personalizado.token" x-text="opcaoLabel('personalizado')"></option>
           </select>
         </div>
-        <p class="hint" style="margin:8px 0 0;">Gerado no app <b>Autenticação</b> — escolha aqui qual dos tokens esta tela deve usar.</p>
+        <p class="hint" style="margin:8px 0 0;">Gerado no app <b>Autenticação</b> — escolha aqui qual dos tokens esta tela deve usar. A lista atualiza sozinha assim que você gera/troca algo por lá.</p>
       </div>
     
       <div class="tabs">
@@ -214,7 +213,8 @@ code: |2-
           <h3 class="card-title">Teste de permissão (token Parceiro)</h3>
           <p class="hint">
             Usa, só para esta chamada, o token do slot <b>Sistema Parceiro</b> (gerado ao menos uma vez no app
-            <b>Autenticação</b>) para tentar criar, atualizar e excluir registros.
+            <b>Autenticação</b>) para tentar criar, atualizar e excluir — sem trocar o token selecionado acima.
+            Não assumimos de antemão o que Parceiro pode ou não fazer — é exatamente isso que este teste verifica.
           </p>
           <button class="btn btn-danger" id="btnTestePermissao" @click="rodarTestePermissao()" disabled>
             <span id="spinnerPermissao" class="spinner hidden"></span>
@@ -296,7 +296,7 @@ code: |2-
       const REQ = { lista: 'lista-quadros-horarios', cria: 'cria-quadros-horarios', atualiza: 'atualiza-quadros-horarios', remove: 'remove-quadros-horarios' };
     // Os tokens em si são geridos pelo app Autenticação — aqui só precisamos saber
     // o nome de exibição de cada um dos 3 slots possíveis.
-    const NOME_SLOT = { sci: 'Sistema SCI', parceiro: 'Sistema Parceiro', personalizado: 'Personalizado' };
+    const NOME_SLOT = { sci: 'Sistema SCI', parceiro: 'Sistema Parceiro' };
       const DIAS = [['dom','Dom'],['seg','Seg'],['ter','Ter'],['qua','Qua'],['qui','Qui'],['sex','Sex'],['sab','Sab']];
       const SLOTS = ['entrada_1','saida_1','entrada_2','saida_2','entrada_3','saida_3','entrada_4','saida_4'];
       const CAMPOS_TOPO = ['quadro_id','empresa_id','v_quadro_horario_id','descricao','horario_flexivel','ativo'];
@@ -327,7 +327,6 @@ code: |2-
           this.slots = {
             sci: { token: '', perfil: '', expiraEm: '' },
             parceiro: { token: '', perfil: '', expiraEm: '' },
-            personalizado: { token: '', perfil: '', expiraEm: '' },
           };
           this.tokenSelecionado = '';
           this._chaveSelecao = '_qh_slot_selecionado';
@@ -461,7 +460,7 @@ code: |2-
         atualizarEstadoDe(vars) {
           try {
             const v = vars || {};
-            ['sci', 'parceiro', 'personalizado'].forEach(slot => {
+            ['sci', 'parceiro'].forEach(slot => {
               this.slots[slot] = {
                 token: v[`slot_${slot}_token`] || '',
                 perfil: v[`slot_${slot}_perfil`] || '',
