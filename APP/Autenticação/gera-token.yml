@@ -1,7 +1,7 @@
 info:
   name: gera-token
   type: http
-  seq: 2
+  seq: 1
   tags:
     - Autenticação
 
@@ -105,46 +105,6 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
-
-examples:
-  - name: 201 Response
-    description: Token gerado com sucesso
-    request:
-      url: "{{baseUrl}}/api/v1/auth/credencial/login"
-      method: POST
-    response:
-      status: 201
-      statusText: Created
-      headers:
-        - name: Content-Type
-          value: application/json
-      body:
-        type: json
-        data: |-
-          {
-            "mensagem": "",
-            "token": "",
-            "validade": 0,
-            "payload": {}
-          }
-  - name: 401 Response
-    description: Token do parceiro e/ou cliente inválidos.
-    request:
-      url: "{{baseUrl}}/api/v1/auth/credencial/login"
-      method: POST
-    response:
-      status: 401
-      statusText: Unauthorized
-      headers:
-        - name: Content-Type
-          value: application/json
-      body:
-        type: json
-        data: |-
-          {
-            "mensagem": "",
-            "payload": {}
-          }
 
 docs: |-
   Endpoint responsável por realizar o login com base nos tokens externos informados e retornar um

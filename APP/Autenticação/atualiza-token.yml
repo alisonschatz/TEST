@@ -1,7 +1,7 @@
 info:
   name: atualiza-token
   type: http
-  seq: 3
+  seq: 2
   tags:
     - Autenticação
 
@@ -36,63 +36,6 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
-
-examples:
-  - name: 201 Response
-    description: Token refresh feito com sucesso
-    request:
-      url: "{{baseUrl}}/api/v1/auth/refresh"
-      method: POST
-    response:
-      status: 201
-      statusText: Created
-      headers:
-        - name: Content-Type
-          value: application/json
-      body:
-        type: json
-        data: |-
-          {
-            "mensagem": "",
-            "token": "",
-            "validade": 0
-          }
-  - name: 400 Response
-    description: A solicitação não atendeu o(s) seguinte(s) requisito(s)
-    request:
-      url: "{{baseUrl}}/api/v1/auth/refresh"
-      method: POST
-    response:
-      status: 400
-      statusText: Bad Request
-      headers:
-        - name: Content-Type
-          value: application/json
-      body:
-        type: json
-        data: |-
-          {
-            "mensagem": "",
-            "erro": {},
-            "payload": {}
-          }
-  - name: 401 Response
-    description: Token refresh falhou.
-    request:
-      url: "{{baseUrl}}/api/v1/auth/refresh"
-      method: POST
-    response:
-      status: 401
-      statusText: Unauthorized
-      headers:
-        - name: Content-Type
-          value: application/json
-      body:
-        type: json
-        data: |-
-          {
-            "mensagem": ""
-          }
 
 docs: |-
   Endpoint responsável por fazer a renovação de um JWT já existente.
