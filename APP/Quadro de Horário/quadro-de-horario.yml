@@ -37,12 +37,12 @@ code: |2-
       .field select option { font-weight: 400; color: var(--text); }
       .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; border-radius: 8px; padding: 9px 16px; height: 38px; font-size: 13px; font-weight: 700; cursor: pointer; transition: .15s; font-family: inherit; white-space: nowrap; }
       .btn-primary { background: var(--navy); color: #fff; }
-      .btn-primary:hover { filter: brightness(1.15); }
-      .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+      .btn-primary:hover:not(:disabled) { filter: brightness(1.15); }
+      .btn:disabled { opacity: .45; cursor: not-allowed; }
       .btn-outline { background: #fff; color: var(--navy); border: 1.5px solid var(--navy); }
-      .btn-outline:hover { background: rgba(56,72,108,.06); }
+      .btn-outline:hover:not(:disabled) { background: rgba(56,72,108,.06); }
       .btn-danger { background: var(--red-soft); color: var(--red); border: 1.5px solid var(--red); }
-      .btn-danger:hover { filter: brightness(.95); }
+      .btn-danger:hover:not(:disabled) { filter: brightness(.95); }
       .btn-sm { padding: 6px 12px; font-size: 12px; height: 32px; }
       .toolbar { display: flex; gap: 8px; align-items: center; margin: 14px 0; flex-wrap: wrap; }
       .search { flex: 1; min-width: 220px; height: 38px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13.5px; font-family: inherit; }
@@ -114,7 +114,7 @@ code: |2-
     
       <div class="card" style="border-left:3px solid var(--blue);">
         <div class="card-header" style="margin-bottom:8px;">
-          <h3 class="card-title" style="font-size:13.5px;">🔐 Token usado por este app</h3>
+          <h3 class="card-title" style="font-size:13.5px;">Token usado por este app</h3>
         </div>
         <div class="field">
           <select x-model="tokenSelecionado" @change="persistirSelecao()">
@@ -211,7 +211,7 @@ code: |2-
         </div>
 
         <div class="card" style="border-left:3px solid var(--red);">
-          <h3 class="card-title">🔒 Teste de permissão (token Parceiro)</h3>
+          <h3 class="card-title">Teste de permissão (token Parceiro)</h3>
           <p class="hint">
             Usa, só para esta chamada, o token do slot <b>Sistema Parceiro</b> (gerado ao menos uma vez no app
             <b>Autenticação</b>) para tentar criar, atualizar e excluir — sem trocar o token selecionado acima.
@@ -418,13 +418,22 @@ code: |2-
           return !!s.token && !this.expirado(s.expiraEm);
         }
         expirado(iso) { if (!iso) return true; return new Date(iso).getTime() <= Date.now(); }
+        // Token válido num slot específico — independe de qual está selecionado no
+        // topo. É o que o teste de permissão usa pra decidir se está pronto pra
+        // rodar (precisa de SCI *e* Parceiro, os dois, não importa o que está ativo).
+        _tokenValido(slot) {
+          const s = this.slots[slot];
+          return !!s.token && !this.expirado(s.expiraEm);
+        }
         opcaoLabel(slot) {
           const s = this.slots[slot];
           if (!s.token) return `${NOME_SLOT[slot]} — nenhum token gerado`;
           return `${NOME_SLOT[slot]}${this.expirado(s.expiraEm) ? ' (expirado)' : ''}`;
         }
         permissaoAviso() {
-          return this.slots.parceiro.token ? '' : 'Gere um token no slot "Sistema Parceiro" em Autenticação para habilitar este teste.';
+          if (!this._tokenValido('sci')) return 'Gere um token no slot "Sistema SCI" em Autenticação para habilitar este teste.';
+          if (!this._tokenValido('parceiro')) return 'Gere um token no slot "Sistema Parceiro" em Autenticação para habilitar este teste.';
+          return '';
         }
         renderAuthStatus() {
           this._sincronizarBotoesAcao();
@@ -434,13 +443,16 @@ code: |2-
           // API ficam bloqueadas — evita disparar requests sem Authorization válido.
           const auth = this.autenticado;
           const travado = !!this._acoesTravadas;
+          // O teste de permissão é independente do token selecionado no topo — só
+          // depende de SCI e Parceiro terem token válido, os dois ao mesmo tempo.
+          const testePermissaoPronto = this._tokenValido('sci') && this._tokenValido('parceiro');
           if (this.els.btnBuscar) this.els.btnBuscar.disabled = !auth || !this.ctxPronto;
           if (this.els.btnNovo) this.els.btnNovo.disabled = !auth;
           if (this.els.btnRapido) this.els.btnRapido.disabled = !auth;
           if (this.els.btnMassa) this.els.btnMassa.disabled = !auth || travado;
           if (this.els.btnLimparMassa) this.els.btnLimparMassa.disabled = !auth || travado;
           if (this.els.btnCicloVida) this.els.btnCicloVida.disabled = !auth || travado;
-          if (this.els.btnTestePermissao) this.els.btnTestePermissao.disabled = !auth || travado;
+          if (this.els.btnTestePermissao) this.els.btnTestePermissao.disabled = !testePermissaoPronto || travado;
         }
         // Lê os 3 slots direto de bru.ctx.variables.resolved — o snapshot mesclado
         // que o Bruno mantém para o app, atualizado sempre que uma runtime var muda
@@ -954,11 +966,17 @@ code: |2-
         // Prepara um registro com o token ATIVO (para garantir que exista algo a atualizar/excluir)
         // e então tenta as 3 operações de escrita usando o token de PARCEIRO — o esperado é 401/403
         // nas três. Não deixa nada para trás: limpa o registro auxiliar com o token selecionado ao final.
+        // Não depende do token selecionado no topo — usa SCI (escrita, pra preparar
+        // e limpar o registro auxiliar) e Parceiro (as tentativas que devem falhar)
+        // sempre direto dos respectivos slots, explicitamente, via chamarComToken.
+        // É por isso que o botão só habilita quando os dois existem e são válidos.
         async rodarTestePermissao() {
-          if (!this.autenticado) { this.alert('Nenhum token selecionado (ou expirado). Escolha um no topo da tela.'); return; }
-          let tokenParceiro = null;
-          try { tokenParceiro = bru.ctx.variables.resolved['slot_parceiro_token']; } catch (e) {}
-          if (!tokenParceiro) { this.alert('Nenhum token no slot "Sistema Parceiro". Gere um em Autenticação antes de rodar este teste.'); return; }
+          const tokenSci = this.slots.sci.token;
+          const tokenParceiro = this.slots.parceiro.token;
+          if (!this._tokenValido('sci') || !this._tokenValido('parceiro')) {
+            this.alert('Precisa de um token válido nos slots "Sistema SCI" e "Sistema Parceiro" (gerados em Autenticação) para rodar este teste.');
+            return;
+          }
 
           this.setLoading(this.els.btnTestePermissao, true);
           this._travarAcoesTeste(true);
@@ -967,16 +985,16 @@ code: |2-
           let quadroTesteId = null;
           try {
             dadosBase = this.gerarDadosQuadro('[TESTE-PERMISSAO]');
-            const resBase = await this.chamar(REQ.cria, dadosBase);
+            const resBase = await this.chamarComToken(REQ.cria, dadosBase, tokenSci);
             const rBase = this.interpretar(resBase);
             if (!rBase.ok) {
-              this.addStep('Preparar registro auxiliar (token selecionado)', false, 'Não foi possível criar o registro auxiliar com o token selecionado — confira se ele tem permissão de escrita.\n' + rBase.msg, dadosBase, rBase.body);
-              this.finalizarTeste('Abortado: sem permissão de escrita no perfil ativo para preparar o teste.');
+              this.addStep('Preparar registro auxiliar (token SCI)', false, 'Não foi possível criar o registro auxiliar com o token SCI — confira se ele ainda tem permissão de escrita.\n' + rBase.msg, dadosBase, rBase.body);
+              this.finalizarTeste('Abortado: sem permissão de escrita no token SCI para preparar o teste.');
               return;
             }
             const criado = Array.isArray(rBase.body?.retorno) ? rBase.body.retorno[0] : rBase.body?.retorno;
             quadroTesteId = criado?.quadro_id;
-            this.addStep('Preparar registro auxiliar (token selecionado)', true, `Registro quadro_id=${quadroTesteId} criado, servirá de alvo dos testes abaixo.`, dadosBase, rBase.body);
+            this.addStep('Preparar registro auxiliar (token SCI)', true, `Registro quadro_id=${quadroTesteId} criado, servirá de alvo dos testes abaixo.`, dadosBase, rBase.body);
             if (criado) { this.testSessionIds.push({ quadro_id: criado.quadro_id, empresa_id: dadosBase.empresa_id }); this._atualizarBtnLimparMassa(); }
 
             const dadosCria = this.gerarDadosQuadro('[TESTE-PERMISSAO-CRIA]');
@@ -986,7 +1004,7 @@ code: |2-
             this.addStep('POST com token Parceiro', bloqueadoCria, bloqueadoCria ? `Bloqueado corretamente (status ${rCria.status}).` : `FALHA DE SEGURANÇA: token Parceiro conseguiu criar (status ${rCria.status}).`, dadosCria, rCria.body);
             if (!bloqueadoCria) {
               const criadoIndevido = Array.isArray(rCria.body?.retorno) ? rCria.body.retorno[0] : rCria.body?.retorno;
-              if (criadoIndevido?.quadro_id) await this.chamar(REQ.remove, { empresa_id: String(dadosCria.empresa_id), quadro_id: String(criadoIndevido.quadro_id) });
+              if (criadoIndevido?.quadro_id) await this.chamarComToken(REQ.remove, { empresa_id: String(dadosCria.empresa_id), quadro_id: String(criadoIndevido.quadro_id) }, tokenSci);
             }
 
             const dadosAt = { ...dadosBase, quadro_id: String(quadroTesteId), descricao: '[TESTE-PERMISSAO-DEVERIA-FALHAR]' };
@@ -1008,7 +1026,7 @@ code: |2-
           } finally {
             if (quadroTesteId) {
               try {
-                await this.chamar(REQ.remove, { empresa_id: String(dadosBase?.empresa_id || this.els.fEmpresaId.value), quadro_id: String(quadroTesteId) });
+                await this.chamarComToken(REQ.remove, { empresa_id: String(dadosBase?.empresa_id || this.els.fEmpresaId.value), quadro_id: String(quadroTesteId) }, tokenSci);
                 this.testSessionIds = this.testSessionIds.filter(x => String(x.quadro_id) !== String(quadroTesteId));
                 this._atualizarBtnLimparMassa();
               } catch (e) {}
