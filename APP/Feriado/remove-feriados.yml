@@ -1,0 +1,28 @@
+info:
+  name: remove-feriados
+  type: http
+  seq: 4
+  tags:
+    - Feriado
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/v1/feriados"
+  body:
+    type: json
+    data: |-
+      {
+        "empresa_id": "{{empresa_id}}",
+        "data": "{{data}}"
+      }
+  auth:
+    type: bearer
+    token: "{{token_app}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: Remove um feriado do sistema com base na data e empresa. Esta ação é definitiva e não pode ser desfeita. Recomenda-se verificar se o feriado não está vinculado a regras de jornada ou agendamento antes da exclusão.

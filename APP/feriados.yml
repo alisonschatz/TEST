@@ -1,0 +1,1077 @@
+info:
+  name: Feriados
+  type: app
+  seq: 6
+code: |2-
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+    <style>
+      :root {
+        --navy: #38486c; --blue: #91d8f7; --bg: #eef1f6;
+        --surface: #ffffff; --text: #263045; --muted: rgba(56,72,108,.65);
+        --border: rgba(56,72,108,.14); --radius: 10px; --shadow: 0 4px 14px rgba(56,72,108,.06);
+        --green: #1f8a5f; --green-soft: #e6f6ee; --red: #c1443a; --red-soft: #fbeae8; --orange: #d97706; --orange-soft: #fff7ed;
+      }
+      * { box-sizing: border-box; }
+      body { font-family: "Inter", system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; margin: 0; padding: 20px; letter-spacing: -0.01em; }
+      h2 { margin: 0 0 4px; font-size: 20px; font-weight: 800; color: var(--navy); }
+      .subtitle { font-size: 12.5px; color: var(--muted); margin-bottom: 14px; }
+      .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+      .tab { background: none; border: none; padding: 10px 4px; margin-right: 18px; font-size: 13.5px; font-weight: 700; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+      .tab:hover { color: var(--navy); }
+      .tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+      .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; box-shadow: var(--shadow); }
+      .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+      .card-title { font-size: 14.5px; font-weight: 800; color: var(--navy); margin: 0; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 12px; align-items: end; }
+      .field { display: flex; flex-direction: column; gap: 5px; }
+      .field label { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+      .field input, .field select { height: 38px; border: 1px solid var(--border); border-radius: 8px; padding: 0 11px; font-size: 13px; background: rgba(56,72,108,.04); width: 100%; transition: .15s; font-family: inherit; }
+      .field input:focus, .field select:focus { outline: none; border-color: var(--navy); background: #fff; box-shadow: 0 0 0 3px rgba(145,216,247,.4); }
+      .field select optgroup { font-weight: 700; font-style: normal; color: var(--navy); }
+      .field select option { font-weight: 400; color: var(--text); }
+      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; border-radius: 8px; padding: 9px 16px; height: 38px; font-size: 13px; font-weight: 700; cursor: pointer; transition: .15s; font-family: inherit; white-space: nowrap; }
+      .btn-primary { background: var(--navy); color: #fff; }
+      .btn-primary:hover:not(:disabled) { filter: brightness(1.15); }
+      .btn:disabled { opacity: .45; cursor: not-allowed; }
+      .btn-outline { background: #fff; color: var(--navy); border: 1.5px solid var(--navy); }
+      .btn-outline:hover:not(:disabled) { background: rgba(56,72,108,.06); }
+      .btn-danger { background: var(--red-soft); color: var(--red); border: 1.5px solid var(--red); }
+      .btn-danger:hover:not(:disabled) { filter: brightness(.95); }
+      .btn-sm { padding: 6px 12px; font-size: 12px; height: 32px; }
+      .toolbar { display: flex; gap: 8px; align-items: center; margin: 14px 0; flex-wrap: wrap; }
+      .search { flex: 1; min-width: 220px; height: 38px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13.5px; font-family: inherit; }
+      .search:focus { outline: none; border-color: var(--navy); }
+      .badge { padding: 3px 10px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+      .badge-ok { background: var(--green-soft); color: var(--green); }
+      .badge-bad { background: var(--red-soft); color: var(--red); }
+      .badge-info { background: rgba(145,216,247,.25); color: var(--navy); }
+      .alert { border-radius: 8px; padding: 11px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+      .alert-err { background: var(--red-soft); color: var(--red); border: 1px solid rgba(193,68,58,.3); }
+      .alert-ok { background: var(--green-soft); color: var(--green); border: 1px solid rgba(31,138,95,.3); }
+      .alert-warn { background: var(--orange-soft); color: var(--orange); border: 1px solid rgba(217,119,6,.3); }
+      .empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13.5px; }
+      .spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; animation: spin .7s linear infinite; display: inline-block; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .spinner-dark { border-color: rgba(56,72,108,.3); border-top-color: var(--navy); }
+      details { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; box-shadow: var(--shadow); }
+      details[open] { border-left-color: var(--blue); }
+      summary { padding: 13px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; list-style: none; flex-wrap: wrap; }
+      summary::-webkit-details-marker { display: none; }
+      summary:hover { background: rgba(56,72,108,.04); }
+      .summary-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+      .summary-name { font-weight: 700; font-size: 14.5px; color: var(--navy); }
+      .summary-id { font-size: 11.5px; color: var(--muted); }
+      .summary-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-left: auto; }
+      .inner { padding: 14px; background: rgba(56,72,108,.04); border-top: 1px solid var(--border); }
+      table { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+      th { background: var(--navy); color: var(--blue); font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: .04em; padding: 7px 4px; }
+      td { padding: 5px 4px; text-align: center; border-bottom: 1px solid var(--border); }
+      tr:nth-child(even) td { background: rgba(56,72,108,.03); }
+      tr:last-child td { border-bottom: none; }
+      .form-panel { background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--navy); border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: var(--shadow); }
+      .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 9px 10px; }
+      .info-label { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; display: block; margin-bottom: 3px; }
+      fieldset { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+      legend { font-size: 11px; color: var(--navy); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 0 4px; }
+      .paginacao { display: flex; align-items: center; gap: 10px; justify-content: center; margin: 16px 0; font-size: 12.5px; color: var(--muted); }
+      .step { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 8px; }
+      .step-h { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(56,72,108,.04); cursor: pointer; }
+      .step-h:hover { background: rgba(56,72,108,.08); }
+      .step-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+      .step-body { padding: 12px; border-top: 1px solid var(--border); background: var(--surface); }
+      .pre { background: #1e2434; padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); overflow-x: auto; color: var(--blue); font-family: "Fira Code", Consolas, monospace; font-size: 11.5px; line-height: 1.5; max-height: 200px; overflow-y: auto; }
+      .overlay { display: none; position: fixed; inset: 0; background: rgba(38,48,69,.45); z-index: 1000; align-items: center; justify-content: center; }
+      .overlay.active { display: flex; }
+      .modal { background: var(--surface); border-radius: 12px; padding: 20px; max-width: 380px; width: 90%; box-shadow: 0 10px 30px rgba(38,48,69,.25); }
+      .hint { margin: 0 0 12px; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+      .progresso { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); margin-top: 10px; min-height: 20px; }
+      .progresso.ativo { color: var(--navy); font-weight: 600; }
+      .flex { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+      .align-end { align-items: flex-end; }
+      .perfil-chip { display: flex; align-items: center; gap: 9px; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+      .perfil-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+      .perfil-chip.ok { background: var(--green-soft); color: var(--green); border: 1px solid rgba(31,138,95,.3); }
+      .perfil-chip.bad { background: var(--red-soft); color: var(--red); border: 1px solid rgba(193,68,58,.3); }
+      .ml-auto { margin-left: auto; }
+      .w-full { width: 100%; }
+      .hidden { display: none !important; }
+      [x-cloak] { display: none !important; }
+    </style>
+    </head>
+    <body>
+    
+    <div id="app" x-data="new FeriadosApp()" x-init="init()">
+      <h2>Painel de Feriados</h2>
+      <div class="subtitle" x-text="statusText">Inicializando...</div>
+    
+      <div class="card" style="border-left:3px solid var(--blue);">
+        <div class="card-header" style="margin-bottom:8px;">
+          <h3 class="card-title" style="font-size:13.5px;">Token usado por este app</h3>
+        </div>
+        <div class="field">
+          <select x-model="tokenSelecionado" @change="persistirSelecao()">
+            <option value="">Nenhum selecionado</option>
+            <option value="sci" :disabled="!slots.sci.token" x-text="opcaoLabel('sci')"></option>
+            <option value="parceiro" :disabled="!slots.parceiro.token" x-text="opcaoLabel('parceiro')"></option>
+          </select>
+        </div>
+        <p class="hint" style="margin:8px 0 0;">Gerado no app <b>Autenticação</b> — escolha aqui qual dos tokens esta tela deve usar. A lista atualiza sozinha assim que você gera/troca algo por lá.</p>
+      </div>
+    
+      <div class="tabs">
+        <button class="tab" :class="{ active: view === 'registros' }" @click="trocarView('registros')">Registros</button>
+        <button class="tab" :class="{ active: view === 'testes' }" @click="trocarView('testes')">Ferramentas de teste</button>
+      </div>
+    
+      <div x-show="alertMsg" x-cloak>
+        <div class="alert" :class="'alert-' + alertType" x-text="alertMsg"></div>
+      </div>
+    
+      <!-- REGISTROS -->
+      <div id="view-registros" x-show="view === 'registros'">
+        <div class="card">
+          <div class="grid">
+            <div class="field"><label>Empresa ID</label><input type="text" id="fEmpresaId" value="900002"></div>
+            <div class="field"><label>Alterado a partir de</label><input type="date" id="fAlteradoData"></div>
+            <div class="field" style="max-width:90px;"><label>Página</label><input type="number" min="1" id="fPage" value="1"></div>
+            <div class="field" style="min-width:130px;">
+              <label>&nbsp;</label>
+              <button class="btn btn-primary w-full" id="btnBuscar" @click="buscar(true)" disabled>
+                <span id="spinnerBuscar" class="spinner hidden"></span>
+                <span id="lblBuscar">Inicializando...</span>
+              </button>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+            <button class="btn" style="background:none;padding:0;height:auto;font-size:12.5px;color:var(--muted);text-decoration:underline;" id="btnLimparFiltros" @click="limparFiltros()">Limpar filtros</button>
+            <span class="badge badge-info">Total <b id="statTotal">–</b></span>
+          </div>
+        </div>
+    
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 12px;flex-wrap:wrap;">
+          <div class="flex">
+            <button class="btn btn-outline btn-sm" id="btnNovo" @click="abrirForm('criar')" disabled>+ Novo</button>
+            <button class="btn btn-primary btn-sm" style="background:var(--blue);color:var(--navy);" id="btnRapido" @click="criacaoRapida()" disabled>Criação rápida</button>
+          </div>
+          <div class="flex" style="font-size:12.5px;color:var(--muted);">
+            <label for="fPerPage" style="font-weight:600;">Registros por página</label>
+            <input id="fPerPage" type="number" min="1" max="100" value="15" style="width:60px;height:32px;border:1px solid var(--border);border-radius:6px;padding:0 8px;font-size:13px;text-align:center;background:#fff;">
+          </div>
+        </div>
+    
+        <div id="formContainer"></div>
+        <div class="paginacao" x-show="paginacao" x-cloak>
+          <button class="btn btn-outline btn-sm" :disabled="!paginacao || paginacao.pagina_atual <= 1" @click="irPagina(paginacao.pagina_atual - 1)">← Anterior</button>
+          <span x-text="paginacao ? `Página ${paginacao.pagina_atual} de ${paginacao.ultima_pagina} · ${paginacao.total} registros` : ''"></span>
+          <button class="btn btn-outline btn-sm" :disabled="!paginacao || paginacao.pagina_atual >= paginacao.ultima_pagina" @click="irPagina(paginacao.pagina_atual + 1)">Próxima →</button>
+        </div>
+    
+        <div class="toolbar">
+          <input type="text" class="search" id="searchLocal" @input="filtrarLocal()" placeholder="Filtrar por descrição ou data...">
+          <button class="btn btn-outline btn-sm" id="btnExpandir" @click="toggleAll(true)">Expandir tudo</button>
+          <button class="btn btn-outline btn-sm" id="btnRecolher" @click="toggleAll(false)">Recolher tudo</button>
+        </div>
+        <div id="cardsContainer"><div class="empty">Ajuste os filtros e clique em "Buscar dados".</div></div>
+      </div>
+    
+      <!-- TESTES -->
+      <div id="view-testes" x-show="view === 'testes'" x-cloak>
+        <div class="card">
+          <h3 class="card-title">Teste de ciclo de vida</h3>
+          <p class="hint">Cria um registro aleatório, busca, confere campo a campo, edita, confere de novo, exclui e confirma que sumiu.</p>
+          <button class="btn btn-primary" id="btnCicloVida" @click="rodarCicloVida()" disabled>
+            <span id="spinnerCiclo" class="spinner hidden"></span>
+            <span id="lblCiclo">Rodar teste de ciclo de vida</span>
+          </button>
+        </div>
+    
+        <div class="card" style="border-left:3px solid var(--red);">
+          <h3 class="card-title">Teste de permissão (token Parceiro)</h3>
+          <p class="hint">
+            Usa, só para esta chamada, o token do slot <b>Sistema Parceiro</b> (gerado ao menos uma vez no app
+            <b>Autenticação</b>) para tentar criar, atualizar e excluir — sem trocar o token selecionado acima.
+            Não assumimos de antemão o que Parceiro pode ou não fazer — é exatamente isso que este teste verifica.
+          </p>
+          <button class="btn btn-danger" id="btnTestePermissao" @click="rodarTestePermissao()" disabled>
+            <span id="spinnerPermissao" class="spinner hidden"></span>
+            <span id="lblPermissao">Rodar teste de permissão</span>
+          </button>
+          <div x-text="permissaoAviso()" style="margin-top:8px;font-size:12px;color:var(--muted);"></div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Geração de massa</h3>
+          <p class="hint">Cria vários registros de uma vez, marcados com prefixo identificável. Todos ficam rastreados nesta sessão.</p>
+          <div class="flex align-end">
+            <div class="field" style="max-width:110px;"><label>Quantidade</label><input type="number" min="1" max="200" id="massaQtd" value="10"></div>
+            <button class="btn btn-primary" id="btnMassa" @click="criarMassa()" disabled>
+              <span id="spinnerMassa" class="spinner hidden"></span>
+              Criar em massa
+            </button>
+            <button class="btn btn-danger" id="btnLimparMassa" @click="limparMassa()" disabled>Limpar dados desta sessão</button>
+          </div>
+          <div id="massaProgresso" class="progresso"></div>
+        </div>
+    
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 class="card-title" style="margin:0;">Resultado do último teste</h3>
+            <button class="btn" style="background:none;padding:0;height:auto;font-size:12.5px;color:var(--muted);text-decoration:underline;" id="btnCopiarTeste" @click="copiarTeste()">Copiar relatório</button>
+          </div>
+          <div>
+            <div class="empty" x-show="!ultimoTeste">Nenhum teste executado ainda nesta sessão.</div>
+            <div x-show="ultimoTeste" x-cloak style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow);">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+                <span class="badge" :class="ultimoTeste && ultimoTeste.ok ? 'badge-ok' : 'badge-bad'" x-text="ultimoTeste && ultimoTeste.ok ? 'Sucesso' : 'Falha'"></span>
+                <span style="font-weight:700;font-size:14px;color:var(--navy);" x-text="ultimoTeste ? `[${ultimoTeste.categoria}] ${ultimoTeste.acao}` : ''"></span>
+                <span class="ml-auto" style="font-size:11.5px;color:var(--muted);" x-text="ultimoTeste ? ultimoTeste.ts.toLocaleString('pt-BR') : ''"></span>
+              </div>
+              <div x-show="ultimoTeste && ultimoTeste.detalhes" style="color:var(--muted);font-size:12.5px;line-height:1.6;margin-bottom:14px;white-space:pre-wrap;" x-text="ultimoTeste ? ultimoTeste.detalhes : ''"></div>
+              <template x-for="(step, i) in (ultimoTeste ? ultimoTeste.steps : [])" :key="i">
+                <details class="step" :open="!step.ok">
+                  <summary class="step-h">
+                    <span style="font-size:11px;color:var(--muted);font-weight:600;min-width:28px;" x-text="'#' + (i+1)"></span>
+                    <span class="step-badge" :class="step.ok ? 'badge-ok' : (step.skipped ? 'badge-warn' : 'badge-bad')" x-text="step.ok ? 'OK' : (step.skipped ? 'Skip' : 'Fail')"></span>
+                    <span style="font-size:13px;font-weight:700;color:var(--navy);flex:1;" x-text="step.acao"></span>
+                    <span style="font-size:11px;color:var(--muted);" x-text="step.ts ? step.ts.toLocaleTimeString('pt-BR') : ''"></span>
+                  </summary>
+                  <div class="step-body">
+                    <div x-show="step.detalhes" style="font-size:12.5px;color:var(--text);line-height:1.6;margin-bottom:12px;white-space:pre-wrap;" x-text="step.detalhes"></div>
+                    <div x-show="step.requestJson" style="margin-bottom:10px;">
+                      <div style="font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Request enviado</div>
+                      <pre class="pre"><code x-text="step.requestJson ? JSON.stringify(step.requestJson, null, 2) : ''"></code></pre>
+                    </div>
+                    <div x-show="step.responseJson">
+                      <div style="font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Response recebido</div>
+                      <pre class="pre"><code x-text="step.responseJson ? JSON.stringify(step.responseJson, null, 2) : ''"></code></pre>
+                    </div>
+                  </div>
+                </details>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <details style="margin-top:20px;">
+        <summary style="cursor:pointer;font-size:12px;color:var(--muted);font-weight:600;">Depuração: última chamada bru.ctx.runRequest()</summary>
+        <pre class="pre" style="margin-top:8px;max-height:260px;"><code x-text="debugRaw">—</code></pre>
+      </details>
+    
+      <!-- Modal -->
+      <div class="overlay" id="confirmOverlay">
+        <div class="modal">
+          <div style="margin-bottom:16px;font-size:13.5px;color:var(--text);line-height:1.5;" id="confirmMsg"></div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="btn btn-outline btn-sm" id="confirmCancel" @click="_resolveConfirm(false)">Cancelar</button>
+            <button class="btn btn-danger btn-sm" id="confirmOk" @click="_resolveConfirm(true)">Confirmar exclusão</button>
+          </div>
+        </div>
+      </div>
+    
+      <!-- Modal: copiar manualmente (fallback quando o clipboard automático não funciona) -->
+      <div class="overlay" id="textoCopiaOverlay">
+        <div class="modal" style="max-width:560px;">
+          <div style="margin-bottom:10px;font-size:13.5px;color:var(--text);font-weight:700;">Não foi possível copiar automaticamente. Selecione e copie manualmente (Ctrl+C / Cmd+C):</div>
+          <textarea id="textoCopiaArea" readonly style="width:100%;height:260px;border:1px solid var(--border);border-radius:8px;padding:10px;font-family:'Fira Code',Consolas,monospace;font-size:11.5px;line-height:1.5;resize:vertical;background:rgba(56,72,108,.04);color:var(--text);"></textarea>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
+            <button class="btn btn-outline btn-sm" id="textoCopiaFechar" @click="els.textoCopiaOverlay.classList.remove('active')">Fechar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      // ===================== CONFIGURAÇÃO =====================
+      const REQ = { lista: 'lista-feriados', cria: 'cria-feriados', atualiza: 'atualiza-feriados', remove: 'remove-feriados' };
+    // Os tokens em si são geridos pelo app Autenticação — aqui só precisamos saber
+    // o nome de exibição de cada um dos 3 slots possíveis.
+    const NOME_SLOT = { sci: 'Sistema SCI', parceiro: 'Sistema Parceiro' };
+      const CAMPOS_TOPO = ['data','empresa_id','descricao'];
+      // "data" é a chave do feriado (junto com empresa_id) — não existe id numérico
+      // próprio, por isso trava na edição igual a empresa_id (ver abrirForm).
+      const CAMPO_DATA = 'data';
+      const DESCRICOES = ['Confraternização Universal','Feriado Municipal','Aniversário da Cidade','Ponto Facultativo','Feriado Estadual','Recesso Especial','Feriado Religioso','Dia do Comércio'];
+      const DIAS_SEMANA = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+      const esperar = ms => new Promise(r => setTimeout(r, ms));
+      // Formata "2030-05-17" -> "17/05/2030" e descobre o dia da semana — só exibição,
+      // não afeta o que é enviado pra API (que continua no formato ISO).
+      const formatarDataBR = (iso) => {
+        if (!iso) return '—';
+        const m = String(iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+        return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
+      };
+      const diaSemana = (iso) => {
+        if (!iso) return '';
+        const d = new Date(iso + 'T00:00:00');
+        return isNaN(d.getTime()) ? '' : DIAS_SEMANA[d.getDay()];
+      };
+    
+      // ===================== APP CORE =====================
+      let app = null;
+      class FeriadosApp {
+        constructor() {
+          this.mapaRequests = {};
+          this.ctxPronto = false;
+          this.carregando = false;
+          this.salvando = false;
+          this.testando = false;
+          this.massando = false;
+          this.dados = [];
+          this.dadosFiltrados = [];
+          this.paginacao = null;
+          this.modoForm = null;
+          this.formEdit = null;
+          this.testSessionIds = [];
+          this.ultimoTeste = null;
+          this.view = 'registros';
+          // Os 3 slots são só-leitura aqui — quem grava é o app Autenticação. Este app
+          // apenas lê (via bru.ctx.variables.resolved) e escolhe qual usar.
+          this.slots = {
+            sci: { token: '', perfil: '', expiraEm: '' },
+            parceiro: { token: '', perfil: '', expiraEm: '' },
+          };
+          this.tokenSelecionado = '';
+          this._chaveSelecao = '_fn_slot_selecionado';
+          this._acoesTravadas = false;
+          this.statusText = 'Inicializando...';
+          this.debugRaw = '—';
+          this.alertMsg = '';
+          this.alertType = 'err';
+          this.els = {};
+          this._bindElements();
+          this._atualizarBtnLimparMassa();
+          this._sincronizarBotoesAcao();
+        }
+    
+        _bindElements() {
+          // Lista enxuta: cobre só o que ainda é manipulado imperativamente (lista de
+          // registros, formulário, spinners). Status, alerta, seletor de token e
+          // relatórios de teste são renderizados via x-text/x-show/x-for do Alpine.
+          const ids = ['view-registros', 'view-testes', 'btnBuscar', 'spinnerBuscar', 'lblBuscar', 'statTotal',
+            'formContainer', 'cardsContainer', 'searchLocal',
+            'btnCicloVida', 'spinnerCiclo', 'lblCiclo', 'btnMassa', 'spinnerMassa', 'btnLimparMassa', 'massaProgresso', 'massaQtd',
+            'confirmOverlay', 'confirmMsg', 'confirmCancel', 'confirmOk', 'btnNovo', 'btnRapido', 'btnLimparFiltros',
+            'textoCopiaOverlay', 'textoCopiaArea', 'textoCopiaFechar',
+            'fEmpresaId', 'fAlteradoData', 'fPage', 'fPerPage',
+            'btnExpandir', 'btnRecolher', 'btnCopiarTeste',
+            'btnTestePermissao', 'spinnerPermissao', 'lblPermissao'];
+          ids.forEach(id => this.els[id] = document.getElementById(id));
+        }
+    
+        // -------------------- UI HELPERS --------------------
+        // Ações simples (botões estáticos, sempre presentes) são amarradas direto no
+        // HTML via @click/@input do Alpine — não precisam mais de wiring manual aqui.
+        // Isso também evita um bug sutil: uma closure criada durante o construtor
+        // (antes do Alpine envolver a instância num Proxy reativo) capturaria o
+        // objeto "cru", não o reativo — mutações feitas por ela nunca apareceriam na
+        // tela. @click resolvido pelo próprio Alpine não tem esse problema.
+        alert(msg, type='err') {
+          this.alertType = type;
+          this.alertMsg = msg;
+          if (msg) setTimeout(() => { if (this.alertMsg === msg) this.alertMsg = ''; }, 6000);
+        }
+        setStatus(txt) { this.statusText = txt; }
+        setDebug(obj) { this.debugRaw = JSON.stringify(obj, null, 2); }
+        setLoading(el, active) {
+          const spin = el.querySelector('.spinner');
+          if (spin) spin.classList.toggle('hidden', !active);
+          el.disabled = active;
+        }
+        trocarView(name) {
+          if (this.modoForm) this.fecharForm();
+          this.view = name;
+        }
+    
+        // -------------------- API BRUNO --------------------
+        async chamar(nomeRequest, runtimeVars) {
+          const pathname = this.mapaRequests[nomeRequest];
+          if (!pathname) throw new Error(`Request "${nomeRequest}" não encontrada.`);
+          // O token vai sempre como override de runtime var — não existe mais um
+          // "token_app" global implícito. runtimeVars pode sobrescrever token_app
+          // explicitamente (usado pelo teste de permissão, que força o slot Parceiro
+          // independente do que estiver selecionado aqui).
+          const tokenDoSlot = this.tokenSelecionado ? this.slots[this.tokenSelecionado].token : '';
+          const vars = { token_app: tokenDoSlot, ...runtimeVars };
+          const res = await bru.ctx.runRequest(pathname, { runtimeVariables: vars });
+          this.setDebug({ request: nomeRequest, enviado: vars, resposta: res });
+          return res;
+        }
+        interpretar(res) {
+          const status = res?.status ?? null;
+          const body = res?.data ?? null;  // bru.ctx retorna .data, não .body
+          if (status && status >= 400) {
+            const msg = body?.mensagem || `API retornou status ${status}.`;
+            const det = body?.erros ? '\n' + JSON.stringify(body.erros, null, 2) : '';
+            return { ok: false, status, body, msg: msg + det };
+          }
+          return { ok: true, status, body, msg: body?.mensagem || '' };
+        }
+        // -------------------- SELEÇÃO DE TOKEN --------------------
+        // "autenticado" aqui não é mais sobre ter feito login (isso é lá em
+        // Autenticação) — é sobre ter um slot selecionado com token válido.
+        // É um getter (não um campo) pra ficar sempre em dia com slots/tokenSelecionado
+        // sem precisar recalcular manualmente em cada lugar que já checava
+        // "this.autenticado".
+        get autenticado() {
+          if (!this.tokenSelecionado) return false;
+          const s = this.slots[this.tokenSelecionado];
+          return !!s.token && !this.expirado(s.expiraEm);
+        }
+        expirado(iso) { if (!iso) return true; return new Date(iso).getTime() <= Date.now(); }
+        // Token válido num slot específico — independe de qual está selecionado no
+        // topo. É o que o teste de permissão usa pra decidir se está pronto pra
+        // rodar (precisa de SCI *e* Parceiro, os dois, não importa o que está ativo).
+        _tokenValido(slot) {
+          const s = this.slots[slot];
+          return !!s.token && !this.expirado(s.expiraEm);
+        }
+        opcaoLabel(slot) {
+          const s = this.slots[slot];
+          if (!s.token) return `${NOME_SLOT[slot]} — nenhum token gerado`;
+          return `${NOME_SLOT[slot]}${this.expirado(s.expiraEm) ? ' (expirado)' : ''}`;
+        }
+        permissaoAviso() {
+          if (!this._tokenValido('sci')) return 'Gere um token no slot "Sistema SCI" em Autenticação para habilitar este teste.';
+          if (!this._tokenValido('parceiro')) return 'Gere um token no slot "Sistema Parceiro" em Autenticação para habilitar este teste.';
+          return '';
+        }
+        renderAuthStatus() {
+          this._sincronizarBotoesAcao();
+        }
+        _sincronizarBotoesAcao() {
+          // Fonte única de verdade: sem token selecionado, TODAS as ações que chamam a
+          // API ficam bloqueadas — evita disparar requests sem Authorization válido.
+          const auth = this.autenticado;
+          const travado = !!this._acoesTravadas;
+          // O teste de permissão é independente do token selecionado no topo — só
+          // depende de SCI e Parceiro terem token válido, os dois ao mesmo tempo.
+          const testePermissaoPronto = this._tokenValido('sci') && this._tokenValido('parceiro');
+          if (this.els.btnBuscar) this.els.btnBuscar.disabled = !auth || !this.ctxPronto;
+          if (this.els.btnNovo) this.els.btnNovo.disabled = !auth;
+          if (this.els.btnRapido) this.els.btnRapido.disabled = !auth;
+          if (this.els.btnMassa) this.els.btnMassa.disabled = !auth || travado;
+          if (this.els.btnLimparMassa) this.els.btnLimparMassa.disabled = !auth || travado;
+          if (this.els.btnCicloVida) this.els.btnCicloVida.disabled = !auth || travado;
+          if (this.els.btnTestePermissao) this.els.btnTestePermissao.disabled = !testePermissaoPronto || travado;
+        }
+        // Lê os 3 slots direto de bru.ctx.variables.resolved — o snapshot mesclado
+        // que o Bruno mantém para o app, atualizado sempre que uma runtime var muda
+        // em qualquer app da mesma sessão (é isso que o app Autenticação grava ao
+        // gerar/atualizar um token). Não existe bru.getEnvVar dentro de um app — só
+        // em scripts de request — por isso a leitura é sempre via bru.ctx.
+        atualizarEstadoDe(vars) {
+          try {
+            const v = vars || {};
+            ['sci', 'parceiro'].forEach(slot => {
+              this.slots[slot] = {
+                token: v[`slot_${slot}_token`] || '',
+                perfil: v[`slot_${slot}_perfil`] || '',
+                expiraEm: v[`slot_${slot}_expira_em`] || '',
+              };
+            });
+            this.renderAuthStatus();
+          } catch (e) {
+            console.error('Não foi possível ler os tokens:', e);
+          }
+        }
+        persistirSelecao() {
+          try { bru.ctx.variables.runtime.set(this._chaveSelecao, this.tokenSelecionado); } catch (e) {}
+        }
+        _restaurarSelecao() {
+          try {
+            const v = bru.ctx.variables.resolved || {};
+            this.tokenSelecionado = v[this._chaveSelecao] || '';
+          } catch (e) {}
+        }
+        // Executa uma request já cadastrada com token_app sobrescrito só para ESTA
+        // chamada — usa o mecanismo nativo de runtime var override (prioridade
+        // máxima, vale só para este envio), então não precisa restaurar nada depois:
+        // o token selecionado nesta tela não é tocado.
+        async chamarComToken(nomeRequest, runtimeVars, tokenTemporario) {
+          return await this.chamar(nomeRequest, { ...runtimeVars, token_app: tokenTemporario });
+        }
+        montarQS(pares) {
+          return pares.filter(([,v]) => (v??'').toString().trim()!=='')
+            .map(([k,v]) => `${k}=${encodeURIComponent(v.toString().trim())}`).join('&');
+        }
+    
+        // -------------------- LISTAGEM --------------------
+        limparFiltros() {
+          this.els.fEmpresaId.value = '900002';
+          this.els.fAlteradoData.value = '';
+          this.els.fPage.value = '1';
+          this.els.fPerPage.value = '15';
+        }
+        async buscar(resetPage) {
+          if (!this.ctxPronto || !this.autenticado || this.carregando) return;
+          if (resetPage) this.els.fPage.value = '1';
+          this.alert('');
+          this.carregando = true;
+          this.setLoading(this.els.btnBuscar, true);
+          try {
+            const qs = this.montarQS([
+              ['empresa_id', this.els.fEmpresaId.value],
+              ['alterado_data', this.els.fAlteradoData.value],
+              ['page', this.els.fPage.value || '1'],
+              ['per_page', this.els.fPerPage.value || '15'],
+            ]);
+            const res = await this.chamar(REQ.lista, { rt_query: qs });
+            const r = this.interpretar(res);
+            if (!r.ok) { this.alert(r.msg); this.dados=[]; this.dadosFiltrados=[]; this.paginacao=null; this.render(); return; }
+            this.dados = Array.isArray(r.body?.retorno) ? r.body.retorno : [];
+            this.paginacao = r.body?.paginacao || null;
+            this.filtrarLocal();
+          } catch (err) {
+            this.alert(err.message || String(err));
+          } finally {
+            this.carregando = false;
+            this.setLoading(this.els.btnBuscar, false);
+            this.els.lblBuscar.textContent = this.dados.length > 0 ? 'Atualizar' : 'Buscar dados';
+            this._sincronizarBotoesAcao();
+            this._persistirEstadoBusca();
+          }
+        }
+        // -------------------- RESILIÊNCIA A RECARGA DA ABA --------------------
+        // O Bruno pode descartar e remontar a webview de um app inativo ao navegar
+        // entre abas (é comportamento do host, fora do alcance de bru.ctx) — isso
+        // zera todo estado local em memória. Para não perder filtros/resultados
+        // nesse caso, salvamos como runtime var (mesmo mecanismo já usado para o
+        // token) a cada busca, e restauramos no onInit se existir.
+        _persistirEstadoBusca() {
+          try {
+            const filtros = {
+              fEmpresaId: this.els.fEmpresaId.value, fFuncaoId: this.els.fFuncaoId.value,
+              fAlteradoData: this.els.fAlteradoData.value,
+              fPage: this.els.fPage.value, fPerPage: this.els.fPerPage.value,
+              searchLocal: this.els.searchLocal.value,
+            };
+            bru.ctx.variables.runtime.set('_fn_filtros', JSON.stringify(filtros));
+            bru.ctx.variables.runtime.set('_fn_dados', JSON.stringify(this.dados || []));
+            bru.ctx.variables.runtime.set('_fn_paginacao', JSON.stringify(this.paginacao || null));
+          } catch (e) { console.error('Falha ao salvar estado da busca', e); }
+        }
+        _restaurarEstadoBusca() {
+          try {
+            const v = bru.ctx.variables.resolved || {};
+            if (v['_fn_filtros']) {
+              const filtros = JSON.parse(v['_fn_filtros']);
+              Object.keys(filtros).forEach(k => { if (this.els[k]) this.els[k].value = filtros[k]; });
+            }
+            if (v['_fn_dados']) this.dados = JSON.parse(v['_fn_dados']) || [];
+            if (v['_fn_paginacao']) this.paginacao = JSON.parse(v['_fn_paginacao']) || null;
+            if (this.dados && this.dados.length) {
+              this.els.lblBuscar.textContent = 'Atualizar';
+              this.filtrarLocal();
+            }
+          } catch (e) { console.error('Falha ao restaurar estado da busca', e); }
+        }
+        irPagina(n) { if (n < 1) return; this.els.fPage.value = n; this.buscar(false); }
+        filtrarLocal() {
+          const term = this.els.searchLocal.value.trim().toLowerCase();
+          if (!term) { this.dadosFiltrados = [...this.dados]; }
+          else { this.dadosFiltrados = this.dados.filter(d => `${d.descricao||''} ${d.data||''}`.toLowerCase().includes(term)); }
+          this.render();
+        }
+        toggleAll(open) {
+          document.querySelectorAll('#cardsContainer details').forEach(el => el.open = open);
+        }
+    
+        // -------------------- RENDER --------------------
+        render() {
+          this.els.statTotal.textContent = this.paginacao ? this.paginacao.total : this.dadosFiltrados.length;
+          this.renderCards();
+        }
+        renderCards() {
+          const box = this.els.cardsContainer;
+          if (!this.dadosFiltrados.length) { box.innerHTML = '<div class="empty">Nenhum feriado encontrado.</div>'; return; }
+          box.innerHTML = this.dadosFiltrados.map((reg, idx) => {
+            const originalIdx = this.dados.indexOf(reg);
+            const dia = diaSemana(reg.data);
+            const badges = dia ? `<span class="badge badge-info">${dia}</span>` : '';
+            return `
+            <details>
+              <summary>
+                <div class="summary-main">
+                  <span class="summary-name">${reg.descricao || 'Sem descrição'}</span>
+                  <span class="summary-id">${formatarDataBR(reg.data)} · Empresa ${reg.empresa_id ?? '—'}</span>
+                </div>
+                <div class="summary-right">
+                  <div>${badges}</div>
+                  <div class="flex">
+                    <button class="btn btn-outline btn-sm" onclick="app.abrirForm('editar', ${originalIdx})">Editar</button>
+                    <button class="btn btn-danger btn-sm" onclick="app.excluir(${originalIdx})">Excluir</button>
+                  </div>
+                </div>
+              </summary>
+              <div class="inner">
+                <div class="form-grid">
+                  <div><span class="info-label">Data</span>${formatarDataBR(reg.data)}</div>
+                  <div><span class="info-label">Empresa ID</span>${reg.empresa_id ?? '—'}</div>
+                  <div><span class="info-label">Cadastrado em</span>${reg.log_cadastro_data || '—'}</div>
+                  <div><span class="info-label">Alterado em</span>${reg.log_alterado_data || '—'}</div>
+                </div>
+              </div>
+            </details>`;
+          }).join('');
+        }
+    
+        // -------------------- FORM --------------------
+        abrirForm(modo, idx) {
+          if (!this.autenticado) { this.alert('Nenhum token selecionado (ou expirado). Escolha um no topo da tela — gere em Autenticação se precisar.'); return; }
+          this.view = 'registros';
+          this.modoForm = modo;
+          this.formEdit = modo === 'editar' ? this.dados[idx] : null;
+          const base = modo === 'editar' ? this.dados[idx] : { empresa_id: this.els.fEmpresaId.value || '900002' };
+          const topoHtml = CAMPOS_TOPO.map(c => {
+            const val = (base[c] ?? '').toString().replace(/"/g, '&quot;');
+            // empresa_id + data formam a chave do feriado — imutável na edição (só dá
+            // pra mudar a descrição; pra mudar a data, exclui e cria de novo).
+            const disabled = (c === 'empresa_id' || c === CAMPO_DATA) && modo === 'editar' ? 'disabled' : '';
+            const tipo = c === CAMPO_DATA ? 'date' : 'text';
+            return `<div class="field"><label>${c}</label><input id="qf__${c}" type="${tipo}" value="${val}" ${disabled}></div>`;
+          }).join('');
+          this.els.formContainer.innerHTML = `
+            <div class="form-panel">
+              <div class="card-header">
+                <h3 class="card-title">${modo === 'criar' ? '+ Novo feriado' : `Editar: ${base.descricao || base.data}`}</h3>
+                <button class="btn btn-outline btn-sm" onclick="app.fecharForm()">Fechar</button>
+              </div>
+              <fieldset><legend>Identificação</legend><div class="form-grid">${topoHtml}</div></fieldset>
+              <div class="flex" style="margin-top:12px;">
+                <button class="btn btn-primary" onclick="app.salvar()" id="btnSalvar">
+                  <span id="spinnerSalvar" class="spinner hidden"></span>
+                  <span id="lblSalvar">${modo === 'criar' ? 'Criar' : 'Salvar alterações'}</span>
+                </button>
+                <button class="btn btn-outline" onclick="app.fecharForm()">Cancelar</button>
+                ${modo === 'criar' ? '<button class="btn btn-outline btn-sm ml-auto" onclick="app.preencherAleatorio()">Gerar aleatório</button>' : ''}
+              </div>
+            </div>`;
+          setTimeout(() => this.els.formContainer.querySelector('.form-panel')?.scrollIntoView({behavior:'smooth',block:'start'}), 50);
+        }
+        fecharForm() { this.modoForm = null; this.formEdit = null; this.els.formContainer.innerHTML = ''; }
+        coletarForm() {
+          const out = {};
+          CAMPOS_TOPO.forEach(c => { out[c] = document.getElementById(`qf__${c}`)?.value ?? ''; });
+          return out;
+        }
+        async salvar() {
+          if (!this.autenticado) { this.alert('Nenhum token selecionado (ou expirado). Escolha um no topo da tela — gere em Autenticação se precisar.'); return; }
+          const payload = this.coletarForm();
+          const nomeReq = this.modoForm === 'criar' ? REQ.cria : REQ.atualiza;
+          const btn = document.getElementById('btnSalvar');
+          this.alert('');
+          this.salvando = true;
+          if (btn) this.setLoading(btn, true);
+          try {
+            const res = await this.chamar(nomeReq, payload);
+            const r = this.interpretar(res);
+            if (!r.ok) { this.alert(r.msg); return; }
+            this.alert(this.modoForm === 'criar' ? 'Feriado criado com sucesso.' : 'Feriado atualizado com sucesso.', 'ok');
+            this.fecharForm();
+            this.buscar(false);
+          } catch (err) {
+            this.alert(err.message || String(err));
+          } finally {
+            this.salvando = false;
+            if (btn) this.setLoading(btn, false);
+          }
+        }
+        async excluir(idx) {
+          if (!this.autenticado) { this.alert('Nenhum token selecionado (ou expirado). Escolha um no topo da tela — gere em Autenticação se precisar.'); return; }
+          const reg = this.dados[idx];
+          const ok = await this.confirmar(`Excluir o feriado "${reg.descricao || reg.data}" (${formatarDataBR(reg.data)})? Essa ação não pode ser desfeita.`);
+          if (!ok) return;
+          this.alert('');
+          try {
+            const res = await this.chamar(REQ.remove, { empresa_id: String(reg.empresa_id ?? ''), data: String(reg.data ?? '') });
+            const r = this.interpretar(res);
+            if (!r.ok) { this.alert(r.msg); return; }
+            this.alert('Feriado excluído com sucesso.', 'ok');
+            this.buscar(false);
+          } catch (err) {
+            this.alert(err.message || String(err));
+          }
+        }
+        confirmar(msg) {
+          return new Promise(resolve => {
+            this._resolveConfirm = (v) => { this.els.confirmOverlay.classList.remove('active'); resolve(v); };
+            this.els.confirmMsg.textContent = msg;
+            this.els.confirmOverlay.classList.add('active');
+          });
+        }
+    
+        // -------------------- DADOS ALEATÓRIOS --------------------
+        // Data aleatória num intervalo amplo (2030–2089) pra minimizar colisão na
+        // criação em massa — respeita o número de dias de cada mês (sem 30/31 de
+        // fevereiro). "data" é a chave do feriado; não faz sentido gerar duplicata
+        // pro mesmo empresa_id, mas o intervalo amplo já torna isso muito raro.
+        gerarDadosFeriado(prefixo) {
+          const ano = 2030 + Math.floor(Math.random() * 60);
+          const mes = 1 + Math.floor(Math.random() * 12);
+          const diasNoMes = [31,28,31,30,31,30,31,31,30,31,30,31][mes - 1];
+          const dia = 1 + Math.floor(Math.random() * diasNoMes);
+          const data = `${ano}-${String(mes).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+          const base = DESCRICOES[Math.floor(Math.random()*DESCRICOES.length)];
+          const descricao = ((prefixo ? prefixo + ' ' : '') + base).slice(0, 40);
+          return {
+            empresa_id: this.els.fEmpresaId.value || '900002',
+            data,
+            descricao,
+          };
+        }
+        preencherAleatorio() {
+          const dados = this.gerarDadosFeriado();
+          Object.keys(dados).forEach(k => { if (k !== 'empresa_id') { const el = document.getElementById(`qf__${k}`); if (el) el.value = dados[k]; } });
+        }
+        criacaoRapida() { this.abrirForm('criar'); this.preencherAleatorio(); }
+    
+        // -------------------- TESTES --------------------
+        normalizar(v) { if (v === null || v === undefined) return ''; if (typeof v === 'boolean') return v ? 'true' : 'false'; return String(v); }
+        compararCompleto(enviado, recebido) {
+          const diffs = [];
+          ['empresa_id','data','descricao'].forEach(c => {
+            const e = this.normalizar(enviado[c]), r = this.normalizar(recebido?.[c]);
+            if (e !== r) diffs.push({ campo: c, esperado: e, recebido: r });
+          });
+          return diffs;
+        }
+        iniciarTeste(cat, acao) { this.ultimoTeste = { ts: new Date(), categoria: cat, acao, ok: true, detalhes: '', steps: [] }; }
+        addStep(acao, ok, detalhes, req, res, skipped) {
+          if (!this.ultimoTeste) return;
+          this.ultimoTeste.steps.push({ ts: new Date(), acao, ok: !!ok, skipped: !!skipped, detalhes: detalhes || '', requestJson: req || null, responseJson: res || null });
+          if (!ok && !skipped) this.ultimoTeste.ok = false;
+        }
+        // ultimoTeste é renderizado direto no HTML (x-for sobre ultimoTeste.steps) —
+        // Alpine reage sozinho a essa atribuição, sem precisar de um passo de render.
+        finalizarTeste(det) { if (!this.ultimoTeste) return; if (det) this.ultimoTeste.detalhes = det; if (!this.ultimoTeste.steps.length) this.ultimoTeste.ok = false; }
+        async rodarCicloVida() {
+          if (!this.autenticado) { this.alert('Nenhum token selecionado (ou expirado). Escolha um no topo da tela — gere em Autenticação se precisar.'); return; }
+          this.setLoading(this.els.btnCicloVida, true);
+          this._travarAcoesTeste(true);
+          this.iniciarTeste('CRUD', 'Ciclo de vida completo');
+          const dados = this.gerarDadosFeriado('[TESTE-CICLO]');
+          let dataAlvo = dados.data;
+          // Não existe filtro por data na listagem — busca uma página grande da
+          // empresa e encontra pelo campo "data" no cliente.
+          const buscarPorData = async () => {
+            const res = await this.chamar(REQ.lista, { rt_query: `empresa_id=${dados.empresa_id}&per_page=200&page=1` });
+            const r = this.interpretar(res);
+            if (!r.ok) return null;
+            const lista = Array.isArray(r.body?.retorno) ? r.body.retorno : [];
+            return lista.find(x => String(x.data) === String(dataAlvo)) || null;
+          };
+          try {
+            const resC = await this.chamar(REQ.cria, dados);
+            const rC = this.interpretar(resC);
+            this.addStep('Criar registro', rC.ok, rC.ok ? `Status ${rC.status}` : rC.msg, dados, rC.body);
+            if (!rC.ok) { this.finalizarTeste('Falhou na criação.'); return; }
+            const criado = Array.isArray(rC.body?.retorno) ? rC.body.retorno[0] : rC.body?.retorno;
+            if (!criado?.data) { this.addStep('Verificar data', false, 'Resposta sem data.', null, rC.body); this.finalizarTeste('Criação não retornou data.'); return; }
+            dataAlvo = criado.data;
+            this.addStep('Verificar data', true, `data = ${dataAlvo}`, null, null);
+            this.testSessionIds.push({ data: dataAlvo, empresa_id: dados.empresa_id });
+            this._atualizarBtnLimparMassa();
+    
+            const enc1 = await buscarPorData();
+            if (!enc1) { this.addStep('Buscar após criar', false, 'Não encontrado.', {rt_query:`empresa_id=${dados.empresa_id}&per_page=200`}, null); this.finalizarTeste('Sumiu após criação.'); return; }
+            const d1 = this.compararCompleto(dados, enc1);
+            if (d1.length) { this.addStep('Buscar após criar', false, `${d1.length} divergência(s):\n` + d1.map(x => `• ${x.campo}: enviado "${x.esperado}" → recebido "${x.recebido}"`).join('\n'), {rt_query:`empresa_id=${dados.empresa_id}&per_page=200`}, enc1); this.finalizarTeste('Divergência após criação.'); return; }
+            this.addStep('Buscar após criar', true, 'Todos os campos bateram.', {rt_query:`empresa_id=${dados.empresa_id}&per_page=200`}, enc1);
+    
+            // A data (chave) não muda numa atualização — só a descrição.
+            const novaDescricao = this.gerarDadosFeriado('[TESTE-CICLO-EDITADO]').descricao;
+            const dadosAt = { empresa_id: dados.empresa_id, data: dataAlvo, descricao: novaDescricao };
+            const resA = await this.chamar(REQ.atualiza, dadosAt);
+            const rA = this.interpretar(resA);
+            this.addStep('Atualizar registro', rA.ok, rA.ok ? `Status ${rA.status}` : rA.msg, dadosAt, rA.body);
+            if (!rA.ok) { this.finalizarTeste('Falhou na atualização.'); return; }
+    
+            const enc2 = await buscarPorData();
+            if (!enc2) { this.addStep('Buscar após editar', false, 'Não encontrado.', {rt_query:`empresa_id=${dados.empresa_id}&per_page=200`}, null); this.finalizarTeste('Sumiu após edição.'); return; }
+            const d2 = this.compararCompleto(dadosAt, enc2);
+            if (d2.length) { this.addStep('Buscar após editar', false, `${d2.length} divergência(s):\n` + d2.map(x => `• ${x.campo}: enviado "${x.esperado}" → recebido "${x.recebido}"`).join('\n'), {rt_query:`empresa_id=${dados.empresa_id}&per_page=200`}, enc2); this.finalizarTeste('Divergência após edição.'); return; }
+            this.addStep('Buscar após editar', true, 'Todos os campos bateram.', {rt_query:`empresa_id=${dados.empresa_id}&per_page=200`}, enc2);
+    
+            const resE = await this.chamar(REQ.remove, { empresa_id: String(dados.empresa_id), data: String(dataAlvo) });
+            const rE = this.interpretar(resE);
+            this.addStep('Excluir registro', rE.ok, rE.ok ? `Status ${rE.status}` : rE.msg, {empresa_id: dados.empresa_id, data: dataAlvo}, rE.body);
+            if (!rE.ok) { this.finalizarTeste('Falhou na exclusão.'); return; }
+            this.testSessionIds = this.testSessionIds.filter(x => String(x.data) !== String(dataAlvo));
+            this._atualizarBtnLimparMassa();
+    
+            const enc3 = await buscarPorData();
+            if (enc3) { this.addStep('Confirmar exclusão', false, 'Ainda aparece na busca.', {rt_query:`empresa_id=${dados.empresa_id}&per_page=200`}, enc3); this.finalizarTeste('Persistiu após exclusão.'); return; }
+            this.addStep('Confirmar exclusão', true, 'Registro não encontrado após exclusão.', {rt_query:`empresa_id=${dados.empresa_id}&per_page=200`}, null);
+    
+            this.finalizarTeste(`Ciclo completo: criado (${dataAlvo}) → buscado → editado → buscado → excluído → confirmado. Todos os campos bateram.`);
+          } catch (err) {
+            this.addStep('Erro inesperado', false, err.message || String(err), null, null);
+            this.finalizarTeste('Erro inesperado durante o teste.');
+          } finally {
+            this.setLoading(this.els.btnCicloVida, false);
+            this._travarAcoesTeste(false);
+          }
+        }
+        _atualizarBtnLimparMassa() {
+          const btn = this.els.btnLimparMassa;
+          if (!btn) return;
+          const n = this.testSessionIds.length;
+          btn.textContent = n > 0 ? `Limpar ${n} registro${n === 1 ? '' : 's'} desta sessão` : 'Limpar dados desta sessão';
+        }
+        _travarAcoesTeste(travado) {
+          // Garante exclusão mútua: enquanto qualquer uma das 3 ações de teste está
+          // rodando, nenhuma das outras pode ser disparada por cima. A reabilitação
+          // final ainda respeita o estado de autenticação (ver _sincronizarBotoesAcao).
+          this._acoesTravadas = travado;
+          this._sincronizarBotoesAcao();
+        }
+        async criarMassa() {
+          if (!this.autenticado) { this.alert('Nenhum token selecionado (ou expirado). Escolha um no topo da tela — gere em Autenticação se precisar.'); return; }
+          const n = Math.max(1, Math.min(200, parseInt(this.els.massaQtd.value || '10', 10)));
+          const prefixo = `[TESTE-MASSA-${Date.now()}]`;
+          this.massando = true;
+          this._travarAcoesTeste(true);
+          if (this.els.spinnerMassa) this.els.spinnerMassa.classList.remove('hidden');
+          try {
+            this.iniciarTeste('Massa', `Criação em massa (${n} solicitados)`);
+            this.els.massaProgresso.innerHTML = '<span class="spinner spinner-dark"></span> Iniciando...';
+            this.els.massaProgresso.classList.add('ativo');
+            let ok = 0, fail = 0;
+            for (let i = 0; i < n; i++) {
+              this.els.massaProgresso.innerHTML = `<span class="spinner spinner-dark"></span> Criando ${i+1} de ${n}... (${ok} ok, ${fail} falha)`;
+              const d = this.gerarDadosFeriado(prefixo);
+              try {
+                const res = await this.chamar(REQ.cria, d);
+                const r = this.interpretar(res);
+                this.addStep(`Criar #${i+1}`, r.ok, r.ok ? `Status ${r.status}` : r.msg, d, r.body);
+                if (r.ok) { const c = Array.isArray(r.body?.retorno) ? r.body.retorno[0] : r.body?.retorno; if (c?.data) this.testSessionIds.push({data: c.data, empresa_id: d.empresa_id}); ok++; this._atualizarBtnLimparMassa(); }
+                else fail++;
+              } catch (err) { fail++; this.addStep(`Criar #${i+1}`, false, err.message || String(err), d, null); }
+              await esperar(200);
+            }
+            this.els.massaProgresso.innerHTML = `Concluído: ${ok} criado(s), ${fail} falha(s).`;
+            this.els.massaProgresso.classList.remove('ativo');
+            this._atualizarBtnLimparMassa();
+            this.finalizarTeste(`${ok} criado(s), ${fail} falha(s) de ${n} solicitado(s). Prefixo: ${prefixo}`);
+          } finally {
+            this.massando = false;
+            if (this.els.spinnerMassa) this.els.spinnerMassa.classList.add('hidden');
+            this._travarAcoesTeste(false);
+          }
+        }
+        async limparMassa() {
+          if (!this.autenticado) { this.alert('Nenhum token selecionado (ou expirado). Escolha um no topo da tela — gere em Autenticação se precisar.'); return; }
+          if (this.testSessionIds.length === 0) { this.iniciarTeste('Limpeza', 'Limpar dados de teste'); this.addStep('Verificar', true, 'Nenhum registro rastreado.', null, null); this.finalizarTeste('Nenhum registro rastreado.'); return; }
+          const conf = await this.confirmar(`Excluir ${this.testSessionIds.length} registro(s) de teste? Essa ação não pode ser desfeita.`);
+          if (!conf) return;
+          this.massando = true;
+          this._travarAcoesTeste(true);
+          try {
+            const pendentes = [...this.testSessionIds];
+            this.iniciarTeste('Limpeza', 'Limpar dados de teste');
+            let ok = 0, fail = 0;
+            this.els.massaProgresso.innerHTML = '<span class="spinner spinner-dark"></span> Iniciando limpeza...';
+            this.els.massaProgresso.classList.add('ativo');
+            for (const item of pendentes) {
+              this.els.massaProgresso.innerHTML = `<span class="spinner spinner-dark"></span> Excluindo ${ok+fail+1} de ${pendentes.length}... (${ok} ok, ${fail} falha)`;
+              const req = { empresa_id: item.empresa_id, data: item.data };
+              try {
+                const res = await this.chamar(REQ.remove, req);
+                const r = this.interpretar(res);
+                this.addStep(`Excluir ${item.data}`, r.ok, r.ok ? `Status ${r.status}` : r.msg, req, r.body);
+                if (r.ok) { ok++; this.testSessionIds = this.testSessionIds.filter(x => String(x.data) !== String(item.data)); this._atualizarBtnLimparMassa(); }
+                else fail++;
+              } catch (err) { fail++; this.addStep(`Excluir ${item.data}`, false, err.message || String(err), req, null); }
+              await esperar(150);
+            }
+            this.els.massaProgresso.innerHTML = `Limpeza concluída: ${ok} excluído(s), ${fail} falha(s).`;
+            this.els.massaProgresso.classList.remove('ativo');
+            this._atualizarBtnLimparMassa();
+            this.finalizarTeste(`${ok} excluído(s), ${fail} falha(s).`);
+            this.buscar(false);
+          } finally {
+            this.massando = false;
+            this._travarAcoesTeste(false);
+          }
+        }
+        _formatarRelatorioTeste(t) {
+          const linhas = [];
+          linhas.push(`${t.ok ? 'SUCESSO' : 'FALHA'} — [${t.categoria}] ${t.acao}`);
+          linhas.push(`Data: ${t.ts.toLocaleString('pt-BR')}`);
+          if (t.detalhes) linhas.push(`Resumo: ${t.detalhes}`);
+          linhas.push('');
+          linhas.push('Passos:');
+          t.steps.forEach((s, i) => {
+            const status = s.ok ? 'OK' : (s.skipped ? 'SKIP' : 'FALHA');
+            const hora = s.ts ? s.ts.toLocaleTimeString('pt-BR') : '';
+            linhas.push('');
+            linhas.push(`${i + 1}. [${status}] ${s.acao}${hora ? ` (${hora})` : ''}`);
+            if (s.detalhes) {
+              String(s.detalhes).split('\n').forEach(l => linhas.push(`   ${l}`));
+            }
+            if (s.requestJson) {
+              linhas.push('   Request enviado:');
+              JSON.stringify(s.requestJson, null, 2).split('\n').forEach(l => linhas.push(`   ${l}`));
+            }
+            if (s.responseJson) {
+              linhas.push('   Response recebido:');
+              JSON.stringify(s.responseJson, null, 2).split('\n').forEach(l => linhas.push(`   ${l}`));
+            }
+          });
+          return linhas.join('\n');
+        }
+        async _copiarTexto(texto) {
+          // 1) Clipboard API moderna (pode ser bloqueada dentro do iframe do widget)
+          try {
+            if (navigator.clipboard && window.isSecureContext) {
+              await navigator.clipboard.writeText(texto);
+              this.alert('Relatório copiado para a área de transferência.', 'ok');
+              return;
+            }
+          } catch (e) { /* segue para o fallback */ }
+          // 2) Fallback via execCommand (funciona em mais contextos restritos)
+          try {
+            const temp = document.createElement('textarea');
+            temp.value = texto;
+            temp.style.position = 'fixed';
+            temp.style.opacity = '0';
+            document.body.appendChild(temp);
+            temp.focus();
+            temp.select();
+            const ok = document.execCommand('copy');
+            document.body.removeChild(temp);
+            if (ok) { this.alert('Relatório copiado para a área de transferência.', 'ok'); return; }
+          } catch (e) { /* segue para o último recurso */ }
+          // 3) Último recurso: mostra o texto pronto para o usuário copiar manualmente (Ctrl+C)
+          this._mostrarTextoParaCopiar(texto);
+        }
+        _mostrarTextoParaCopiar(texto) {
+          const overlay = this.els.textoCopiaOverlay;
+          const area = this.els.textoCopiaArea;
+          if (!overlay || !area) { this.alert('Não foi possível copiar automaticamente.'); return; }
+          area.value = texto;
+          overlay.classList.add('active');
+          setTimeout(() => { area.focus(); area.select(); }, 50);
+        }
+        copiarTeste() {
+          if (!this.ultimoTeste) { this.alert('Nenhum teste executado.'); return; }
+          this._copiarTexto(this._formatarRelatorioTeste(this.ultimoTeste));
+        }
+        // -------------------- TESTE DE PERMISSÃO --------------------
+        // Prepara um registro com o token ATIVO (para garantir que exista algo a atualizar/excluir)
+        // e então tenta as 3 operações de escrita usando o token de PARCEIRO — o esperado é 401/403
+        // nas três. Não deixa nada para trás: limpa o registro auxiliar com o token selecionado ao final.
+        // Não depende do token selecionado no topo — usa SCI (escrita, pra preparar
+        // e limpar o registro auxiliar) e Parceiro (as tentativas que devem falhar)
+        // sempre direto dos respectivos slots, explicitamente, via chamarComToken.
+        // É por isso que o botão só habilita quando os dois existem e são válidos.
+        async rodarTestePermissao() {
+          const tokenSci = this.slots.sci.token;
+          const tokenParceiro = this.slots.parceiro.token;
+          if (!this._tokenValido('sci') || !this._tokenValido('parceiro')) {
+            this.alert('Precisa de um token válido nos slots "Sistema SCI" e "Sistema Parceiro" (gerados em Autenticação) para rodar este teste.');
+            return;
+          }
+
+          this.setLoading(this.els.btnTestePermissao, true);
+          this._travarAcoesTeste(true);
+          this.iniciarTeste('Permissão', 'Token Parceiro deve ser bloqueado em escrita');
+          let dadosBase = null;
+          let dataTeste = null;
+          try {
+            dadosBase = this.gerarDadosFeriado('[TESTE-PERMISSAO]');
+            const resBase = await this.chamarComToken(REQ.cria, dadosBase, tokenSci);
+            const rBase = this.interpretar(resBase);
+            if (!rBase.ok) {
+              this.addStep('Preparar registro auxiliar (token SCI)', false, 'Não foi possível criar o registro auxiliar com o token SCI — confira se ele ainda tem permissão de escrita.\n' + rBase.msg, dadosBase, rBase.body);
+              this.finalizarTeste('Abortado: sem permissão de escrita no token SCI para preparar o teste.');
+              return;
+            }
+            const criado = Array.isArray(rBase.body?.retorno) ? rBase.body.retorno[0] : rBase.body?.retorno;
+            dataTeste = criado?.data ?? dadosBase.data;
+            this.addStep('Preparar registro auxiliar (token SCI)', true, `Registro data=${dataTeste} criado, servirá de alvo dos testes abaixo.`, dadosBase, rBase.body);
+            if (dataTeste) { this.testSessionIds.push({ data: dataTeste, empresa_id: dadosBase.empresa_id }); this._atualizarBtnLimparMassa(); }
+
+            const dadosCria = this.gerarDadosFeriado('[TESTE-PERMISSAO-CRIA]');
+            const resCria = await this.chamarComToken(REQ.cria, dadosCria, tokenParceiro);
+            const rCria = this.interpretar(resCria);
+            const bloqueadoCria = [401, 403].includes(rCria.status);
+            this.addStep('POST com token Parceiro', bloqueadoCria, bloqueadoCria ? `Bloqueado corretamente (status ${rCria.status}).` : `FALHA DE SEGURANÇA: token Parceiro conseguiu criar (status ${rCria.status}).`, dadosCria, rCria.body);
+            if (!bloqueadoCria) {
+              const criadoIndevido = Array.isArray(rCria.body?.retorno) ? rCria.body.retorno[0] : rCria.body?.retorno;
+              if (criadoIndevido?.data) await this.chamarComToken(REQ.remove, { empresa_id: String(dadosCria.empresa_id), data: String(criadoIndevido.data) }, tokenSci);
+            }
+
+            const dadosAt = { empresa_id: dadosBase.empresa_id, data: dataTeste, descricao: '[TESTE-PERMISSAO-DEVERIA-FALHAR]' };
+            const resAt = await this.chamarComToken(REQ.atualiza, dadosAt, tokenParceiro);
+            const rAt = this.interpretar(resAt);
+            const bloqueadoAt = [401, 403].includes(rAt.status);
+            this.addStep('PUT com token Parceiro', bloqueadoAt, bloqueadoAt ? `Bloqueado corretamente (status ${rAt.status}).` : `FALHA DE SEGURANÇA: token Parceiro conseguiu atualizar (status ${rAt.status}).`, dadosAt, rAt.body);
+
+            const resDel = await this.chamarComToken(REQ.remove, { empresa_id: String(dadosBase.empresa_id), data: String(dataTeste) }, tokenParceiro);
+            const rDel = this.interpretar(resDel);
+            const bloqueadoDel = [401, 403].includes(rDel.status);
+            this.addStep('DELETE com token Parceiro', bloqueadoDel, bloqueadoDel ? `Bloqueado corretamente (status ${rDel.status}).` : `FALHA DE SEGURANÇA: token Parceiro conseguiu excluir (status ${rDel.status}).`, { empresa_id: dadosBase.empresa_id, data: dataTeste }, rDel.body);
+
+            const tudoBloqueado = bloqueadoCria && bloqueadoAt && bloqueadoDel;
+            this.finalizarTeste(tudoBloqueado ? 'Permissões corretas: o token Parceiro foi bloqueado em todas as operações de escrita.' : 'ATENÇÃO: o token Parceiro conseguiu executar pelo menos uma operação de escrita — revisar permissões na API.');
+          } catch (err) {
+            this.addStep('Erro inesperado', false, err.message || String(err), null, null);
+            this.finalizarTeste('Erro inesperado durante o teste de permissão.');
+          } finally {
+            if (dataTeste) {
+              try {
+                await this.chamarComToken(REQ.remove, { empresa_id: String(dadosBase?.empresa_id || this.els.fEmpresaId.value), data: String(dataTeste) }, tokenSci);
+                this.testSessionIds = this.testSessionIds.filter(x => String(x.data) !== String(dataTeste));
+                this._atualizarBtnLimparMassa();
+              } catch (e) {}
+            }
+            this.setLoading(this.els.btnTestePermissao, false);
+            this._travarAcoesTeste(false);
+          }
+        }
+        // Chamado por Alpine (x-init="init()") assim que o elemento é processado —
+        // já com `this` apontando para o proxy reativo. Guardamos a referência em
+        // `app` (variável de módulo) porque bru.ctx.onInit e os onclick="app.foo()"
+        // embutidos nos cards/formulário (fora de qualquer diretiva Alpine) precisam
+        // desse mesmo proxy — não do objeto "cru" que existia durante o construtor.
+        init() {
+          app = this;
+          bru.ctx.onInit = async () => {
+            try {
+              const todas = await bru.ctx.listRequests();
+              todas.forEach(r => { app.mapaRequests[r.name] = r.pathname; });
+              const faltando = Object.values(REQ).filter(n => !app.mapaRequests[n]);
+              app.setStatus(faltando.length ? `Atenção: request(s) não encontrada(s): ${faltando.join(', ')}. Confira se o nome bate exatamente.` : '');
+            } catch (err) {
+              app.setStatus('Erro ao listar requests: ' + (err.message || err));
+            }
+            app.ctxPronto = true;
+            app.els.lblBuscar.textContent = 'Buscar dados';
+            // Os 3 tokens são lidos do ambiente compartilhado (gerados no app
+            // Autenticação) — este app não loga, só lê e deixa escolher qual usar.
+            app.atualizarEstadoDe(bru.ctx.variables.resolved);
+            app._restaurarSelecao();
+            // Se a aba foi recarregada pelo Bruno (webview remontada), devolve filtros e
+            // resultados da última busca — ver _persistirEstadoBusca/_restaurarEstadoBusca.
+            app._restaurarEstadoBusca();
+          };
+          // Se algum token mudar (ex.: usuário gera/atualiza um slot em Autenticação
+          // enquanto esta aba também está aberta), reflete sem precisar clicar em nada.
+          let debounceStatus = null;
+          bru.ctx.onVariablesChange = () => {
+            clearTimeout(debounceStatus);
+            debounceStatus = setTimeout(() => app.atualizarEstadoDe(bru.ctx.variables.resolved), 350);
+          };
+        }
+      }
+    </script>
+    </body>
+    </html>

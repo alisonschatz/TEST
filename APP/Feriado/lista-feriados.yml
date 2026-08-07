@@ -1,0 +1,21 @@
+info:
+  name: lista-feriados
+  type: http
+  seq: 1
+  tags:
+    - Feriado
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/feriados?{{rt_query}}"
+  auth:
+    type: bearer
+    token: "{{token_app}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: Retorna uma lista paginada de feriados cadastrados no sistema. Pode ser filtrado por empresa ou data. Ideal para exibir no calendário da aplicação ou controlar dias não úteis.

@@ -1,0 +1,29 @@
+info:
+  name: atualiza-feriados
+  type: http
+  seq: 3
+  tags:
+    - Feriado
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/v1/feriados"
+  body:
+    type: json
+    data: |-
+      {
+        "empresa_id": "{{empresa_id}}",
+        "data": "{{data}}",
+        "descricao": "{{descricao}}"
+      }
+  auth:
+    type: bearer
+    token: "{{token_app}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: Atualiza os dados de um feriado específico, identificado pela data. Pode ser utilizada para corrigir a descrição. É necessário informar todos os campos obrigatórios no corpo da requisição.

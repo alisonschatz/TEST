@@ -1,0 +1,33 @@
+info:
+  name: cria-feriados
+  type: http
+  seq: 2
+  tags:
+    - Feriado
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/feriados"
+  body:
+    type: json
+    data: |-
+      {
+        "dados": [
+          {
+            "empresa_id": "{{empresa_id}}",
+            "data": "{{data}}",
+            "descricao": "{{descricao}}"
+          }
+        ]
+      }
+  auth:
+    type: bearer
+    token: "{{token_app}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: Permite cadastrar múltiplos feriados de uma só vez através de um array de dados. Cada item deve conter as informações obrigatórias descritas no schema. É útil para registrar calendários completos em um único envio.
