@@ -4,3 +4,39 @@ variables:
     value: https://api2.rhnetsocial.com.br
   - name: authUrl
     value: https://api-auth.sci.com.br/api
+  - name: token_sistema_unico
+    value:
+  - name: token_sistema_practice
+    value:
+  - name: token_sistema_parceiro
+    value:
+  - name: token_contexto_cliente_unico
+    value:
+  - name: token_contexto_adm_unico
+    value:
+  - name: token_contexto_cliente_practice
+    value:
+  - name: token_contexto_adm_practice
+    value:
+  - secret: true
+    name: slot_sci_token
+  - secret: true
+    name: slot_sci_perfil
+  - secret: true
+    name: slot_sci_expira_em
+  - secret: true
+    name: slot_sci_escolha
+  - secret: true
+    name: slot_parceiro_token
+  - secret: true
+    name: slot_parceiro_perfil
+  - secret: true
+    name: slot_parceiro_expira_em
+  - secret: true
+    name: slot_parceiro_escolha
+  - secret: true
+    name: username_app
+  - secret: true
+    name: password_app
+  - secret: true
+    name: tipo_perfil
