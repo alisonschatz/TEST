@@ -4,8 +4,6 @@ variables:
     value: https://api-rhnet-hml.sci.com.br
   - name: authUrl
     value: https://api-auth-hml.sci.com.br
-  - name: usarDadosAleatorios
-    value: "true"
   - name: token_sistema_unico
     value: 1547|hiItEus0L9C1s4IbUOLs9QZm8uYoSLUS0yxMBJSf
   - name: token_sistema_practice
@@ -21,9 +19,9 @@ variables:
   - name: token_contexto_adm_practice
     value: 1553|Oy6O94f3ew4v5Pt6zoM8lVbWzJOkdA9MqiBVxmfS
   - name: perfil_ativo
-    value: Personalizado (sistema parceiro)
+    value: parceiro_cliente_unico
   - name: modo_acesso
-    value: personalizado
+    value: parceiro
   - secret: true
     name: token_app
   - secret: true
