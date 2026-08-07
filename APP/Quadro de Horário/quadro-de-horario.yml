@@ -195,20 +195,6 @@ code: |2-
           </button>
         </div>
     
-        <div class="card">
-          <h3 class="card-title">Geração de massa</h3>
-          <p class="hint">Cria vários registros de uma vez, marcados com prefixo identificável. Todos ficam rastreados nesta sessão.</p>
-          <div class="flex align-end">
-            <div class="field" style="max-width:110px;"><label>Quantidade</label><input type="number" min="1" max="200" id="massaQtd" value="10"></div>
-            <button class="btn btn-primary" id="btnMassa" @click="criarMassa()" disabled>
-              <span id="spinnerMassa" class="spinner hidden"></span>
-              Criar em massa
-            </button>
-            <button class="btn btn-danger" id="btnLimparMassa" @click="limparMassa()" disabled>Limpar dados desta sessão</button>
-          </div>
-          <div id="massaProgresso" class="progresso"></div>
-        </div>
-
         <div class="card" style="border-left:3px solid var(--red);">
           <h3 class="card-title">Teste de permissão (token Parceiro)</h3>
           <p class="hint">
@@ -221,6 +207,20 @@ code: |2-
             <span id="lblPermissao">Rodar teste de permissão</span>
           </button>
           <div x-text="permissaoAviso()" style="margin-top:8px;font-size:12px;color:var(--muted);"></div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Geração de massa</h3>
+          <p class="hint">Cria vários registros de uma vez, marcados com prefixo identificável. Todos ficam rastreados nesta sessão.</p>
+          <div class="flex align-end">
+            <div class="field" style="max-width:110px;"><label>Quantidade</label><input type="number" min="1" max="200" id="massaQtd" value="10"></div>
+            <button class="btn btn-primary" id="btnMassa" @click="criarMassa()" disabled>
+              <span id="spinnerMassa" class="spinner hidden"></span>
+              Criar em massa
+            </button>
+            <button class="btn btn-danger" id="btnLimparMassa" @click="limparMassa()" disabled>Limpar dados desta sessão</button>
+          </div>
+          <div id="massaProgresso" class="progresso"></div>
         </div>
     
         <div class="card">
